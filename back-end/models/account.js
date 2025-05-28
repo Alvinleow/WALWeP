@@ -12,6 +12,18 @@ const AccountSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    phone: {
+      type: String,
+      required: true,
+    },
+    schoolName: {
+      type: String,
+      required: true,
+    },
+    dob: {
+      type: Date,
+      required: true,
+    },
     password: {
       type: String,
       required: true,

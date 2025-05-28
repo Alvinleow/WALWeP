@@ -19,7 +19,8 @@
       </div>
       <button type="submit" class="login-button">Login</button>
       <p class="switch-form">
-        Don't have an account? <a @click.prevent="switchToRegister" href="#">Register here</a>
+        Don't have an account?
+        <a @click.prevent="switchToRegister" href="#">Register here</a>
       </p>
     </form>
   </div>
@@ -50,7 +51,8 @@ export default {
         this.$router.push("/home");
       } catch (error) {
         console.error("Error logging in:", error);
-        this.loginError = "Failed to login. Please check your email and password.";
+        this.loginError =
+          "Failed to login. Please check your email and password.";
       }
     },
     switchToRegister() {
@@ -62,9 +64,8 @@ export default {
 
 <style scoped>
 .login-section {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: static;
+  transform: none;
 }
 
 .login-form {
@@ -72,7 +73,7 @@ export default {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 300px;
+  width: 400px;
 }
 
 .login-form h2 {

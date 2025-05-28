@@ -44,8 +44,16 @@ exports.getAccountByID = async (req, res) => {
 
 // Register account
 exports.createAccount = async (req, res) => {
-  const { username, email, password, completedCourses, accountLevel } =
-    req.body;
+  const {
+    username,
+    email,
+    password,
+    completedCourses,
+    accountLevel,
+    phone,
+    schoolName,
+    dob,
+  } = req.body;
 
   try {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -55,6 +63,9 @@ exports.createAccount = async (req, res) => {
       password: hashedPassword,
       completedCourses,
       accountLevel,
+      phone,
+      schoolName,
+      dob,
       profilePicUrl:
         "https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png",
     });
@@ -135,7 +146,7 @@ exports.deleteAccount = async (req, res) => {
     const account = await Account.findById(req.params.id);
     if (!account) return res.status(404).json({ message: "Account not found" });
 
-await account.deleteOne();
+    await account.deleteOne();
     res.json({ message: "Account deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });
