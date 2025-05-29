@@ -95,6 +95,8 @@ exports.createAccount = async (req, res) => {
 exports.loginAccount = async (req, res) => {
   const { email, password } = req.body;
 
+  console.log("Login request received:", email, password); // ✅ Add this for debug
+
   try {
     const account = await Account.findOne({ email });
     if (!account) {
@@ -108,6 +110,7 @@ exports.loginAccount = async (req, res) => {
 
     res.json({ message: "Login successful", account });
   } catch (err) {
+    console.error("Login error:", err); // ✅ Add this
     res.status(500).json({ message: err.message });
   }
 };

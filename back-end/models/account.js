@@ -17,6 +17,10 @@ const AccountSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    password: {
+      type: String,
+      required: false,
+    },
     phone: {
       type: String,
       required: true,

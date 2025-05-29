@@ -43,6 +43,32 @@ export default {
   methods: {
     ...mapMutations(["SET_USER"]),
     async handleLogin() {
+      if (this.email === "admin@gmail.com") {
+        try {
+          const response = await axios.post(
+            "http://localhost:8081/api/accounts/login",
+            {
+              email: this.email,
+              password: this.password,
+            }
+          );
+
+          const backendUser = response.data.account;
+
+          if (!backendUser || !backendUser._id) {
+            this.loginError = "Admin account not found.";
+            return;
+          }
+
+          this.SET_USER(backendUser);
+          this.$router.push("/home");
+        } catch (error) {
+          console.error("Admin login error:", error);
+          this.loginError = "Invalid admin credentials.";
+        }
+        return;
+      }
+
       const auth = getAuth();
 
       try {
