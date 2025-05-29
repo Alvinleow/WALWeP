@@ -1,5 +1,5 @@
 {
-  "name": "wt_project",
+  "name": "walwep",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,7 +8,7 @@
     "lint": "vue-cli-service lint",
     "start": "concurrently \"npm run server\" \"npm run client\"",
     "server": "cd back-end && node app.js",
-    "client": "cd front-end && npm run serve"
+    "client": "cd front-end && npm run serve -- --port 8082"
   },
   "dependencies": {
     "@firebasegen/default-connector": "file:dataconnect-generated/js/default-connector",
