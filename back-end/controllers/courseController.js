@@ -159,7 +159,7 @@ exports.addLesson = async (req, res) => {
 };
 
 exports.updateLesson = async (req, res) => {
-  const { content } = req.body;
+  const { content, codeExample } = req.body;
   const { courseId, lessonId } = req.params;
 
   try {
@@ -170,6 +170,7 @@ exports.updateLesson = async (req, res) => {
     if (!lesson) return res.status(404).json({ message: "Lesson not found" });
 
     lesson.content = content;
+    lesson.codeExample = codeExample;
 
     await course.save();
 

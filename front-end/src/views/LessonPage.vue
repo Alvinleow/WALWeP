@@ -35,6 +35,19 @@
           <div v-if="selectedLesson" class="lesson-container">
             <h3 class="lesson-title">{{ selectedLesson.title }}</h3>
             <div v-html="selectedLesson.content" class="lesson-text"></div>
+            <div v-if="selectedLesson.codeExample">
+              <h4 class="example-title">Example Code:</h4>
+              <div class="example-box">
+                <pre class="example-code">{{ selectedLesson.codeExample }}</pre>
+              </div>
+              <button
+                v-if="selectedLesson.codeExample"
+                class="try-button"
+                @click="tryExample"
+              >
+                Try it Yourself
+              </button>
+            </div>
           </div>
           <div v-else class="empty-content-message">
             <h2>Please select a lesson to view or edit its content.</h2>
@@ -88,8 +101,12 @@
       <!-- Edit Lesson Modal -->
       <div v-if="showEditLessonModalWindow" class="modal-overlay">
         <div class="modal">
-          <h2>Edit Lesson Content</h2>
+          <h2 style="text-align: center">Edit Lesson Content</h2>
           <div ref="quillEditor" class="quill-editor"></div>
+
+          <label>Code Example (HTML/CSS/JS):</label>
+          <div ref="codeEditor" class="code-editor-container"></div>
+
           <button @click="saveLessonContent">Save</button>
           <button type="button" @click="closeEditLessonModal">Cancel</button>
         </div>
@@ -123,6 +140,11 @@ import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import { mapState } from "vuex";
 
+import CodeMirror from "codemirror";
+import "codemirror/lib/codemirror.css";
+import "codemirror/theme/monokai.css";
+import "codemirror/mode/htmlmixed/htmlmixed.js";
+
 export default {
   name: "LessonPage",
   components: {
@@ -136,6 +158,8 @@ export default {
       showDeleteLessonModalWindow: false,
       showFinishModal: false,
       newLessonTitle: "",
+      editableCodeExample: "",
+      codeMirrorInstance: null,
       selectedLesson: null,
       selectedLessonIndex: -1,
       quill: null,
@@ -214,6 +238,7 @@ export default {
     },
     showEditLessonModal() {
       this.showEditLessonModalWindow = true;
+
       this.$nextTick(() => {
         this.quill = new Quill(this.$refs.quillEditor, {
           theme: "snow",
@@ -227,7 +252,16 @@ export default {
         if (this.selectedLesson) {
           this.quill.root.innerHTML = this.selectedLesson.content;
         }
+
+        this.codeMirrorInstance = CodeMirror(this.$refs.codeEditor, {
+          value: this.selectedLesson.codeExample || "",
+          mode: "htmlmixed",
+          lineNumbers: true,
+          theme: "monokai",
+          tabSize: 2,
+        });
       });
+      this.editableCodeExample = this.selectedLesson.codeExample || "";
     },
     closeEditLessonModal() {
       this.showEditLessonModalWindow = false;
@@ -236,11 +270,19 @@ export default {
     async saveLessonContent() {
       if (this.selectedLesson) {
         try {
+          const updatedCode = this.codeMirrorInstance.getValue();
+          this.editableCodeExample = updatedCode;
+
           const response = await axios.put(
             `http://localhost:8081/api/courses/${this.courseId}/lessons/${this.selectedLesson._id}`,
-            { content: this.quill.root.innerHTML }
+            {
+              content: this.quill.root.innerHTML,
+              codeExample: updatedCode,
+            }
           );
+
           this.selectedLesson.content = this.quill.root.innerHTML;
+          this.selectedLesson.codeExample = this.editableCodeExample;
           this.lessons = response.data.lessons;
           this.closeEditLessonModal();
         } catch (error) {
@@ -359,6 +401,14 @@ export default {
       } catch (error) {
         console.error("Error fetching quiz ID:", error);
       }
+    },
+    tryExample() {
+      this.$router.push({
+        name: "CodeEditor",
+        query: {
+          code: encodeURIComponent(this.selectedLesson.codeExample || ""),
+        },
+      });
     },
   },
 };
@@ -494,12 +544,16 @@ export default {
 }
 
 .modal {
+  display: flex;
+  flex-direction: column;
   background: #000;
   color: #fff;
   padding: 20px;
   border-radius: 10px;
-  max-width: 500px;
-  text-align: center;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  width: 90%;
 }
 
 .modal button {
@@ -515,7 +569,6 @@ export default {
 .modal button:first-of-type {
   background-color: #42b983;
   color: white;
-  margin-right: 10px;
 }
 
 .modal button:first-of-type:hover {
@@ -541,9 +594,21 @@ export default {
   font-size: 1.2rem; /* Increased font size */
 }
 
-.quill-editor {
-  height: 200px;
+.quill-editor,
+.code-editor-container {
+  flex-shrink: 0;
+  min-height: 150px;
+  max-height: 250px;
+  overflow-y: auto;
   margin-bottom: 20px;
+}
+
+.CodeMirror {
+  height: auto !important;
+  min-height: 150px;
+  max-height: 250px;
+  border-radius: 5px;
+  font-size: 14px;
 }
 
 .action-buttons {
@@ -564,5 +629,71 @@ export default {
 .lesson-text {
   font-size: 1.2rem;
   margin-bottom: 20px;
+}
+
+.example-title {
+  font-size: 1.25rem;
+  margin-bottom: 10px;
+}
+
+.example-box {
+  background-color: #1e293b; /* dark blue-gray */
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 15px;
+  overflow-x: auto;
+  margin-bottom: 15px;
+}
+
+.example-code {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 14px;
+  color: #f8f8f2;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.try-button {
+  background-color: #10b981; /* emerald-500 */
+  color: white;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.try-button:hover {
+  background-color: #059669; /* emerald-600 */
+}
+
+/* WebKit-based browsers (Chrome, Safari, Edge) */
+.modal::-webkit-scrollbar,
+.quill-editor::-webkit-scrollbar,
+.code-editor-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.modal::-webkit-scrollbar-track,
+.quill-editor::-webkit-scrollbar-track,
+.code-editor-container::-webkit-scrollbar-track {
+  background: #1e1e1e; /* Track background */
+  border-radius: 10px;
+}
+
+.modal::-webkit-scrollbar-thumb,
+.quill-editor::-webkit-scrollbar-thumb,
+.code-editor-container::-webkit-scrollbar-thumb {
+  background-color: #42b983; /* Scrollbar thumb color */
+  border-radius: 10px;
+  border: 2px solid #1e1e1e; /* Optional: padding around thumb */
+}
+
+.modal::-webkit-scrollbar-thumb:hover,
+.quill-editor::-webkit-scrollbar-thumb:hover,
+.code-editor-container::-webkit-scrollbar-thumb:hover {
+  background-color: #36a273;
 }
 </style>

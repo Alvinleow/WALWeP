@@ -7,6 +7,7 @@ import CourseProgressPage from "../views/CourseProgressPage.vue";
 import ContactPage from "../views/ContactPage.vue";
 import ProfilePage from "../views/ProfilePage.vue";
 import LessonPage from "../views/LessonPage.vue";
+import CodeEditor from "../views/CodeEditor.vue";
 import QuizPage from "../views/QuizPage.vue";
 import QuestionsPage from "../components/QuizMaterialsPage/QuestionsPage.vue";
 
@@ -41,6 +42,11 @@ const routes = [
     name: "Lessons",
     component: LessonPage,
     props: true,
+  },
+  {
+    path: "/code-editor",
+    name: "CodeEditor",
+    component: CodeEditor,
   },
   {
     path: "/quizzes/:quizId",
