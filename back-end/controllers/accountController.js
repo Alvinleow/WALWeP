@@ -95,8 +95,6 @@ exports.createAccount = async (req, res) => {
 exports.loginAccount = async (req, res) => {
   const { email, password } = req.body;
 
-  console.log("Login request received:", email, password); // ✅ Add this for debug
-
   try {
     const account = await Account.findOne({ email });
     if (!account) {
