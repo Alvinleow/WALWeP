@@ -5,6 +5,8 @@ const multer = require("multer");
 const bcrypt = require("bcrypt");
 const { connectDB } = require("./config/database");
 const Account = require("./models/account");
+const http = require("http");
+const socketIO = require("socket.io");
 
 const saltRounds = 10;
 
@@ -43,6 +45,32 @@ connectDB()
     }
 
     const app = express();
+    const server = http.createServer(app);
+    const io = socketIO(server, {
+      cors: {
+        origin: allowedOrigins,
+        methods: ["GET", "POST"],
+        credentials: true,
+      },
+    });
+
+    // Set up Socket.IO handlers
+    io.on("connection", (socket) => {
+      console.log("User connected:", socket.id);
+
+      socket.on("join_room", (roomId) => {
+        socket.join(roomId);
+        console.log(`User ${socket.id} joined room ${roomId}`);
+      });
+
+      socket.on("send_message", (data) => {
+        io.to(data.roomId).emit("receive_message", data);
+      });
+
+      socket.on("disconnect", () => {
+        console.log("User disconnected:", socket.id);
+      });
+    });
 
     const corsOptions = {
       origin: function (origin, callback) {
@@ -76,7 +104,9 @@ connectDB()
     app.use("/api/quizzes", require("./routes/quiz"));
 
     const PORT = process.env.PORT || 8081;
-    app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+    server.listen(PORT, () =>
+      console.log(`Server + Socket.IO running on port ${PORT}`)
+    );
   })
   .catch((err) => {
     console.error(err);
