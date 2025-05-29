@@ -42,6 +42,19 @@ exports.getAccountByID = async (req, res) => {
   }
 };
 
+// Find account by email
+exports.getAccountByEmail = async (req, res) => {
+  try {
+    const account = await Account.findOne({ email: req.params.email });
+    if (!account) {
+      return res.status(404).json({ message: "Account not found" });
+    }
+    res.json(account);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
 // Register account
 exports.createAccount = async (req, res) => {
   const {

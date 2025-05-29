@@ -28,6 +28,8 @@
 
 <script>
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import axios from "axios";
+import { mapMutations } from "vuex";
 
 export default {
   name: "LoginSection",
@@ -39,6 +41,7 @@ export default {
     };
   },
   methods: {
+    ...mapMutations(["SET_USER"]),
     async handleLogin() {
       const auth = getAuth();
 
@@ -48,12 +51,24 @@ export default {
           this.email,
           this.password
         );
-        const user = userCredential.user;
+        const firebaseUser = userCredential.user;
 
-        if (!user.emailVerified) {
+        if (!firebaseUser.emailVerified) {
           this.loginError = "Please verify your email before logging in.";
           return;
         }
+
+        const response = await axios.get(
+          `http://localhost:8081/api/accounts/email/${firebaseUser.email}`
+        );
+        const backendUser = response.data;
+
+        if (!backendUser || !backendUser._id) {
+          this.loginError = "Account not found in our database.";
+          return;
+        }
+
+        this.SET_USER(backendUser);
 
         this.$router.push("/home");
       } catch (error) {

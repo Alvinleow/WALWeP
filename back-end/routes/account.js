@@ -10,6 +10,9 @@ router.get("/", accountController.getAllAccounts);
 // Get a single account by userID
 router.get("/:id", accountController.getAccountByID);
 
+// Get account by email
+router.get("/email/:email", accountController.getAccountByEmail);
+
 // Register account
 router.post("/", accountController.createAccount);
 
