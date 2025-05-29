@@ -47,7 +47,7 @@ exports.createAccount = async (req, res) => {
   const {
     username,
     email,
-    password,
+    firebaseUid,
     completedCourses,
     accountLevel,
     phone,
@@ -56,11 +56,10 @@ exports.createAccount = async (req, res) => {
   } = req.body;
 
   try {
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
     const account = new Account({
       username,
       email,
-      password: hashedPassword,
+      firebaseUid,
       completedCourses,
       accountLevel,
       phone,

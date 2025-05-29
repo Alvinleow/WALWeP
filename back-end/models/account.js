@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const AccountSchema = new mongoose.Schema(
   {
+    firebaseUid: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     username: {
       type: String,
       required: true,
@@ -22,10 +27,6 @@ const AccountSchema = new mongoose.Schema(
     },
     dob: {
       type: Date,
-      required: true,
-    },
-    password: {
-      type: String,
       required: true,
     },
     completedCourses: {

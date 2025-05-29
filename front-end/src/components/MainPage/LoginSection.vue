@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 export default {
   name: "LoginSection",
@@ -39,20 +39,33 @@ export default {
     };
   },
   methods: {
-    ...mapActions(["login"]),
     async handleLogin() {
-      const loginData = {
-        email: this.email,
-        password: this.password,
-      };
+      const auth = getAuth();
 
       try {
-        await this.login(loginData);
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          this.email,
+          this.password
+        );
+        const user = userCredential.user;
+
+        if (!user.emailVerified) {
+          this.loginError = "Please verify your email before logging in.";
+          return;
+        }
+
         this.$router.push("/home");
       } catch (error) {
-        console.error("Error logging in:", error);
-        this.loginError =
-          "Failed to login. Please check your email and password.";
+        console.error("Firebase login error:", error.code, error.message);
+
+        if (error.code === "auth/user-not-found") {
+          this.loginError = "No account found with this email.";
+        } else if (error.code === "auth/wrong-password") {
+          this.loginError = "Incorrect password.";
+        } else {
+          this.loginError = "Login failed. Please try again.";
+        }
       }
     },
     switchToRegister() {

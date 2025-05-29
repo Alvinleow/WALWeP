@@ -85,6 +85,10 @@
     </form>
     <div v-else class="success-message">
       <h2>Account Register Successful!</h2>
+      <p>
+        A verification email has been sent to <strong>{{ email }}</strong
+        >. Please check your inbox and verify your email before logging in.
+      </p>
       <p>Redirecting to login page in {{ countdown }} seconds...</p>
     </div>
   </div>
@@ -92,6 +96,11 @@
 
 <script>
 import axios from "axios";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
+import { auth } from "../../firebase";
 
 export default {
   name: "RegisterSection",
@@ -108,7 +117,7 @@ export default {
       passwordError: "",
       reenterPasswordError: "",
       registrationSuccess: false,
-      countdown: 3,
+      countdown: 5,
     };
   },
   methods: {
@@ -145,28 +154,38 @@ export default {
         return;
       }
 
-      const userData = {
-        email: this.email,
-        username: this.username,
-        password: this.password,
-        completedCourses: [],
-        accountLevel: 0,
-        phone: this.phone,
-        schoolName: this.schoolName,
-        dob: this.dob,
-      };
-
       try {
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          this.email,
+          this.password
+        );
+        const firebaseUser = userCredential.user;
+
+        await sendEmailVerification(firebaseUser);
+
+        const userData = {
+          email: this.email,
+          username: this.username,
+          phone: this.phone,
+          schoolName: this.schoolName,
+          dob: this.dob,
+          completedCourses: [],
+          accountLevel: 0,
+          firebaseUid: firebaseUser.uid,
+        };
+
         const response = await axios.post(
           "http://localhost:8081/api/accounts",
           userData
         );
-        console.log("Account created:", response.data);
+        console.log("Account created in backend:", response.data);
+
         this.registrationSuccess = true;
         this.startCountdown();
       } catch (error) {
-        console.error("Error creating account:", error);
-        alert("Failed to create account. Please try again.");
+        console.error("Firebase registration error:", error);
+        alert("Failed to create account: " + error.message);
       }
     },
     startCountdown() {
