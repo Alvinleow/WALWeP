@@ -20,18 +20,25 @@
         </div>
         <div class="content">
           <div class="action-buttons" v-if="isAdmin">
-            <button @click="showAddLessonModal">Add New Lesson</button>
-            <button v-if="selectedLesson" @click="showEditLessonModal">
-              Edit Lesson Content
+            <button class="btn-green btn-icon" @click="showAddLessonModal">
+              <i class="fas fa-plus-circle"></i> Add New Lesson
             </button>
             <button
+              class="btn-green btn-icon"
+              v-if="selectedLesson"
+              @click="showEditLessonModal"
+            >
+              <i class="fas fa-edit"></i> Edit Lesson Content
+            </button>
+            <button
+              class="btn-red btn-icon"
               v-if="selectedLesson"
               @click="showDeleteLessonModal"
-              class="delete-button"
             >
-              Delete Lesson
+              <i class="fas fa-trash"></i> Delete Lesson
             </button>
           </div>
+
           <div v-if="selectedLesson" class="lesson-container">
             <h3 class="lesson-title">{{ selectedLesson.title }}</h3>
             <div v-html="selectedLesson.content" class="lesson-text"></div>
@@ -42,10 +49,10 @@
               </div>
               <button
                 v-if="selectedLesson.codeExample"
-                class="try-button"
+                class="btn-green btn-icon try-button"
                 @click="tryExample"
               >
-                Try it Yourself
+                <i class="fas fa-terminal"></i> Try it Yourself
               </button>
             </div>
           </div>
@@ -54,25 +61,29 @@
           </div>
           <div class="lesson-navigation" v-if="selectedLesson">
             <button
-              class="prev-button"
+              class="btn-red btn-icon"
               v-if="selectedLessonIndex > 0"
               @click="previousLesson"
             >
-              &lt; Previous Lesson
+              <i class="fas fa-arrow-left"></i> Previous Lesson
             </button>
+
+            <div class="spacer"></div>
+
             <button
-              class="next-button"
+              class="btn-green btn-icon"
               v-if="selectedLessonIndex < lessons.length - 1"
               @click="nextLesson"
             >
-              Next Lesson &gt;
+              Next Lesson <i class="fas fa-arrow-right"></i>
             </button>
+
             <button
-              class="finish-button"
+              class="btn-green btn-icon"
               v-if="selectedLessonIndex === lessons.length - 1"
               @click="finishCourse"
             >
-              Finish Course
+              <i class="fas fa-flag-checkered"></i> Finish Course
             </button>
           </div>
         </div>
@@ -125,8 +136,12 @@
       <div v-if="showFinishModal" class="modal-overlay">
         <div class="modal">
           <h2>{{ finishMessage }}</h2>
-          <button @click="goHome">Back to Home</button>
-          <button @click="attemptQuiz">Attempt Now</button>
+          <button @click="goHome">
+            <i class="fas fa-home"></i> Back to Home
+          </button>
+          <button @click="attemptQuiz">
+            <i class="fas fa-question-circle"></i> Attempt Now
+          </button>
         </div>
       </div>
     </div>
@@ -480,13 +495,8 @@ export default {
   border-radius: 5px;
   cursor: pointer;
   font-size: 1rem;
-  background-color: #42b983;
   color: white;
   transition: background-color 0.3s;
-}
-
-.content button:hover {
-  background-color: #36a273;
 }
 
 .delete-button {
@@ -501,7 +511,12 @@ export default {
 .lesson-navigation {
   display: flex;
   justify-content: space-between;
-  align-items: center; /* Ensures buttons are aligned in the middle */
+  align-items: center;
+  margin-top: 20px;
+}
+
+.lesson-navigation .spacer {
+  flex-grow: 1;
 }
 
 .prev-button {
@@ -695,5 +710,38 @@ export default {
 .quill-editor::-webkit-scrollbar-thumb:hover,
 .code-editor-container::-webkit-scrollbar-thumb:hover {
   background-color: #36a273;
+}
+
+.btn-green {
+  background-color: #42b983;
+  color: white;
+}
+.btn-green:hover {
+  background-color: #36a273;
+}
+
+.btn-red {
+  background-color: #ff4d4d;
+  color: white;
+}
+.btn-red:hover {
+  background-color: #ff1a1a;
+}
+
+.btn-gray {
+  background-color: #6c757d;
+  color: white;
+}
+.btn-gray:hover {
+  background-color: #5a6268;
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.btn-icon i {
+  font-size: 1.2rem;
 }
 </style>

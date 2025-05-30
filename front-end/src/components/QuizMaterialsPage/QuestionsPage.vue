@@ -20,21 +20,25 @@
         </div>
         <div class="main-content">
           <div class="action-buttons" v-if="isAdmin">
-            <button @click="showAddQuestionModal">Add Question</button>
+            <button class="btn-green btn-icon" @click="showAddQuestionModal">
+              <i class="fas fa-plus-circle"></i> Add Question
+            </button>
             <button
+              class="btn-green btn-icon"
               @click="showEditQuestionModal"
               :disabled="!selectedQuestion"
             >
-              Edit Question
+              <i class="fas fa-edit"></i> Edit Question
             </button>
             <button
+              class="btn-red btn-icon"
               @click="showDeleteQuestionModal"
               :disabled="!selectedQuestion"
-              class="delete-button"
             >
-              Delete Question
+              <i class="fas fa-trash-alt"></i> Delete Question
             </button>
           </div>
+
           <div v-if="selectedQuestion" class="question-container">
             <h3 class="question-title">
               Question {{ selectedQuestionIndex + 1 }}
@@ -57,8 +61,12 @@
                   {{ option }}
                 </label>
               </div>
-              <button type="submit" :disabled="answerSubmitted">
-                Submit Answer
+              <button
+                type="submit"
+                class="btn-green btn-icon"
+                :disabled="answerSubmitted"
+              >
+                <i class="fas fa-paper-plane"></i> Submit Answer
               </button>
             </form>
             <p
@@ -72,22 +80,30 @@
             <h2>Please select a question to view its details.</h2>
           </div>
           <div class="navigation-buttons">
-            <button v-if="selectedQuestionIndex > 0" @click="previousQuestion">
-              Previous
-            </button>
             <button
+              class="btn-green btn-icon"
+              v-if="selectedQuestionIndex > 0"
+              @click="previousQuestion"
+            >
+              <i class="fas fa-arrow-left"></i> Previous
+            </button>
+
+            <div class="spacer"></div>
+
+            <button
+              class="btn-green btn-icon"
               v-if="selectedQuestionIndex < quiz?.questions?.length - 1"
               @click="nextQuestion"
-              class="next-button"
             >
-              Next
+              Next <i class="fas fa-arrow-right"></i>
             </button>
+
             <button
+              class="btn-green btn-icon"
               v-if="selectedQuestionIndex === quiz?.questions?.length - 1"
               @click="checkBeforeFinish"
-              class="next-button"
             >
-              Finish Quiz
+              <i class="fas fa-flag-checkered"></i> Finish Quiz
             </button>
           </div>
         </div>
@@ -126,8 +142,16 @@
                 required
               />
             </div>
-            <button type="submit">Add Question</button>
-            <button type="button" @click="closeAddQuestionModal">Cancel</button>
+            <button type="submit" class="btn-green btn-icon">
+              <i class="fas fa-check-circle"></i> Save
+            </button>
+            <button
+              type="button"
+              class="btn-red btn-icon"
+              @click="closeAddQuestionModal"
+            >
+              <i class="fas fa-times-circle"></i> Cancel
+            </button>
           </form>
         </div>
       </div>
@@ -544,21 +568,8 @@ export default {
   border-radius: 5px;
   cursor: pointer;
   font-size: 1rem;
-  background-color: #42b983;
   color: white;
   transition: background-color 0.3s;
-}
-
-.main-content button:hover {
-  background-color: #36a273;
-}
-
-.main-content .delete-button {
-  background-color: #ff4d4d;
-}
-
-.main-content .delete-button:hover {
-  background-color: #ff1a1a;
 }
 
 .question-container {
@@ -602,8 +613,13 @@ export default {
 
 .navigation-buttons {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
   margin-top: 20px;
+}
+
+.navigation-buttons .spacer {
+  flex-grow: 1;
 }
 
 .navigation-buttons .next-button {
@@ -688,6 +704,31 @@ export default {
   margin: 10px 0;
   border-radius: 5px;
   border: 1px solid #ccc;
+  font-size: 1.2rem;
+}
+
+.btn-green {
+  background-color: #42b983;
+  color: white;
+}
+.btn-green:hover {
+  background-color: #36a273;
+}
+
+.btn-red {
+  background-color: #ff4d4d;
+  color: white;
+}
+.btn-red:hover {
+  background-color: #ff1a1a;
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.btn-icon i {
   font-size: 1.2rem;
 }
 </style>

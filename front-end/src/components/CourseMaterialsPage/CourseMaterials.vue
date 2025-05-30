@@ -13,7 +13,9 @@
       </select>
     </div>
     <div class="add-course-button-container" v-if="isAdmin">
-      <button @click="showAddCourseModal">Add Course</button>
+      <button class="btn-green btn-icon" @click="showAddCourseModal">
+        <i class="fas fa-plus-circle"></i> Add Course
+      </button>
     </div>
     <div class="course-list">
       <div
@@ -66,8 +68,16 @@
             ></textarea>
           </div>
           <div class="form-buttons">
-            <button type="submit">Submit</button>
-            <button type="button" @click="closeAddCourseModal">Cancel</button>
+            <button type="submit" class="btn-green btn-icon">
+              <i class="fas fa-paper-plane"></i> Submit
+            </button>
+            <button
+              type="button"
+              class="btn-red btn-icon"
+              @click="closeAddCourseModal"
+            >
+              <i class="fas fa-times"></i> Cancel
+            </button>
           </div>
         </form>
       </div>
@@ -82,30 +92,33 @@
         <p>Total Lessons: {{ selectedCourse.totalOfLessons }}</p>
         <p>Enrollments: {{ selectedCourse.enrollment }}</p>
         <div class="modal-buttons">
-          <div>
-            <button
-              v-if="!isEnrolledInCourse(selectedCourse._id)"
-              @click="enrollInCourse"
-            >
-              Enroll Course
+          <div v-if="!isEnrolledInCourse(selectedCourse._id)">
+            <button class="btn-green btn-icon" @click="enrollInCourse">
+              <i class="fas fa-sign-in-alt"></i> Enroll Course
             </button>
-            <div v-else>
-              <button class="view-lessons-btn" @click="navigateToLessons">
-                View Lessons
-              </button>
-              <button class="unenroll-btn" @click="confirmUnenroll">
-                Unenroll Course
-              </button>
-            </div>
           </div>
+          <div v-else>
+            <button class="btn-green btn-icon" @click="navigateToLessons">
+              <i class="fas fa-book-reader"></i> View Lessons
+            </button>
+            <button class="btn-red btn-icon" @click="confirmUnenroll">
+              <i class="fas fa-sign-out-alt"></i> Unenroll
+            </button>
+          </div>
+
           <div v-if="isAdmin">
-            <button @click="showEditCourseForm">Edit Course</button>
-            <button @click="confirmDeleteCourse" class="delete-button">
-              Delete Course
+            <button class="btn-green btn-icon" @click="showEditCourseForm">
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button class="btn-red btn-icon" @click="confirmDeleteCourse">
+              <i class="fas fa-trash"></i> Delete
             </button>
           </div>
+
           <div>
-            <button @click="closeCourseModal">Close</button>
+            <button class="btn-gray btn-icon" @click="closeCourseModal">
+              <i class="fas fa-times-circle"></i> Close
+            </button>
           </div>
         </div>
       </div>
@@ -128,8 +141,16 @@
             ></textarea>
           </div>
           <div class="form-buttons">
-            <button type="submit">Save Changes</button>
-            <button type="button" @click="closeEditCourseForm">Cancel</button>
+            <button class="btn-green btn-icon" type="submit">
+              Save Changes
+            </button>
+            <button
+              class="btn-red btn-icon"
+              type="button"
+              @click="closeEditCourseForm"
+            >
+              Cancel
+            </button>
           </div>
         </form>
       </div>
@@ -511,25 +532,6 @@ export default {
   margin-top: 20px;
 }
 
-.course-modal button:first-of-type {
-  background-color: #42b983;
-  color: white;
-  margin-right: 10px;
-}
-
-.course-modal button:first-of-type:hover {
-  background-color: #36a273;
-}
-
-.course-modal button:last-of-type {
-  background-color: #ff4d4d;
-  color: white;
-}
-
-.course-modal button:last-of-type:hover {
-  background-color: #ff1a1a;
-}
-
 .delete-button {
   background-color: #ff4d4d;
   color: white;
@@ -611,21 +613,40 @@ export default {
   transition: background-color 0.3s;
 }
 
-.add-course-form .form-buttons button[type="submit"] {
+.btn-green {
   background-color: #42b983;
   color: white;
 }
 
-.add-course-form .form-buttons button[type="button"] {
+.btn-green:hover {
+  background-color: #36a273;
+}
+
+.btn-red {
   background-color: #ff4d4d;
   color: white;
 }
 
-.add-course-form .form-buttons button[type="submit"]:hover {
-  background-color: #36a273;
+.btn-red:hover {
+  background-color: #ff1a1a;
 }
 
-.add-course-form .form-buttons button[type="button"]:hover {
-  background-color: #ff1a1a;
+.btn-gray {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-gray:hover {
+  background-color: #5a6268;
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-icon i {
+  font-size: 1.2rem;
 }
 </style>

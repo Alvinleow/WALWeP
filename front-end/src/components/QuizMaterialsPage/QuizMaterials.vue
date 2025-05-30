@@ -13,8 +13,11 @@
       </select>
     </div>
     <div class="add-quiz-button-container" v-if="isAdmin">
-      <button @click="showAddQuizModal">Add Quiz</button>
+      <button class="btn-green btn-icon" @click="showAddQuizModal">
+        <i class="fas fa-plus-circle"></i> Add Quiz
+      </button>
     </div>
+
     <div class="quiz-list">
       <div
         class="quiz"
@@ -45,8 +48,16 @@
             </select>
           </div>
           <div class="form-buttons">
-            <button type="submit">Add Quiz</button>
-            <button type="button" @click="closeAddQuizModal">Cancel</button>
+            <button type="submit" class="btn-green btn-icon">
+              <i class="fas fa-paper-plane"></i> Add Quiz
+            </button>
+            <button
+              type="button"
+              class="btn-red btn-icon"
+              @click="closeAddQuizModal"
+            >
+              <i class="fas fa-times"></i> Cancel
+            </button>
           </div>
         </form>
       </div>
@@ -337,5 +348,30 @@ export default {
 
 .modal .form-buttons button:last-of-type:hover {
   background-color: #ff1a1a;
+}
+
+.btn-green {
+  background-color: #42b983;
+  color: white;
+}
+.btn-green:hover {
+  background-color: #36a273;
+}
+
+.btn-red {
+  background-color: #ff4d4d;
+  color: white;
+}
+.btn-red:hover {
+  background-color: #ff1a1a;
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.btn-icon i {
+  font-size: 1.2rem;
 }
 </style>
