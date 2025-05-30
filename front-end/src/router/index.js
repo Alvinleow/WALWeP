@@ -10,6 +10,7 @@ import LessonPage from "../views/LessonPage.vue";
 import CodeEditor from "../views/CodeEditor.vue";
 import QuizPage from "../views/QuizPage.vue";
 import QuestionsPage from "../components/QuizMaterialsPage/QuestionsPage.vue";
+import ChatRoom from "../views/ChatRoom.vue";
 
 const routes = [
   { path: "/", name: "MainPage", component: MainPage },
@@ -52,6 +53,12 @@ const routes = [
     path: "/quizzes/:quizId",
     name: "QuestionsPage",
     component: QuestionsPage,
+  },
+  {
+    path: "/chat/:otherUserId",
+    name: "ChatRoom",
+    component: ChatRoom,
+    props: true,
   },
 ];
 

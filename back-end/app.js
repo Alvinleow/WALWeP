@@ -3,10 +3,12 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const multer = require("multer");
 const bcrypt = require("bcrypt");
-const { connectDB } = require("./config/database");
-const Account = require("./models/account");
 const http = require("http");
 const socketIO = require("socket.io");
+
+const { connectDB } = require("./config/database");
+const Account = require("./models/account");
+const socketHandler = require("./controllers/socketController");
 
 const saltRounds = 10;
 
@@ -54,23 +56,7 @@ connectDB()
       },
     });
 
-    // Set up Socket.IO handlers
-    io.on("connection", (socket) => {
-      console.log("User connected:", socket.id);
-
-      socket.on("join_room", (roomId) => {
-        socket.join(roomId);
-        console.log(`User ${socket.id} joined room ${roomId}`);
-      });
-
-      socket.on("send_message", (data) => {
-        io.to(data.roomId).emit("receive_message", data);
-      });
-
-      socket.on("disconnect", () => {
-        console.log("User disconnected:", socket.id);
-      });
-    });
+    socketHandler(io);
 
     const corsOptions = {
       origin: function (origin, callback) {
@@ -102,6 +88,7 @@ connectDB()
     app.use("/api/courses", require("./routes/course"));
     app.use("/api/userProgress", require("./routes/userProgress"));
     app.use("/api/quizzes", require("./routes/quiz"));
+    app.use("/api/messages", require("./routes/message"));
 
     const PORT = process.env.PORT || 8081;
     server.listen(PORT, () =>
@@ -109,6 +96,6 @@ connectDB()
     );
   })
   .catch((err) => {
-    console.error(err);
+    console.error("Failed to start server:", err);
     process.exit(1);
   });
