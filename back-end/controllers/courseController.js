@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
-const Course = require("../models/course");
 const { storage } = require("../config/firebase");
+const Course = require("../models/course");
+const Account = require("../models/account");
 const UserProgress = require("../models/userProgress");
+const Quiz = require("../models/quiz");
 
 const saveCourse = async (course, req, res) => {
   const { title, description, totalOfLessons } = req.body;
@@ -127,14 +129,29 @@ exports.updateCourse = async (req, res) => {
   }
 };
 
+// Delete course and all related data
 exports.deleteCourse = async (req, res) => {
   try {
-    const course = await Course.findById(req.params.id);
+    const courseId = req.params.id;
+
+    const course = await Course.findById(courseId);
     if (!course) return res.status(404).json({ message: "Course not found" });
 
+    // 1. Remove courseId from all accounts' enrolledCourses
+    await Account.updateMany({}, { $pull: { enrolledCourses: courseId } });
+
+    // 2. Delete user progress records for this course
+    await UserProgress.deleteMany({ courseId });
+
+    // 3. Delete quizzes associated with this course
+    await Quiz.deleteMany({ courseId });
+
+    // 4. Delete the course itself
     await course.deleteOne();
-    res.json({ message: "Course deleted" });
+
+    res.json({ message: "Course and all related data deleted successfully." });
   } catch (err) {
+    console.error("Error deleting course:", err);
     res.status(500).json({ message: err.message });
   }
 };
