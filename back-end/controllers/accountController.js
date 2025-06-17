@@ -108,7 +108,7 @@ exports.loginAccount = async (req, res) => {
 
     res.json({ message: "Login successful", account });
   } catch (err) {
-    console.error("Login error:", err); // ✅ Add this
+    console.error("Login error:", err);
     res.status(500).json({ message: err.message });
   }
 };
