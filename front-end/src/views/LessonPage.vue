@@ -61,7 +61,7 @@
           </div>
           <div class="lesson-navigation" v-if="selectedLesson">
             <button
-              class="btn-red btn-icon"
+              class="btn-green btn-icon"
               v-if="selectedLessonIndex > 0"
               @click="previousLesson"
             >
