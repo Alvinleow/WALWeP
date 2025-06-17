@@ -159,9 +159,20 @@
     <!-- Delete Course Confirmation Modal -->
     <div v-if="showDeleteCourseModalWindow" class="course-modal-overlay">
       <div class="course-modal">
-        <h2>Are you sure you want to delete this course?</h2>
-        <button @click="deleteCourse">Yes</button>
-        <button type="button" @click="closeDeleteCourseModal">No</button>
+        <h2>
+          This action will permanently delete the course and all related data.
+          Are you sure you want to continue?
+        </h2>
+        <button class="btn-red btn-icon" @click="deleteCourse">
+          <i class="fas fa-trash-alt"></i> Delete
+        </button>
+        <button
+          class="btn-green btn-icon"
+          type="button"
+          @click="closeDeleteCourseModal"
+        >
+          <i class="fas fa-times-circle"></i> Cancel
+        </button>
       </div>
     </div>
 
@@ -173,8 +184,12 @@
           You will lose all your progress if you unenroll from the course. Do
           you want to continue?
         </p>
-        <button @click="unenrollFromCourse">OK</button>
-        <button @click="closeUnenrollModal">Cancel</button>
+        <button class="btn-red btn-icon" @click="unenrollFromCourse">
+          <i class="fas fa-sign-out-alt"></i> Unenroll
+        </button>
+        <button class="btn-green btn-icon" @click="closeUnenrollModal">
+          <i class="fas fa-times-circle"></i> Cancel
+        </button>
       </div>
     </div>
   </div>
