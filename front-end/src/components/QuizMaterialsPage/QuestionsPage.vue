@@ -189,8 +189,14 @@
                 required
               />
             </div>
-            <button type="submit">Save Changes</button>
-            <button type="button" @click="closeEditQuestionModal">
+            <button type="submit" class="btn-green btn-icon">
+              Save Changes
+            </button>
+            <button
+              type="button"
+              class="btn-red btn-icon"
+              @click="closeEditQuestionModal"
+            >
               Cancel
             </button>
           </form>
@@ -202,8 +208,12 @@
         <div class="modal">
           <h2>Confirm Deletion</h2>
           <p>Are you sure you want to delete this question?</p>
-          <button @click="deleteQuestion">Yes</button>
-          <button @click="closeDeleteQuestionModal">No</button>
+          <button class="btn-green btn-icon" @click="deleteQuestion">
+            Yes
+          </button>
+          <button class="btn-red btn-icon" @click="closeDeleteQuestionModal">
+            No
+          </button>
         </div>
       </div>
 
@@ -212,7 +222,9 @@
         <div class="modal">
           <h2>Quiz Result</h2>
           <p>Your score is {{ quizResult.score }}%</p>
-          <button @click="goHome">Back to Home</button>
+          <button class="btn-green btn-icon" @click="goHome">
+            Back to Home
+          </button>
         </div>
       </div>
 
@@ -224,7 +236,24 @@
             Please choose and submit your answer before moving to the next
             question.
           </p>
-          <button @click="closeAnswerReminderModal">OK</button>
+          <button class="btn-green btn-icon" @click="closeAnswerReminderModal">
+            OK
+          </button>
+        </div>
+      </div>
+      <div v-if="showLeaveConfirmModal" class="modal-overlay">
+        <div class="modal">
+          <h2>Leave Quiz?</h2>
+          <p>
+            Your answers will not be saved. Are you sure you want to leave this
+            page?
+          </p>
+          <button class="btn-red btn-icon" @click="confirmLeaveQuiz">
+            Yes, Leave
+          </button>
+          <button class="btn-green btn-icon" @click="cancelLeaveQuiz">
+            Cancel
+          </button>
         </div>
       </div>
     </div>
@@ -251,6 +280,9 @@ export default {
       answerSubmitted: false,
       answerCorrect: false,
       userAnswers: [],
+      showLeaveConfirmModal: false,
+      pendingNext: null,
+
       showAddQuestionModalWindow: false,
       showEditQuestionModalWindow: false,
       showDeleteQuestionModalWindow: false,
@@ -278,9 +310,20 @@ export default {
     isAdmin() {
       return this.accountLevel === 1;
     },
+    isQuizInProgress() {
+      return this.userAnswers.length > 0 && !this.showQuizResultModal;
+    },
   },
   async created() {
     await this.fetchQuiz();
+  },
+  beforeRouteLeave(to, from, next) {
+    if (this.isQuizInProgress) {
+      this.showLeaveConfirmModal = true;
+      this.pendingNext = next;
+    } else {
+      next();
+    }
   },
   methods: {
     async fetchQuiz() {
@@ -339,11 +382,11 @@ export default {
           correctAnswer: this.newQuestion.correctAnswer,
         };
         try {
-          const response = await axios.post(
+          await axios.post(
             `http://localhost:8081/api/quizzes/${this.quizId}/questions`,
             questionData
           );
-          this.quiz.questions.push(response.data);
+          await this.fetchQuiz();
           this.closeAddQuestionModal();
         } catch (error) {
           console.error("Error adding question:", error);
@@ -502,6 +545,20 @@ export default {
     closeAnswerReminderModal() {
       this.showAnswerReminderModal = false;
     },
+    confirmLeaveQuiz() {
+      this.showLeaveConfirmModal = false;
+      if (this.pendingNext) {
+        this.pendingNext();
+        this.pendingNext = null;
+      }
+    },
+    cancelLeaveQuiz() {
+      this.showLeaveConfirmModal = false;
+      if (this.pendingNext) {
+        this.pendingNext(false);
+        this.pendingNext = null;
+      }
+    },
   },
 };
 </script>
@@ -659,42 +716,28 @@ export default {
   z-index: 1000;
 }
 
+.light-overlay {
+  background: rgba(0, 0, 0, 0.2);
+}
+
 .modal {
-  background: #000;
-  color: #fff;
+  background: #fff;
+  color: #000;
   padding: 20px;
   border-radius: 10px;
   max-width: 500px;
   text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .modal button {
-  padding: 10px;
+  padding: 10px 16px;
+  margin: 10px 5px 0;
   border: none;
   border-radius: 5px;
-  cursor: pointer;
   font-size: 1rem;
+  cursor: pointer;
   transition: background-color 0.3s;
-  margin-top: 20px;
-}
-
-.modal button:first-of-type {
-  background-color: #42b983;
-  color: white;
-  margin-right: 10px;
-}
-
-.modal button:first-of-type:hover {
-  background-color: #36a273;
-}
-
-.modal button:last-of-type {
-  background-color: #ff4d4d;
-  color: white;
-}
-
-.modal button:last-of-type:hover {
-  background-color: #ff1a1a;
 }
 
 .modal input,
