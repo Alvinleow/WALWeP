@@ -12,12 +12,7 @@ const socketHandler = require("./controllers/socketController");
 
 const saltRounds = 10;
 
-// List of allowed origins
-const allowedOrigins = [
-  "http://localhost:8080",
-  "http://localhost:8082",
-  // Add other origins as needed
-];
+const allowedOrigins = ["http://localhost:8080", "http://localhost:8082"];
 
 connectDB()
   .then(async () => {
@@ -61,7 +56,6 @@ connectDB()
     const corsOptions = {
       origin: function (origin, callback) {
         if (allowedOrigins.includes(origin) || !origin) {
-          // Allow requests with no origin (like mobile apps or curl requests)
           callback(null, true);
         } else {
           console.log("Blocked CORS request from origin:", origin);
