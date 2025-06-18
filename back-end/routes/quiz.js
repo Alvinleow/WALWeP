@@ -10,6 +10,8 @@ router.get("/:courseId/quiz", quizController.getQuizByCourseId);
 
 router.post("/:courseId", quizController.addQuiz);
 
+router.delete("/:quizId", quizController.deleteQuiz);
+
 router.post("/:quizId/questions", quizController.addQuestion);
 router.post("/:quizId/submit", quizController.submitQuiz);
 router.put("/:quizId/questions/:questionId", quizController.editQuestion);

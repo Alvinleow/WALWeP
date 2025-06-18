@@ -87,6 +87,25 @@ exports.addQuiz = async (req, res) => {
   }
 };
 
+exports.deleteQuiz = async (req, res) => {
+  const { quizId } = req.params;
+
+  try {
+    // Find and remove the quiz
+    const quiz = await Quiz.findById(quizId);
+    if (!quiz) {
+      return res.status(404).json({ message: "Quiz not found" });
+    }
+
+    await quiz.deleteOne();
+
+    res.status(200).json({ message: "Quiz deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting quiz:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 exports.addQuestion = async (req, res) => {
   const { quizId } = req.params;
   const { text, options, correctAnswer } = req.body;

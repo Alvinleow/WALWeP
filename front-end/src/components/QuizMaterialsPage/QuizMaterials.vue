@@ -24,7 +24,7 @@
         class="quiz"
         v-for="quiz in filteredQuizzes"
         :key="quiz._id"
-        @click="navigateToQuestions(quiz)"
+        @click="handleQuizClick(quiz)"
       >
         <h2 class="quiz-title">Quiz for {{ quiz.courseTitle }}</h2>
         <p class="quiz-questions">{{ quiz.questions.length }} questions</p>
@@ -63,6 +63,23 @@
         </form>
       </div>
     </div>
+
+    <div v-if="showQuizOptionsModal" class="modal-overlay">
+      <div class="modal">
+        <button class="cancel-btn" @click="closeQuizOptionsModal">
+          <i class="fas fa-times-circle"></i>
+        </button>
+        <h2>What would you like to do with this quiz?</h2>
+        <div class="form-buttons">
+          <button class="btn-green btn-icon" @click="editQuiz">
+            <i class="fas fa-edit"></i> Edit Quiz Content
+          </button>
+          <button class="btn-red btn-icon" @click="deleteQuiz">
+            <i class="fas fa-trash"></i> Delete Quiz
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -81,6 +98,8 @@ export default {
       filteredQuizzes: [],
       showAddQuizModalWindow: false,
       selectedCourseId: null,
+      selectedQuiz: null,
+      showQuizOptionsModal: false,
       isLoading: false,
     };
   },
@@ -168,6 +187,50 @@ export default {
           this.closeAddQuizModal();
         } catch (error) {
           console.error("Error adding quiz:", error);
+        } finally {
+          this.isLoading = false;
+        }
+      }
+    },
+    handleQuizClick(quiz) {
+      if (this.isAdmin) {
+        this.selectedQuiz = quiz;
+        this.showQuizOptionsModal = true;
+      } else {
+        this.navigateToQuestions(quiz);
+      }
+    },
+    showQuizOptions(quiz) {
+      this.selectedQuiz = quiz;
+      this.showQuizOptionsModal = true;
+    },
+    closeQuizOptionsModal() {
+      this.showQuizOptionsModal = false;
+      this.selectedQuiz = null;
+    },
+    async editQuiz() {
+      this.$router.push({
+        name: "QuestionsPage",
+        params: { quizId: this.selectedQuiz._id },
+      });
+      this.closeQuizOptionsModal();
+    },
+    async deleteQuiz() {
+      if (this.selectedQuiz) {
+        this.isLoading = true;
+        try {
+          await axios.delete(
+            `http://localhost:8081/api/quizzes/${this.selectedQuiz._id}`
+          );
+          this.quizzes = this.quizzes.filter(
+            (quiz) => quiz._id !== this.selectedQuiz._id
+          );
+          this.filteredQuizzes = this.filteredQuizzes.filter(
+            (quiz) => quiz._id !== this.selectedQuiz._id
+          );
+          this.closeQuizOptionsModal();
+        } catch (error) {
+          console.error("Error deleting quiz:", error);
         } finally {
           this.isLoading = false;
         }
@@ -295,6 +358,7 @@ export default {
   border-radius: 10px;
   max-width: 800px;
   text-align: center;
+  position: relative;
 }
 
 .modal h2 {
@@ -303,20 +367,20 @@ export default {
   color: #42b983;
 }
 
-.modal .form-group {
+.form-group {
   margin-bottom: 20px;
 }
 
-.modal .form-group label {
+.form-group label {
   display: block;
   color: #fff;
   font-size: 1.2rem;
   margin-bottom: 10px;
 }
 
-.modal .form-group select,
-.modal .form-group input,
-.modal .form-group textarea {
+.form-group select,
+.form-group input,
+.form-group textarea {
   width: 100%;
   padding: 15px;
   border: 1px solid #ccc;
@@ -324,37 +388,35 @@ export default {
   font-size: 1.2rem;
 }
 
-.modal .form-buttons {
+.form-buttons {
   display: flex;
   justify-content: center;
   gap: 10px;
 }
 
-.modal .form-buttons button {
+.cancel-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  color: #fff;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.cancel-btn:hover {
+  color: #ff4d4d;
+}
+
+.form-buttons button {
   padding: 15px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   font-size: 1.2rem;
   transition: background-color 0.3s;
-}
-
-.modal .form-buttons button:first-of-type {
-  background-color: #42b983;
-  color: white;
-}
-
-.modal .form-buttons button:first-of-type:hover {
-  background-color: #36a273;
-}
-
-.modal .form-buttons button:last-of-type {
-  background-color: #ff4d4d;
-  color: white;
-}
-
-.modal .form-buttons button:last-of-type:hover {
-  background-color: #ff1a1a;
 }
 
 .btn-green {
