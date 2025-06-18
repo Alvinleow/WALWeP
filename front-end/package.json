@@ -571,5 +571,8 @@
   },
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "@vue/cli-service": "^5.0.8"
+  }
 }
