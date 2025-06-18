@@ -1,5 +1,6 @@
 <template>
   <div class="course-materials">
+    <LoadingModal :visible="isLoading" />
     <div class="search-sort-bar">
       <input
         type="text"
@@ -219,6 +220,7 @@ export default {
       showConfirmUnenrollModal: false,
       showEditCourseFormWindow: false,
       showDeleteCourseModalWindow: false,
+      isLoading: false,
     };
   },
   computed: {
@@ -234,16 +236,19 @@ export default {
     this.fetchCourses();
   },
   methods: {
-    fetchCourses() {
-      axios
-        .get("http://localhost:8081/api/courses?sort=-createdAt")
-        .then((response) => {
-          this.courses = response.data.reverse();
-          this.filteredCourses = this.courses;
-        })
-        .catch((error) => {
-          console.error("Error fetching courses:", error);
-        });
+    async fetchCourses() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          "http://localhost:8081/api/courses?sort=-createdAt"
+        );
+        this.courses = response.data.reverse();
+        this.filteredCourses = this.courses;
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      } finally {
+        this.isLoading = false;
+      }
     },
     filterCourses() {
       this.filteredCourses = this.courses.filter((course) =>
@@ -284,6 +289,8 @@ export default {
       }
     },
     async addCourse() {
+      this.isLoading = true;
+
       const formData = new FormData();
       formData.append("title", this.newCourse.title);
       formData.append("description", this.newCourse.description);
@@ -304,6 +311,8 @@ export default {
         this.closeAddCourseModal();
       } catch (error) {
         console.error("Error adding course:", error);
+      } finally {
+        this.isLoading = false;
       }
     },
     showCourseDetails(course) {

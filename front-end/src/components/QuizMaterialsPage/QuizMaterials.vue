@@ -1,4 +1,5 @@
 <template>
+  <LoadingModal :visible="isLoading" />
   <div class="quiz-materials">
     <div class="search-sort-bar">
       <input
@@ -80,6 +81,7 @@ export default {
       filteredQuizzes: [],
       showAddQuizModalWindow: false,
       selectedCourseId: null,
+      isLoading: false,
     };
   },
   computed: {
@@ -96,29 +98,31 @@ export default {
     this.fetchCourses();
   },
   methods: {
-    fetchQuizzes() {
-      axios
-        .get("http://localhost:8081/api/quizzes")
-        .then((response) => {
-          this.quizzes = response.data.map((quiz) => ({
-            ...quiz,
-            courseTitle: quiz.courseId.title,
-          }));
-          this.filteredQuizzes = this.quizzes;
-        })
-        .catch((error) => {
-          console.error("Error fetching quizzes:", error);
-        });
+    async fetchQuizzes() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get("http://localhost:8081/api/quizzes");
+        this.quizzes = response.data.map((quiz) => ({
+          ...quiz,
+          courseTitle: quiz.courseId.title,
+        }));
+        this.filteredQuizzes = this.quizzes;
+      } catch (error) {
+        console.error("Error fetching quizzes:", error);
+      } finally {
+        this.isLoading = false;
+      }
     },
-    fetchCourses() {
-      axios
-        .get("http://localhost:8081/api/courses")
-        .then((response) => {
-          this.courses = response.data;
-        })
-        .catch((error) => {
-          console.error("Error fetching courses:", error);
-        });
+    async fetchCourses() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get("http://localhost:8081/api/courses");
+        this.courses = response.data;
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      } finally {
+        this.isLoading = false;
+      }
     },
     filterQuizzes() {
       this.filteredQuizzes = this.quizzes.filter((quiz) =>
@@ -146,6 +150,7 @@ export default {
     },
     async addQuiz() {
       if (this.selectedCourseId) {
+        this.isLoading = true;
         try {
           const response = await axios.post(
             `http://localhost:8081/api/quizzes/${this.selectedCourseId}`,
@@ -163,6 +168,8 @@ export default {
           this.closeAddQuizModal();
         } catch (error) {
           console.error("Error adding quiz:", error);
+        } finally {
+          this.isLoading = false;
         }
       }
     },

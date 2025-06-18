@@ -1,5 +1,6 @@
 <template>
   <div class="main">
+    <LoadingModal :visible="isLoading" />
     <div class="questions-page">
       <NavBar />
       <div class="content">
@@ -300,6 +301,7 @@ export default {
         correctAnswer: "",
       },
       quizId: this.$route.params.quizId,
+      isLoading: false,
     };
   },
   computed: {
@@ -315,7 +317,9 @@ export default {
     },
   },
   async created() {
+    this.isLoading = true;
     await this.fetchQuiz();
+    this.isLoading = false;
   },
   beforeRouteLeave(to, from, next) {
     if (this.isQuizInProgress) {
