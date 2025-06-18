@@ -1,5 +1,6 @@
 <template>
   <div class="main">
+    <LoadingModal :visible="isLoading" />
     <div class="lesson-page">
       <NavBar />
       <div class="lesson-content">
@@ -167,6 +168,7 @@ export default {
   },
   data() {
     return {
+      isLoading: false,
       lessons: [],
       showAddLessonModalWindow: false,
       showEditLessonModalWindow: false,
@@ -197,6 +199,7 @@ export default {
   },
   methods: {
     async fetchLessons() {
+      this.isLoading = true;
       try {
         const response = await axios.get(
           `http://localhost:8081/api/courses/${this.courseId}`
@@ -204,9 +207,12 @@ export default {
         this.lessons = response.data.lessons;
       } catch (error) {
         console.error("Error fetching lessons:", error);
+      } finally {
+        this.isLoading = false;
       }
     },
     async fetchUserProgress() {
+      this.isLoading = true;
       try {
         const response = await axios.get(
           `http://localhost:8081/api/userProgress/${this.userId}/${this.courseId}`
@@ -223,6 +229,8 @@ export default {
         }
       } catch (error) {
         console.error("Error fetching user progress:", error);
+      } finally {
+        this.isLoading = false;
       }
     },
     showAddLessonModal() {
