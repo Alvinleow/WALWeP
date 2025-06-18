@@ -87,6 +87,9 @@
     <!-- Course Details Modal -->
     <div v-if="showCourseModal" class="course-modal-overlay">
       <div class="course-modal">
+        <button class="modal-close" @click="closeCourseModal">
+          <i class="fas fa-times-circle"></i>
+        </button>
         <h2>{{ selectedCourse.title }}</h2>
         <img :src="selectedCourse.thumbnail" alt="Course Thumbnail" />
         <p>{{ selectedCourse.description }}</p>
@@ -100,8 +103,10 @@
           </div>
           <div v-else>
             <button class="btn-green btn-icon" @click="navigateToLessons">
-              <i class="fas fa-book-reader"></i> View Lessons
+              <div v-if="isAdmin"><i class="fas fa-edit"></i> Edit Lessons</div>
+              <div v-else><i class="fas fa-book-reader"></i> View Lessons</div>
             </button>
+
             <button class="btn-red btn-icon" @click="confirmUnenroll">
               <i class="fas fa-sign-out-alt"></i> Unenroll
             </button>
@@ -109,16 +114,10 @@
 
           <div v-if="isAdmin">
             <button class="btn-green btn-icon" @click="showEditCourseForm">
-              <i class="fas fa-edit"></i> Edit
+              <i class="fas fa-edit"></i> Edit Course Info
             </button>
             <button class="btn-red btn-icon" @click="confirmDeleteCourse">
               <i class="fas fa-trash"></i> Delete
-            </button>
-          </div>
-
-          <div>
-            <button class="btn-gray btn-icon" @click="closeCourseModal">
-              <i class="fas fa-times-circle"></i> Close
             </button>
           </div>
         </div>
@@ -160,20 +159,23 @@
     <!-- Delete Course Confirmation Modal -->
     <div v-if="showDeleteCourseModalWindow" class="course-modal-overlay">
       <div class="course-modal">
-        <h2>
+        <h2>Delete Course</h2>
+        <p>
           This action will permanently delete the course and all related data.
           Are you sure you want to continue?
-        </h2>
-        <button class="btn-red btn-icon" @click="deleteCourse">
-          <i class="fas fa-trash-alt"></i> Delete
-        </button>
-        <button
-          class="btn-green btn-icon"
-          type="button"
-          @click="closeDeleteCourseModal"
-        >
-          <i class="fas fa-times-circle"></i> Cancel
-        </button>
+        </p>
+        <div class="form-buttons">
+          <button class="btn-red btn-icon" @click="deleteCourse">
+            <i class="fas fa-trash-alt"></i> Delete
+          </button>
+          <button
+            class="btn-green btn-icon"
+            type="button"
+            @click="closeDeleteCourseModal"
+          >
+            <i class="fas fa-times-circle"></i> Cancel
+          </button>
+        </div>
       </div>
     </div>
 
@@ -185,12 +187,14 @@
           You will lose all your progress if you unenroll from the course. Do
           you want to continue?
         </p>
-        <button class="btn-red btn-icon" @click="unenrollFromCourse">
-          <i class="fas fa-sign-out-alt"></i> Unenroll
-        </button>
-        <button class="btn-green btn-icon" @click="closeUnenrollModal">
-          <i class="fas fa-times-circle"></i> Cancel
-        </button>
+        <div class="form-buttons">
+          <button class="btn-red btn-icon" @click="unenrollFromCourse">
+            <i class="fas fa-sign-out-alt"></i> Unenroll
+          </button>
+          <button class="btn-green btn-icon" @click="closeUnenrollModal">
+            <i class="fas fa-times-circle"></i> Cancel
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -537,13 +541,23 @@ export default {
   color: #fff;
   padding: 20px;
   border-radius: 10px;
-  max-width: 600px;
+  max-width: 700px;
   text-align: center;
+  position: relative;
+}
+
+.course-modal h2 {
+  color: #42b983;
+  font-size: 2rem;
+  margin-bottom: 20px;
+  font-weight: 600;
 }
 
 .course-modal img {
   max-width: 100%;
-  height: auto;
+  height: 100px;
+  margin: 15px 0;
+  border-radius: 8px;
 }
 
 .course-modal button {
@@ -577,38 +591,17 @@ export default {
   gap: 10px;
 }
 
-.add-course-form {
-  background: #000000;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 800px;
-  margin: 20px auto;
-  text-align: left;
-}
-
-.add-course-form h2 {
-  color: #42b983;
-  font-size: 2rem;
+.form-group {
   margin-bottom: 20px;
 }
 
-.add-course-form form {
-  display: flex;
-  flex-direction: column;
-}
-
-.add-course-form .form-group {
-  margin-bottom: 20px;
-}
-
-.add-course-form .form-group label {
+.form-group label {
   color: #fff;
   font-size: 1.2rem;
 }
 
-.add-course-form .form-group input,
-.add-course-form .form-group textarea {
+.form-group input,
+.form-group textarea {
   padding: 15px;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -616,19 +609,13 @@ export default {
   width: 100%;
 }
 
-.add-course-form .form-group .thumbnail-preview {
-  margin-top: 10px;
-  width: 100px;
-  height: auto;
-}
-
-.add-course-form .form-buttons {
+.form-buttons {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 10px;
 }
 
-.add-course-form .form-buttons button {
+.form-buttons button {
   padding: 15px;
   border: none;
   border-radius: 5px;
@@ -655,13 +642,21 @@ export default {
   background-color: #ff1a1a;
 }
 
-.btn-gray {
-  background-color: #6c757d;
-  color: white;
+.modal-close {
+  padding: 10px !important;
+  margin-top: 0px !important;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.8rem;
+  cursor: pointer;
 }
 
-.btn-gray:hover {
-  background-color: #5a6268;
+.modal-close:hover {
+  color: #ff4d4d;
 }
 
 .btn-icon {
