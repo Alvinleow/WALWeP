@@ -35,4 +35,7 @@ router.post("/:id/verify-password", accountController.verifyPassword);
 router.put("/enroll/:userId", accountController.enrollCourse);
 router.put("/unenroll/:userId", accountController.unenrollCourse);
 
+router.post("/:userId/add-contact", accountController.addToContacts);
+router.get("/:userId/contacts", accountController.getUserContacts);
+
 module.exports = router;

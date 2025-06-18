@@ -21,7 +21,7 @@ import { mapState } from "vuex";
 
 export default {
   name: "ChatRoom",
-  props: ["otherUserId"], // Pass the userId of the friend you're chatting with
+  props: ["otherUserId"],
   data() {
     return {
       messages: [],

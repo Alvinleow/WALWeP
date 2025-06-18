@@ -42,22 +42,57 @@
         <input v-model="search" placeholder="Search users..." />
       </div>
 
-      <div class="section" v-if="starred.length">
-        <h4>⭐ Starred</h4>
-        <div v-for="user in starred" :key="user._id" @click="startChat(user)">
-          {{ user.username }}
+      <div v-if="search && filteredUsers.length" class="section">
+        <h4><i class="fas fa-search"></i> Search Results</h4>
+        <div v-for="user in filteredUsers" :key="user._id" class="user-item">
+          <span class="username">{{ user.username }}</span>
+
+          <div class="action-icons">
+            <button
+              v-if="isInContacts(user)"
+              class="message-icon btn"
+              @click.stop="startChat(user)"
+              title="Start Chat"
+            >
+              <i class="fas fa-comment"></i> Chat
+            </button>
+
+            <button
+              v-else
+              class="add-icon btn"
+              @click.stop="addToContacts(user)"
+              title="Add to Contacts"
+            >
+              <i class="fas fa-user-plus"></i> Add
+            </button>
+          </div>
         </div>
       </div>
 
-      <div class="section">
-        <h4>🔒 Private</h4>
-        <div
-          v-for="user in filteredUsers"
-          :key="user._id"
-          @click="startChat(user)"
-        >
-          {{ user.username }}
+      <!-- Empty Section for Contacts List -->
+      <div v-if="!search && contacts.length" class="section">
+        <h4><i class="fas fa-users"></i> Your Contacts</h4>
+        <div v-for="user in contacts" :key="user._id" class="user-item">
+          <span class="username">{{ user.username }}</span>
+
+          <div class="action-icons">
+            <button
+              class="message-icon btn"
+              @click.stop="startChat(user)"
+              title="Start Chat"
+            >
+              <i class="fas fa-comment"></i> Chat
+            </button>
+          </div>
         </div>
+      </div>
+    </div>
+  </div>
+  <div v-if="modalVisible" class="modal-overlay">
+    <div class="modal-content">
+      <span class="close-btn" @click="modalVisible = false">×</span>
+      <div class="modal-message">
+        <p>{{ modalMessage }}</p>
       </div>
     </div>
   </div>
@@ -75,9 +110,12 @@ export default {
       users: [],
       starred: [],
       groups: [],
-      selectedUser: null, // 👈 Add this
+      selectedUser: null,
       messageText: "",
       messages: [],
+      contacts: [],
+      modalVisible: false,
+      modalMessage: "",
     };
   },
   computed: {
@@ -110,6 +148,17 @@ export default {
       const data = await response.json();
       this.users = data.filter((u) => u._id !== this.userId);
     },
+    async fetchContacts() {
+      try {
+        const response = await fetch(
+          `http://localhost:8081/api/accounts/${this.userId}/contacts`
+        );
+        const data = await response.json();
+        this.contacts = data.contacts;
+      } catch (error) {
+        console.error("Failed to fetch contacts:", error);
+      }
+    },
     async startChat(user) {
       this.selectedUser = user;
       const room = [this.userId, user._id].sort().join("_");
@@ -125,13 +174,41 @@ export default {
         this.messages = [];
       }
     },
-    startGroupChat(group) {
+    async addToContacts(user) {
+      try {
+        const response = await fetch(
+          `http://localhost:8081/api/accounts/${this.userId}/add-contact`,
+          {
+            method: "POST",
+            body: JSON.stringify({ contactId: user._id }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const data = await response.json();
+        console.log("Added to contacts:", data);
+        this.modalMessage = "User added to contacts!";
+        this.modalVisible = true;
+
+        await this.fetchContacts(); // Refresh contacts after adding
+      } catch (error) {
+        console.error("Failed to add user to contacts:", error);
+        this.modalMessage = "Failed to add user to contacts.";
+        this.modalVisible = true;
+      }
+    },
+    isInContacts(user) {
+      console.log("Checking if user is in contacts:", this.contacts);
+      return this.contacts.some((contact) => contact._id === user._id);
+    },
+    /*startGroupChat(group) {
       this.$router.push({
         name: "ChatRoom",
         params: { otherUserId: group._id },
       });
       this.$emit("close");
-    },
+    },*/
     sendMessage() {
       if (!this.messageText.trim()) return;
 
@@ -149,6 +226,7 @@ export default {
   },
   mounted() {
     this.fetchUsers();
+    this.fetchContacts();
 
     socket.off("receive_message");
     socket.on("receive_message", (data) => {
@@ -210,6 +288,65 @@ export default {
   margin-top: 20px;
   color: #ccc;
 }
+
+.user-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #333;
+  cursor: pointer;
+  position: relative;
+}
+
+.user-item:hover {
+  background: #222;
+}
+
+.username {
+  color: #fff;
+  font-size: 1rem;
+}
+
+.action-icons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  padding: 8px 15px;
+  background-color: #42b983;
+  color: white;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #369c6d;
+}
+
+.message-icon,
+.add-icon {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.message-icon i,
+.add-icon i {
+  font-size: 1.2rem;
+}
+
+.message-icon:hover i,
+.add-icon:hover i {
+  color: #fff;
+}
+
 .section div {
   padding: 8px;
   border-bottom: 1px solid #333;
@@ -309,5 +446,42 @@ export default {
 
 .chat-input button:hover {
   background: #369c6d;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1002;
+}
+
+.modal-content {
+  background-color: #222;
+  color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  text-align: center;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.modal-message {
+  font-size: 1.2rem;
+  margin-top: 10px;
 }
 </style>

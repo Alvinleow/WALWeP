@@ -59,6 +59,7 @@ const AccountSchema = new mongoose.Schema(
         date: { type: Date, default: Date.now },
       },
     ],
+    contacts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Account" }],
   },
   {
     timestamps: true,

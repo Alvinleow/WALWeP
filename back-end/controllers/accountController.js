@@ -234,3 +234,41 @@ exports.unenrollCourse = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+exports.addToContacts = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { contactId } = req.body;
+
+    const user = await Account.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.contacts.includes(contactId)) {
+      return res.status(400).json({ message: "User is already in contacts" });
+    }
+
+    user.contacts.push(contactId);
+    await user.save();
+
+    res.status(200).json({ message: "User added to contacts", user });
+  } catch (err) {
+    console.error("Error adding contact:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.getUserContacts = async (req, res) => {
+  try {
+    const account = await Account.findById(req.params.userId).populate(
+      "contacts"
+    );
+    if (!account) {
+      return res.status(404).json({ message: "Account not found" });
+    }
+    res.json({ contacts: account.contacts });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
