@@ -18,24 +18,41 @@
         <li><router-link to="/contact">CONTACT US</router-link></li>
       </ul>
     </div>
-    <div class="profile" @click="toggleMenu">
-      <img
-        src="https://img.icons8.com/ios-filled/50/ffffff/user-male-circle.png"
-        alt="Profile Icon"
-        class="profile-icon"
-      />
-      <div class="dropdown-menu" v-if="menuVisible">
-        <a @click="navigateToProfile">View Profile</a>
-        <a @click="logOut"><span class="highlightLogOut">Log Out</span></a>
+    <div class="right-icons">
+      <!-- Chat Icon -->
+      <div class="chat" @click="toggleChatDrawer">
+        <img
+          src="https://img.icons8.com/ios-glyphs/30/ffffff/chat--v1.png"
+          alt="Chat Icon"
+          class="chat-icon"
+        />
+      </div>
+
+      <!-- Profile Icon -->
+      <div class="profile" @click="toggleMenu">
+        <img
+          src="https://img.icons8.com/ios-filled/50/ffffff/user-male-circle.png"
+          alt="Profile Icon"
+          class="profile-icon"
+        />
+        <div class="dropdown-menu" v-if="menuVisible">
+          <a @click="navigateToProfile">View Profile</a>
+          <a @click="logOut"><span class="highlightLogOut">Log Out</span></a>
+        </div>
       </div>
     </div>
   </div>
+  <ChatDrawer v-if="chatDrawerVisible" @close="chatDrawerVisible = false" />
 </template>
 
 <script>
 import { mapState, mapActions } from "vuex";
+import ChatDrawer from "../components/ChatDrawer/ChatDrawer.vue";
 
 export default {
+  components: {
+    ChatDrawer,
+  },
   name: "NavBar",
   computed: {
     ...mapState({
@@ -45,6 +62,7 @@ export default {
   data() {
     return {
       menuVisible: false,
+      chatDrawerVisible: false,
     };
   },
   methods: {
@@ -57,9 +75,12 @@ export default {
     },
     ...mapActions(["logout"]),
     logOut() {
-      this.logout(); // Call the Vuex action to log out
+      this.logout();
       this.$router.push("/");
       this.menuVisible = false;
+    },
+    toggleChatDrawer() {
+      this.chatDrawerVisible = !this.chatDrawerVisible;
     },
   },
 };
@@ -133,6 +154,21 @@ ul li a {
 
 ul li a:hover {
   color: #42b983;
+}
+
+.right-icons {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.chat {
+  cursor: pointer;
+}
+
+.chat-icon {
+  width: 30px;
+  height: 30px;
 }
 
 .profile {

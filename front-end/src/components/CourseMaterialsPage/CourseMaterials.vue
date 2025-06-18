@@ -1,5 +1,6 @@
 <template>
   <div class="course-materials">
+    <LoadingModal :visible="isLoading" />
     <div class="search-sort-bar">
       <input
         type="text"
@@ -13,7 +14,9 @@
       </select>
     </div>
     <div class="add-course-button-container" v-if="isAdmin">
-      <button @click="showAddCourseModal">Add Course</button>
+      <button class="btn-green btn-icon" @click="showAddCourseModal">
+        <i class="fas fa-plus-circle"></i> Add Course
+      </button>
     </div>
     <div class="course-list">
       <div
@@ -66,8 +69,16 @@
             ></textarea>
           </div>
           <div class="form-buttons">
-            <button type="submit">Submit</button>
-            <button type="button" @click="closeAddCourseModal">Cancel</button>
+            <button type="submit" class="btn-green btn-icon">
+              <i class="fas fa-paper-plane"></i> Submit
+            </button>
+            <button
+              type="button"
+              class="btn-red btn-icon"
+              @click="closeAddCourseModal"
+            >
+              <i class="fas fa-times"></i> Cancel
+            </button>
           </div>
         </form>
       </div>
@@ -76,36 +87,38 @@
     <!-- Course Details Modal -->
     <div v-if="showCourseModal" class="course-modal-overlay">
       <div class="course-modal">
+        <button class="modal-close" @click="closeCourseModal">
+          <i class="fas fa-times-circle"></i>
+        </button>
         <h2>{{ selectedCourse.title }}</h2>
         <img :src="selectedCourse.thumbnail" alt="Course Thumbnail" />
         <p>{{ selectedCourse.description }}</p>
         <p>Total Lessons: {{ selectedCourse.totalOfLessons }}</p>
         <p>Enrollments: {{ selectedCourse.enrollment }}</p>
         <div class="modal-buttons">
-          <div>
-            <button
-              v-if="!isEnrolledInCourse(selectedCourse._id)"
-              @click="enrollInCourse"
-            >
-              Enroll Course
+          <div v-if="!isEnrolledInCourse(selectedCourse._id)">
+            <button class="btn-green btn-icon" @click="enrollInCourse">
+              <i class="fas fa-sign-in-alt"></i> Enroll Course
             </button>
-            <div v-else>
-              <button class="view-lessons-btn" @click="navigateToLessons">
-                View Lessons
-              </button>
-              <button class="unenroll-btn" @click="confirmUnenroll">
-                Unenroll Course
-              </button>
-            </div>
           </div>
+          <div v-else>
+            <button class="btn-green btn-icon" @click="navigateToLessons">
+              <div v-if="isAdmin"><i class="fas fa-edit"></i> Edit Lessons</div>
+              <div v-else><i class="fas fa-book-reader"></i> View Lessons</div>
+            </button>
+
+            <button class="btn-red btn-icon" @click="confirmUnenroll">
+              <i class="fas fa-sign-out-alt"></i> Unenroll
+            </button>
+          </div>
+
           <div v-if="isAdmin">
-            <button @click="showEditCourseForm">Edit Course</button>
-            <button @click="confirmDeleteCourse" class="delete-button">
-              Delete Course
+            <button class="btn-green btn-icon" @click="showEditCourseForm">
+              <i class="fas fa-edit"></i> Edit Course Info
             </button>
-          </div>
-          <div>
-            <button @click="closeCourseModal">Close</button>
+            <button class="btn-red btn-icon" @click="confirmDeleteCourse">
+              <i class="fas fa-trash"></i> Delete
+            </button>
           </div>
         </div>
       </div>
@@ -128,8 +141,16 @@
             ></textarea>
           </div>
           <div class="form-buttons">
-            <button type="submit">Save Changes</button>
-            <button type="button" @click="closeEditCourseForm">Cancel</button>
+            <button class="btn-green btn-icon" type="submit">
+              Save Changes
+            </button>
+            <button
+              class="btn-red btn-icon"
+              type="button"
+              @click="closeEditCourseForm"
+            >
+              Cancel
+            </button>
           </div>
         </form>
       </div>
@@ -138,9 +159,23 @@
     <!-- Delete Course Confirmation Modal -->
     <div v-if="showDeleteCourseModalWindow" class="course-modal-overlay">
       <div class="course-modal">
-        <h2>Are you sure you want to delete this course?</h2>
-        <button @click="deleteCourse">Yes</button>
-        <button type="button" @click="closeDeleteCourseModal">No</button>
+        <h2>Delete Course</h2>
+        <p>
+          This action will permanently delete the course and all related data.
+          Are you sure you want to continue?
+        </p>
+        <div class="form-buttons">
+          <button class="btn-red btn-icon" @click="deleteCourse">
+            <i class="fas fa-trash-alt"></i> Delete
+          </button>
+          <button
+            class="btn-green btn-icon"
+            type="button"
+            @click="closeDeleteCourseModal"
+          >
+            <i class="fas fa-times-circle"></i> Cancel
+          </button>
+        </div>
       </div>
     </div>
 
@@ -152,8 +187,14 @@
           You will lose all your progress if you unenroll from the course. Do
           you want to continue?
         </p>
-        <button @click="unenrollFromCourse">OK</button>
-        <button @click="closeUnenrollModal">Cancel</button>
+        <div class="form-buttons">
+          <button class="btn-red btn-icon" @click="unenrollFromCourse">
+            <i class="fas fa-sign-out-alt"></i> Unenroll
+          </button>
+          <button class="btn-green btn-icon" @click="closeUnenrollModal">
+            <i class="fas fa-times-circle"></i> Cancel
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -183,6 +224,7 @@ export default {
       showConfirmUnenrollModal: false,
       showEditCourseFormWindow: false,
       showDeleteCourseModalWindow: false,
+      isLoading: false,
     };
   },
   computed: {
@@ -198,16 +240,19 @@ export default {
     this.fetchCourses();
   },
   methods: {
-    fetchCourses() {
-      axios
-        .get("http://localhost:8081/api/courses?sort=-createdAt")
-        .then((response) => {
-          this.courses = response.data.reverse();
-          this.filteredCourses = this.courses;
-        })
-        .catch((error) => {
-          console.error("Error fetching courses:", error);
-        });
+    async fetchCourses() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          "http://localhost:8081/api/courses?sort=-createdAt"
+        );
+        this.courses = response.data.reverse();
+        this.filteredCourses = this.courses;
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      } finally {
+        this.isLoading = false;
+      }
     },
     filterCourses() {
       this.filteredCourses = this.courses.filter((course) =>
@@ -248,6 +293,8 @@ export default {
       }
     },
     async addCourse() {
+      this.isLoading = true;
+
       const formData = new FormData();
       formData.append("title", this.newCourse.title);
       formData.append("description", this.newCourse.description);
@@ -268,6 +315,8 @@ export default {
         this.closeAddCourseModal();
       } catch (error) {
         console.error("Error adding course:", error);
+      } finally {
+        this.isLoading = false;
       }
     },
     showCourseDetails(course) {
@@ -492,13 +541,23 @@ export default {
   color: #fff;
   padding: 20px;
   border-radius: 10px;
-  max-width: 600px;
+  max-width: 700px;
   text-align: center;
+  position: relative;
+}
+
+.course-modal h2 {
+  color: #42b983;
+  font-size: 2rem;
+  margin-bottom: 20px;
+  font-weight: 600;
 }
 
 .course-modal img {
   max-width: 100%;
-  height: auto;
+  height: 100px;
+  margin: 15px 0;
+  border-radius: 8px;
 }
 
 .course-modal button {
@@ -509,25 +568,6 @@ export default {
   font-size: 1.2rem;
   transition: background-color 0.3s;
   margin-top: 20px;
-}
-
-.course-modal button:first-of-type {
-  background-color: #42b983;
-  color: white;
-  margin-right: 10px;
-}
-
-.course-modal button:first-of-type:hover {
-  background-color: #36a273;
-}
-
-.course-modal button:last-of-type {
-  background-color: #ff4d4d;
-  color: white;
-}
-
-.course-modal button:last-of-type:hover {
-  background-color: #ff1a1a;
 }
 
 .delete-button {
@@ -551,38 +591,17 @@ export default {
   gap: 10px;
 }
 
-.add-course-form {
-  background: #000000;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 800px;
-  margin: 20px auto;
-  text-align: left;
-}
-
-.add-course-form h2 {
-  color: #42b983;
-  font-size: 2rem;
+.form-group {
   margin-bottom: 20px;
 }
 
-.add-course-form form {
-  display: flex;
-  flex-direction: column;
-}
-
-.add-course-form .form-group {
-  margin-bottom: 20px;
-}
-
-.add-course-form .form-group label {
+.form-group label {
   color: #fff;
   font-size: 1.2rem;
 }
 
-.add-course-form .form-group input,
-.add-course-form .form-group textarea {
+.form-group input,
+.form-group textarea {
   padding: 15px;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -590,19 +609,13 @@ export default {
   width: 100%;
 }
 
-.add-course-form .form-group .thumbnail-preview {
-  margin-top: 10px;
-  width: 100px;
-  height: auto;
-}
-
-.add-course-form .form-buttons {
+.form-buttons {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 10px;
 }
 
-.add-course-form .form-buttons button {
+.form-buttons button {
   padding: 15px;
   border: none;
   border-radius: 5px;
@@ -611,21 +624,48 @@ export default {
   transition: background-color 0.3s;
 }
 
-.add-course-form .form-buttons button[type="submit"] {
+.btn-green {
   background-color: #42b983;
   color: white;
 }
 
-.add-course-form .form-buttons button[type="button"] {
+.btn-green:hover {
+  background-color: #36a273;
+}
+
+.btn-red {
   background-color: #ff4d4d;
   color: white;
 }
 
-.add-course-form .form-buttons button[type="submit"]:hover {
-  background-color: #36a273;
+.btn-red:hover {
+  background-color: #ff1a1a;
 }
 
-.add-course-form .form-buttons button[type="button"]:hover {
-  background-color: #ff1a1a;
+.modal-close {
+  padding: 10px !important;
+  margin-top: 0px !important;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.8rem;
+  cursor: pointer;
+}
+
+.modal-close:hover {
+  color: #ff4d4d;
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-icon i {
+  font-size: 1.2rem;
 }
 </style>

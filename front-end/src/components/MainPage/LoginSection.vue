@@ -19,14 +19,17 @@
       </div>
       <button type="submit" class="login-button">Login</button>
       <p class="switch-form">
-        Don't have an account? <a @click.prevent="switchToRegister" href="#">Register here</a>
+        Don't have an account?
+        <a @click.prevent="switchToRegister" href="#">Register here</a>
       </p>
     </form>
   </div>
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import axios from "axios";
+import { mapMutations } from "vuex";
 
 export default {
   name: "LoginSection",
@@ -38,19 +41,72 @@ export default {
     };
   },
   methods: {
-    ...mapActions(["login"]),
+    ...mapMutations(["SET_USER"]),
     async handleLogin() {
-      const loginData = {
-        email: this.email,
-        password: this.password,
-      };
+      if (this.email === "admin@gmail.com") {
+        try {
+          const response = await axios.post(
+            "http://localhost:8081/api/accounts/login",
+            {
+              email: this.email,
+              password: this.password,
+            }
+          );
+
+          const backendUser = response.data.account;
+
+          if (!backendUser || !backendUser._id) {
+            this.loginError = "Admin account not found.";
+            return;
+          }
+
+          this.SET_USER(backendUser);
+          this.$router.push("/home");
+        } catch (error) {
+          console.error("Admin login error:", error);
+          this.loginError = "Invalid admin credentials.";
+        }
+        return;
+      }
+
+      const auth = getAuth();
 
       try {
-        await this.login(loginData);
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          this.email,
+          this.password
+        );
+        const firebaseUser = userCredential.user;
+
+        if (!firebaseUser.emailVerified) {
+          this.loginError = "Please verify your email before logging in.";
+          return;
+        }
+
+        const response = await axios.get(
+          `http://localhost:8081/api/accounts/email/${firebaseUser.email}`
+        );
+        const backendUser = response.data;
+
+        if (!backendUser || !backendUser._id) {
+          this.loginError = "Account not found in our database.";
+          return;
+        }
+
+        this.SET_USER(backendUser);
+
         this.$router.push("/home");
       } catch (error) {
-        console.error("Error logging in:", error);
-        this.loginError = "Failed to login. Please check your email and password.";
+        console.error("Firebase login error:", error.code, error.message);
+
+        if (error.code === "auth/user-not-found") {
+          this.loginError = "No account found with this email.";
+        } else if (error.code === "auth/wrong-password") {
+          this.loginError = "Incorrect password.";
+        } else {
+          this.loginError = "Login failed. Please try again.";
+        }
       }
     },
     switchToRegister() {
@@ -62,9 +118,8 @@ export default {
 
 <style scoped>
 .login-section {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: static;
+  transform: none;
 }
 
 .login-form {
@@ -72,7 +127,7 @@ export default {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 300px;
+  width: 400px;
 }
 
 .login-form h2 {

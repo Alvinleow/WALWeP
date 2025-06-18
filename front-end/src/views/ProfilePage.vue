@@ -22,39 +22,45 @@
                 accept="image/png, image/jpeg"
               />
             </div>
-            <div class="profile-info">
-              <h2 v-if="!isEditing">{{ user.username }}</h2>
+
+            <div class="profile-details">
+              <h2 v-if="!isEditing" class="username-header">
+                👤 <span class="highlight-name">{{ user.username }}</span>
+              </h2>
               <input
                 v-else
                 v-model="editableUsername"
                 type="text"
                 class="editable-username"
               />
-              <p>{{ user.email }}</p>
+
+              <ul class="profile-info-list">
+                <li>📧 <strong>Email:</strong> {{ user.email }}</li>
+                <li>📞 <strong>Phone:</strong> {{ user.phone }}</li>
+                <li>🏫 <strong>School:</strong> {{ user.schoolName }}</li>
+                <li>🎂 <strong>DOB:</strong> {{ formatDate(user.dob) }}</li>
+              </ul>
             </div>
           </div>
-          <!-- <div class="completed-courses">
-            <h3>Completed Courses</h3>
-            <ul>
-              <li v-for="course in user.completedCourses" :key="course.id">
-                {{ course.title }}
-              </li>
-            </ul>
-          </div> -->
-          <button
-            v-if="!isEditing"
-            class="edit-profile-btn"
-            @click="enterEditMode"
-          >
-            Edit Profile
-          </button>
-          <div v-else class="edit-buttons">
-            <button class="save-btn" @click="saveChanges">Save Changes</button>
-            <button class="cancel-btn" @click="cancelEdit">Cancel</button>
+
+          <div class="button-row">
+            <button
+              v-if="!isEditing"
+              class="edit-profile-btn"
+              @click="enterEditMode"
+            >
+              Edit Profile
+            </button>
+            <template v-else>
+              <button class="save-btn" @click="saveChanges">
+                Save Changes
+              </button>
+              <button class="cancel-btn" @click="cancelEdit">Cancel</button>
+            </template>
+            <button class="delete-account-btn" @click="promptDeleteAccount">
+              Delete Account
+            </button>
           </div>
-          <button class="delete-account-btn" @click="promptDeleteAccount">
-            Delete Account
-          </button>
         </div>
         <div v-if="deletionSuccess" class="success-message">
           <h2>Account Deleted Successfully!</h2>
@@ -129,6 +135,14 @@ export default {
     this.loading = false;
   },
   methods: {
+    formatDate(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
+    },
     enterEditMode() {
       this.isEditing = true;
       this.editableUsername = this.user.username;
@@ -275,8 +289,10 @@ export default {
 
 .profile-header {
   display: flex;
+  gap: 30px;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
 }
 
 .profile-pic-wrapper {
@@ -286,11 +302,43 @@ export default {
 }
 
 .user-icon {
-  width: 100px;
-  height: 100px;
+  width: 110px;
+  height: 110px;
   border-radius: 50%;
-  margin-right: 20px;
+  border: 3px solid #42b983;
+  box-shadow: 0 0 8px rgba(66, 185, 131, 0.6);
   cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.user-icon:hover {
+  transform: scale(1.05);
+}
+
+.username-header {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.highlight-name {
+  color: #42b983;
+  font-weight: bold;
+}
+
+.profile-details {
+  flex: 1;
+}
+
+.profile-info-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+.profile-info-list li {
+  margin-bottom: 8px;
 }
 
 .edit-icon {
@@ -316,13 +364,11 @@ export default {
 .editable-username {
   font-size: 2rem;
   color: #42b983;
-  margin: 0;
   background: transparent;
   border: none;
-  border-bottom: 1px solid #42b983;
+  border-bottom: 2px solid #42b983;
   outline: none;
 }
-
 .profile-info p {
   font-size: 1.2rem;
   color: #fff;
@@ -344,6 +390,18 @@ export default {
   font-size: 1.1rem;
   color: #fff;
   margin-bottom: 10px;
+}
+
+.button-row {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.button-row button {
+  flex: 1 1 30%;
 }
 
 .edit-profile-btn,
@@ -374,7 +432,6 @@ export default {
 
 .save-btn {
   background-color: #42b983;
-  margin-right: 10px;
 }
 
 .save-btn:hover {

@@ -10,6 +10,9 @@ router.get("/", accountController.getAllAccounts);
 // Get a single account by userID
 router.get("/:id", accountController.getAccountByID);
 
+// Get account by email
+router.get("/email/:email", accountController.getAccountByEmail);
+
 // Register account
 router.post("/", accountController.createAccount);
 
@@ -31,5 +34,8 @@ router.post("/:id/verify-password", accountController.verifyPassword);
 
 router.put("/enroll/:userId", accountController.enrollCourse);
 router.put("/unenroll/:userId", accountController.unenrollCourse);
+
+router.post("/:userId/add-contact", accountController.addToContacts);
+router.get("/:userId/contacts", accountController.getUserContacts);
 
 module.exports = router;

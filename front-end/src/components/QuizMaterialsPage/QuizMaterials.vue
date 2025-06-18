@@ -1,4 +1,5 @@
 <template>
+  <LoadingModal :visible="isLoading" />
   <div class="quiz-materials">
     <div class="search-sort-bar">
       <input
@@ -13,14 +14,17 @@
       </select>
     </div>
     <div class="add-quiz-button-container" v-if="isAdmin">
-      <button @click="showAddQuizModal">Add Quiz</button>
+      <button class="btn-green btn-icon" @click="showAddQuizModal">
+        <i class="fas fa-plus-circle"></i> Add Quiz
+      </button>
     </div>
+
     <div class="quiz-list">
       <div
         class="quiz"
         v-for="quiz in filteredQuizzes"
         :key="quiz._id"
-        @click="navigateToQuestions(quiz)"
+        @click="handleQuizClick(quiz)"
       >
         <h2 class="quiz-title">Quiz for {{ quiz.courseTitle }}</h2>
         <p class="quiz-questions">{{ quiz.questions.length }} questions</p>
@@ -45,10 +49,35 @@
             </select>
           </div>
           <div class="form-buttons">
-            <button type="submit">Add Quiz</button>
-            <button type="button" @click="closeAddQuizModal">Cancel</button>
+            <button type="submit" class="btn-green btn-icon">
+              <i class="fas fa-paper-plane"></i> Add Quiz
+            </button>
+            <button
+              type="button"
+              class="btn-red btn-icon"
+              @click="closeAddQuizModal"
+            >
+              <i class="fas fa-times"></i> Cancel
+            </button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <div v-if="showQuizOptionsModal" class="modal-overlay">
+      <div class="modal">
+        <button class="cancel-btn" @click="closeQuizOptionsModal">
+          <i class="fas fa-times-circle"></i>
+        </button>
+        <h2>What would you like to do with this quiz?</h2>
+        <div class="form-buttons">
+          <button class="btn-green btn-icon" @click="editQuiz">
+            <i class="fas fa-edit"></i> Edit Quiz Content
+          </button>
+          <button class="btn-red btn-icon" @click="deleteQuiz">
+            <i class="fas fa-trash"></i> Delete Quiz
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -69,6 +98,9 @@ export default {
       filteredQuizzes: [],
       showAddQuizModalWindow: false,
       selectedCourseId: null,
+      selectedQuiz: null,
+      showQuizOptionsModal: false,
+      isLoading: false,
     };
   },
   computed: {
@@ -85,29 +117,31 @@ export default {
     this.fetchCourses();
   },
   methods: {
-    fetchQuizzes() {
-      axios
-        .get("http://localhost:8081/api/quizzes")
-        .then((response) => {
-          this.quizzes = response.data.map((quiz) => ({
-            ...quiz,
-            courseTitle: quiz.courseId.title,
-          }));
-          this.filteredQuizzes = this.quizzes;
-        })
-        .catch((error) => {
-          console.error("Error fetching quizzes:", error);
-        });
+    async fetchQuizzes() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get("http://localhost:8081/api/quizzes");
+        this.quizzes = response.data.map((quiz) => ({
+          ...quiz,
+          courseTitle: quiz.courseId.title,
+        }));
+        this.filteredQuizzes = this.quizzes;
+      } catch (error) {
+        console.error("Error fetching quizzes:", error);
+      } finally {
+        this.isLoading = false;
+      }
     },
-    fetchCourses() {
-      axios
-        .get("http://localhost:8081/api/courses")
-        .then((response) => {
-          this.courses = response.data;
-        })
-        .catch((error) => {
-          console.error("Error fetching courses:", error);
-        });
+    async fetchCourses() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get("http://localhost:8081/api/courses");
+        this.courses = response.data;
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      } finally {
+        this.isLoading = false;
+      }
     },
     filterQuizzes() {
       this.filteredQuizzes = this.quizzes.filter((quiz) =>
@@ -135,6 +169,7 @@ export default {
     },
     async addQuiz() {
       if (this.selectedCourseId) {
+        this.isLoading = true;
         try {
           const response = await axios.post(
             `http://localhost:8081/api/quizzes/${this.selectedCourseId}`,
@@ -152,6 +187,52 @@ export default {
           this.closeAddQuizModal();
         } catch (error) {
           console.error("Error adding quiz:", error);
+        } finally {
+          this.isLoading = false;
+        }
+      }
+    },
+    handleQuizClick(quiz) {
+      if (this.isAdmin) {
+        this.selectedQuiz = quiz;
+        this.showQuizOptionsModal = true;
+      } else {
+        this.navigateToQuestions(quiz);
+      }
+    },
+    showQuizOptions(quiz) {
+      this.selectedQuiz = quiz;
+      this.showQuizOptionsModal = true;
+    },
+    closeQuizOptionsModal() {
+      this.showQuizOptionsModal = false;
+      this.selectedQuiz = null;
+    },
+    async editQuiz() {
+      this.$router.push({
+        name: "QuestionsPage",
+        params: { quizId: this.selectedQuiz._id },
+      });
+      this.closeQuizOptionsModal();
+    },
+    async deleteQuiz() {
+      if (this.selectedQuiz) {
+        this.isLoading = true;
+        try {
+          await axios.delete(
+            `http://localhost:8081/api/quizzes/${this.selectedQuiz._id}`
+          );
+          this.quizzes = this.quizzes.filter(
+            (quiz) => quiz._id !== this.selectedQuiz._id
+          );
+          this.filteredQuizzes = this.filteredQuizzes.filter(
+            (quiz) => quiz._id !== this.selectedQuiz._id
+          );
+          this.closeQuizOptionsModal();
+        } catch (error) {
+          console.error("Error deleting quiz:", error);
+        } finally {
+          this.isLoading = false;
         }
       }
     },
@@ -277,6 +358,7 @@ export default {
   border-radius: 10px;
   max-width: 800px;
   text-align: center;
+  position: relative;
 }
 
 .modal h2 {
@@ -285,20 +367,20 @@ export default {
   color: #42b983;
 }
 
-.modal .form-group {
+.form-group {
   margin-bottom: 20px;
 }
 
-.modal .form-group label {
+.form-group label {
   display: block;
   color: #fff;
   font-size: 1.2rem;
   margin-bottom: 10px;
 }
 
-.modal .form-group select,
-.modal .form-group input,
-.modal .form-group textarea {
+.form-group select,
+.form-group input,
+.form-group textarea {
   width: 100%;
   padding: 15px;
   border: 1px solid #ccc;
@@ -306,13 +388,29 @@ export default {
   font-size: 1.2rem;
 }
 
-.modal .form-buttons {
+.form-buttons {
   display: flex;
   justify-content: center;
   gap: 10px;
 }
 
-.modal .form-buttons button {
+.cancel-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  color: #fff;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.cancel-btn:hover {
+  color: #ff4d4d;
+}
+
+.form-buttons button {
   padding: 15px;
   border: none;
   border-radius: 5px;
@@ -321,21 +419,28 @@ export default {
   transition: background-color 0.3s;
 }
 
-.modal .form-buttons button:first-of-type {
+.btn-green {
   background-color: #42b983;
   color: white;
 }
-
-.modal .form-buttons button:first-of-type:hover {
+.btn-green:hover {
   background-color: #36a273;
 }
 
-.modal .form-buttons button:last-of-type {
+.btn-red {
   background-color: #ff4d4d;
   color: white;
 }
-
-.modal .form-buttons button:last-of-type:hover {
+.btn-red:hover {
   background-color: #ff1a1a;
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.btn-icon i {
+  font-size: 1.2rem;
 }
 </style>

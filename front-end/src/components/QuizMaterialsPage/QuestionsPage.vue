@@ -1,5 +1,6 @@
 <template>
   <div class="main">
+    <LoadingModal :visible="isLoading" />
     <div class="questions-page">
       <NavBar />
       <div class="content">
@@ -20,21 +21,25 @@
         </div>
         <div class="main-content">
           <div class="action-buttons" v-if="isAdmin">
-            <button @click="showAddQuestionModal">Add Question</button>
+            <button class="btn-green btn-icon" @click="showAddQuestionModal">
+              <i class="fas fa-plus-circle"></i> Add Question
+            </button>
             <button
+              class="btn-green btn-icon"
               @click="showEditQuestionModal"
               :disabled="!selectedQuestion"
             >
-              Edit Question
+              <i class="fas fa-edit"></i> Edit Question
             </button>
             <button
+              class="btn-red btn-icon"
               @click="showDeleteQuestionModal"
               :disabled="!selectedQuestion"
-              class="delete-button"
             >
-              Delete Question
+              <i class="fas fa-trash-alt"></i> Delete Question
             </button>
           </div>
+
           <div v-if="selectedQuestion" class="question-container">
             <h3 class="question-title">
               Question {{ selectedQuestionIndex + 1 }}
@@ -57,8 +62,12 @@
                   {{ option }}
                 </label>
               </div>
-              <button type="submit" :disabled="answerSubmitted">
-                Submit Answer
+              <button
+                type="submit"
+                class="btn-green btn-icon"
+                :disabled="answerSubmitted"
+              >
+                <i class="fas fa-paper-plane"></i> Submit Answer
               </button>
             </form>
             <p
@@ -72,22 +81,30 @@
             <h2>Please select a question to view its details.</h2>
           </div>
           <div class="navigation-buttons">
-            <button v-if="selectedQuestionIndex > 0" @click="previousQuestion">
-              Previous
-            </button>
             <button
+              class="btn-green btn-icon"
+              v-if="selectedQuestionIndex > 0"
+              @click="previousQuestion"
+            >
+              <i class="fas fa-arrow-left"></i> Previous
+            </button>
+
+            <div class="spacer"></div>
+
+            <button
+              class="btn-green btn-icon"
               v-if="selectedQuestionIndex < quiz?.questions?.length - 1"
               @click="nextQuestion"
-              class="next-button"
             >
-              Next
+              Next <i class="fas fa-arrow-right"></i>
             </button>
+
             <button
+              class="btn-green btn-icon"
               v-if="selectedQuestionIndex === quiz?.questions?.length - 1"
               @click="checkBeforeFinish"
-              class="next-button"
             >
-              Finish Quiz
+              <i class="fas fa-flag-checkered"></i> Finish Quiz
             </button>
           </div>
         </div>
@@ -126,8 +143,16 @@
                 required
               />
             </div>
-            <button type="submit">Add Question</button>
-            <button type="button" @click="closeAddQuestionModal">Cancel</button>
+            <button type="submit" class="btn-green btn-icon">
+              <i class="fas fa-check-circle"></i> Save
+            </button>
+            <button
+              type="button"
+              class="btn-red btn-icon"
+              @click="closeAddQuestionModal"
+            >
+              <i class="fas fa-times-circle"></i> Cancel
+            </button>
           </form>
         </div>
       </div>
@@ -165,8 +190,14 @@
                 required
               />
             </div>
-            <button type="submit">Save Changes</button>
-            <button type="button" @click="closeEditQuestionModal">
+            <button type="submit" class="btn-green btn-icon">
+              Save Changes
+            </button>
+            <button
+              type="button"
+              class="btn-red btn-icon"
+              @click="closeEditQuestionModal"
+            >
               Cancel
             </button>
           </form>
@@ -178,8 +209,12 @@
         <div class="modal">
           <h2>Confirm Deletion</h2>
           <p>Are you sure you want to delete this question?</p>
-          <button @click="deleteQuestion">Yes</button>
-          <button @click="closeDeleteQuestionModal">No</button>
+          <button class="btn-green btn-icon" @click="deleteQuestion">
+            Yes
+          </button>
+          <button class="btn-red btn-icon" @click="closeDeleteQuestionModal">
+            No
+          </button>
         </div>
       </div>
 
@@ -188,7 +223,9 @@
         <div class="modal">
           <h2>Quiz Result</h2>
           <p>Your score is {{ quizResult.score }}%</p>
-          <button @click="goHome">Back to Home</button>
+          <button class="btn-green btn-icon" @click="goHome">
+            Back to Home
+          </button>
         </div>
       </div>
 
@@ -200,7 +237,24 @@
             Please choose and submit your answer before moving to the next
             question.
           </p>
-          <button @click="closeAnswerReminderModal">OK</button>
+          <button class="btn-green btn-icon" @click="closeAnswerReminderModal">
+            OK
+          </button>
+        </div>
+      </div>
+      <div v-if="showLeaveConfirmModal" class="modal-overlay">
+        <div class="modal">
+          <h2>Leave Quiz?</h2>
+          <p>
+            Your answers will not be saved. Are you sure you want to leave this
+            page?
+          </p>
+          <button class="btn-red btn-icon" @click="confirmLeaveQuiz">
+            Yes, Leave
+          </button>
+          <button class="btn-green btn-icon" @click="cancelLeaveQuiz">
+            Cancel
+          </button>
         </div>
       </div>
     </div>
@@ -227,6 +281,9 @@ export default {
       answerSubmitted: false,
       answerCorrect: false,
       userAnswers: [],
+      showLeaveConfirmModal: false,
+      pendingNext: null,
+
       showAddQuestionModalWindow: false,
       showEditQuestionModalWindow: false,
       showDeleteQuestionModalWindow: false,
@@ -244,6 +301,7 @@ export default {
         correctAnswer: "",
       },
       quizId: this.$route.params.quizId,
+      isLoading: false,
     };
   },
   computed: {
@@ -254,9 +312,22 @@ export default {
     isAdmin() {
       return this.accountLevel === 1;
     },
+    isQuizInProgress() {
+      return this.userAnswers.length > 0 && !this.showQuizResultModal;
+    },
   },
   async created() {
+    this.isLoading = true;
     await this.fetchQuiz();
+    this.isLoading = false;
+  },
+  beforeRouteLeave(to, from, next) {
+    if (this.isQuizInProgress) {
+      this.showLeaveConfirmModal = true;
+      this.pendingNext = next;
+    } else {
+      next();
+    }
   },
   methods: {
     async fetchQuiz() {
@@ -315,11 +386,11 @@ export default {
           correctAnswer: this.newQuestion.correctAnswer,
         };
         try {
-          const response = await axios.post(
+          await axios.post(
             `http://localhost:8081/api/quizzes/${this.quizId}/questions`,
             questionData
           );
-          this.quiz.questions.push(response.data);
+          await this.fetchQuiz();
           this.closeAddQuestionModal();
         } catch (error) {
           console.error("Error adding question:", error);
@@ -478,6 +549,20 @@ export default {
     closeAnswerReminderModal() {
       this.showAnswerReminderModal = false;
     },
+    confirmLeaveQuiz() {
+      this.showLeaveConfirmModal = false;
+      if (this.pendingNext) {
+        this.pendingNext();
+        this.pendingNext = null;
+      }
+    },
+    cancelLeaveQuiz() {
+      this.showLeaveConfirmModal = false;
+      if (this.pendingNext) {
+        this.pendingNext(false);
+        this.pendingNext = null;
+      }
+    },
   },
 };
 </script>
@@ -544,21 +629,8 @@ export default {
   border-radius: 5px;
   cursor: pointer;
   font-size: 1rem;
-  background-color: #42b983;
   color: white;
   transition: background-color 0.3s;
-}
-
-.main-content button:hover {
-  background-color: #36a273;
-}
-
-.main-content .delete-button {
-  background-color: #ff4d4d;
-}
-
-.main-content .delete-button:hover {
-  background-color: #ff1a1a;
 }
 
 .question-container {
@@ -602,8 +674,13 @@ export default {
 
 .navigation-buttons {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
   margin-top: 20px;
+}
+
+.navigation-buttons .spacer {
+  flex-grow: 1;
 }
 
 .navigation-buttons .next-button {
@@ -643,42 +720,28 @@ export default {
   z-index: 1000;
 }
 
+.light-overlay {
+  background: rgba(0, 0, 0, 0.2);
+}
+
 .modal {
-  background: #000;
-  color: #fff;
+  background: #fff;
+  color: #000;
   padding: 20px;
   border-radius: 10px;
   max-width: 500px;
   text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .modal button {
-  padding: 10px;
+  padding: 10px 16px;
+  margin: 10px 5px 0;
   border: none;
   border-radius: 5px;
-  cursor: pointer;
   font-size: 1rem;
+  cursor: pointer;
   transition: background-color 0.3s;
-  margin-top: 20px;
-}
-
-.modal button:first-of-type {
-  background-color: #42b983;
-  color: white;
-  margin-right: 10px;
-}
-
-.modal button:first-of-type:hover {
-  background-color: #36a273;
-}
-
-.modal button:last-of-type {
-  background-color: #ff4d4d;
-  color: white;
-}
-
-.modal button:last-of-type:hover {
-  background-color: #ff1a1a;
 }
 
 .modal input,
@@ -688,6 +751,31 @@ export default {
   margin: 10px 0;
   border-radius: 5px;
   border: 1px solid #ccc;
+  font-size: 1.2rem;
+}
+
+.btn-green {
+  background-color: #42b983;
+  color: white;
+}
+.btn-green:hover {
+  background-color: #36a273;
+}
+
+.btn-red {
+  background-color: #ff4d4d;
+  color: white;
+}
+.btn-red:hover {
+  background-color: #ff1a1a;
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.btn-icon i {
   font-size: 1.2rem;
 }
 </style>

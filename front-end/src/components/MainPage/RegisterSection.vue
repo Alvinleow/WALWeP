@@ -1,60 +1,94 @@
 <template>
   <div class="register-section">
-    <form @submit.prevent="handleRegister" v-if="!registrationSuccess" class="register-form">
+    <form
+      @submit.prevent="handleRegister"
+      v-if="!registrationSuccess"
+      class="register-form"
+    >
       <h2>Register</h2>
-      <div class="form-group">
-        <label for="email">Email:</label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          v-model="email"
-          @blur="validateEmail"
-          required
-        />
-        <span v-if="emailError" class="error-message">{{ emailError }}</span>
-      </div>
-      <div class="form-group">
-        <label for="username">Username:</label>
-        <input
-          type="text"
-          id="username"
-          name="username"
-          v-model="username"
-          required
-        />
-      </div>
-      <div class="form-group">
-        <label for="password">Password:</label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          v-model="password"
-          @blur="validatePassword"
-          required
-        />
-        <span v-if="passwordError" class="error-message">{{ passwordError }}</span>
-      </div>
-      <div class="form-group">
-        <label for="reenter-password">Re-enter Password:</label>
-        <input
-          type="password"
-          id="reenter-password"
-          name="reenter-password"
-          v-model="reenterPassword"
-          @blur="validateReenterPassword"
-          required
-        />
-        <span v-if="reenterPasswordError" class="error-message">{{ reenterPasswordError }}</span>
-      </div>
+
+      <!-- Group: Personal Info -->
+      <fieldset class="form-group-set">
+        <legend>Personal Information</legend>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="username">👤 Username:</label>
+            <input type="text" id="username" v-model="username" required />
+          </div>
+          <div class="form-group">
+            <label for="phone">📞 Phone:</label>
+            <input type="tel" id="phone" v-model="phone" required />
+          </div>
+          <div class="form-group">
+            <label for="schoolName">🏫 School Name:</label>
+            <input type="text" id="schoolName" v-model="schoolName" required />
+          </div>
+          <div class="form-group">
+            <label for="dob">🎂 Date of Birth:</label>
+            <input type="date" id="dob" v-model="dob" required />
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Group: Account Info -->
+      <fieldset class="form-group-set">
+        <legend>Account Information</legend>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="email">📧 Email:</label>
+            <input
+              type="email"
+              id="email"
+              v-model="email"
+              @blur="validateEmail"
+              required
+            />
+            <span v-if="emailError" class="error-message">{{
+              emailError
+            }}</span>
+          </div>
+          <div class="form-group">
+            <label for="password">🔒 Password:</label>
+            <input
+              type="password"
+              id="password"
+              v-model="password"
+              @blur="validatePassword"
+              required
+            />
+            <span v-if="passwordError" class="error-message">{{
+              passwordError
+            }}</span>
+          </div>
+          <div class="form-group">
+            <label for="reenter-password">🔁 Re-enter Password:</label>
+            <input
+              type="password"
+              id="reenter-password"
+              v-model="reenterPassword"
+              @blur="validateReenterPassword"
+              required
+            />
+            <span v-if="reenterPasswordError" class="error-message">{{
+              reenterPasswordError
+            }}</span>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Submit -->
       <button type="submit" class="register-button">Register</button>
       <p class="switch-form">
-        Already have an account? <a @click.prevent="switchToLogin" href="#">Login here</a>
+        Already have an account?
+        <a @click.prevent="switchToLogin" href="#">Login here</a>
       </p>
     </form>
     <div v-else class="success-message">
       <h2>Account Register Successful!</h2>
+      <p>
+        A verification email has been sent to <strong>{{ email }}</strong
+        >. Please check your inbox and verify your email before logging in.
+      </p>
       <p>Redirecting to login page in {{ countdown }} seconds...</p>
     </div>
   </div>
@@ -62,6 +96,11 @@
 
 <script>
 import axios from "axios";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
+import { auth } from "../../firebase";
 
 export default {
   name: "RegisterSection",
@@ -69,13 +108,16 @@ export default {
     return {
       email: "",
       username: "",
+      phone: "",
+      schoolName: "",
+      dob: "",
       password: "",
       reenterPassword: "",
       emailError: "",
       passwordError: "",
       reenterPasswordError: "",
       registrationSuccess: false,
-      countdown: 3,
+      countdown: 5,
     };
   },
   methods: {
@@ -90,7 +132,8 @@ export default {
     validatePassword() {
       const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,15}$/;
       if (!passwordPattern.test(this.password)) {
-        this.passwordError = "Password must be 8-15 characters long and contain both letters and numbers";
+        this.passwordError =
+          "Password must be 8-15 characters long and contain both letters and numbers";
       } else {
         this.passwordError = "";
       }
@@ -111,25 +154,38 @@ export default {
         return;
       }
 
-      const userData = {
-        email: this.email,
-        username: this.username,
-        password: this.password,
-        completedCourses: [],
-        accountLevel: 0,
-      };
-
       try {
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          this.email,
+          this.password
+        );
+        const firebaseUser = userCredential.user;
+
+        await sendEmailVerification(firebaseUser);
+
+        const userData = {
+          email: this.email,
+          username: this.username,
+          phone: this.phone,
+          schoolName: this.schoolName,
+          dob: this.dob,
+          completedCourses: [],
+          accountLevel: 0,
+          firebaseUid: firebaseUser.uid,
+        };
+
         const response = await axios.post(
           "http://localhost:8081/api/accounts",
           userData
         );
-        console.log("Account created:", response.data);
+        console.log("Account created in backend:", response.data);
+
         this.registrationSuccess = true;
         this.startCountdown();
       } catch (error) {
-        console.error("Error creating account:", error);
-        alert("Failed to create account. Please try again.");
+        console.error("Firebase registration error:", error);
+        alert("Failed to create account: " + error.message);
       }
     },
     startCountdown() {
@@ -151,17 +207,15 @@ export default {
 
 <style scoped>
 .register-section {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: static;
+  transform: none;
 }
-
 .register-form {
   background: white;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 300px;
+  width: 600px;
 }
 
 .register-form h2 {
@@ -169,21 +223,46 @@ export default {
   color: #333;
 }
 
+.form-group-set {
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.form-group-set legend {
+  font-weight: bold;
+  color: #42b983;
+  padding: 0 5px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+@media (max-width: 600px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .form-group {
-  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
 }
 
 .form-group label {
-  display: block;
   margin-bottom: 5px;
-  color: #333;
+  font-weight: 600;
 }
 
 .form-group input {
-  width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 6px;
+  font-size: 1rem;
 }
 
 .error-message {
@@ -224,6 +303,8 @@ export default {
 }
 
 .success-message {
+  position: static;
+  transform: none;
   text-align: center;
   color: white;
 }

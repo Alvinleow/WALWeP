@@ -1,4 +1,5 @@
 <template>
+  <LoadingModal :visible="isLoading" />
   <div class="home-content">
     <h1 class="title">What's New on WALWeP?</h1>
     <div class="courses" ref="courses">
@@ -23,9 +24,11 @@ export default {
   data() {
     return {
       courses: [],
+      isLoading: false,
     };
   },
   async created() {
+    this.isLoading = true;
     await this.fetchLatestCourses();
   },
   mounted() {
@@ -43,6 +46,8 @@ export default {
         this.courses = response.data;
       } catch (error) {
         console.error("Error fetching latest courses:", error);
+      } finally {
+        this.isLoading = false;
       }
     },
     handleScroll(event) {

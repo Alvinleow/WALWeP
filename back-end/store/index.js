@@ -1,26 +1,32 @@
 import { createStore } from "vuex";
 import axios from "axios";
 
+const storedUser = localStorage.getItem("user");
+
 export default createStore({
   state: {
-    user: null, // Initially, no user is logged in
+    user: storedUser ? JSON.parse(storedUser) : null,
   },
   mutations: {
     SET_USER(state, user) {
       state.user = user;
+      localStorage.setItem("user", JSON.stringify(user));
     },
     CLEAR_USER(state) {
       state.user = null;
+      localStorage.removeItem("user");
     },
     ENROLL_COURSE(state, courseId) {
       if (!state.user.enrolledCourses.includes(courseId)) {
         state.user.enrolledCourses.push(courseId);
+        localStorage.setItem("user", JSON.stringify(state.user));
       }
     },
     UNENROLL_COURSE(state, courseId) {
       state.user.enrolledCourses = state.user.enrolledCourses.filter(
         (id) => id !== courseId
       );
+      localStorage.setItem("user", JSON.stringify(state.user));
     },
   },
   actions: {

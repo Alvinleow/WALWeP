@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const AccountSchema = new mongoose.Schema(
   {
+    firebaseUid: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     username: {
       type: String,
       required: true,
@@ -14,6 +19,18 @@ const AccountSchema = new mongoose.Schema(
     },
     password: {
       type: String,
+      required: false,
+    },
+    phone: {
+      type: String,
+      required: true,
+    },
+    schoolName: {
+      type: String,
+      required: true,
+    },
+    dob: {
+      type: Date,
       required: true,
     },
     completedCourses: {
@@ -42,6 +59,7 @@ const AccountSchema = new mongoose.Schema(
         date: { type: Date, default: Date.now },
       },
     ],
+    contacts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Account" }],
   },
   {
     timestamps: true,

@@ -4,4 +4,10 @@ import router from "../front-end/src/router";
 import store from "../back-end/store";
 import "../front-end/src/assets/global.css";
 
-createApp(App).use(router).use(store).mount("#app");
+import LoadingModal from "../front-end/src/components/LoadingModal/LoadingModal.vue";
+
+const app = createApp(App);
+
+app.component("LoadingModal", LoadingModal);
+
+app.use(router).use(store).mount("#app");

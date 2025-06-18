@@ -48,14 +48,21 @@ export default {
 
 <style scoped>
 .main {
+  padding-top: 0 !important;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow: hidden;
 }
+
 .content {
   display: flex;
-  width: 80%;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  gap: 40px;
 }
 </style>

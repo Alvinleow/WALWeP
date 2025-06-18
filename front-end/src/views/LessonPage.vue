@@ -1,5 +1,6 @@
 <template>
   <div class="main">
+    <LoadingModal :visible="isLoading" />
     <div class="lesson-page">
       <NavBar />
       <div class="lesson-content">
@@ -20,46 +21,70 @@
         </div>
         <div class="content">
           <div class="action-buttons" v-if="isAdmin">
-            <button @click="showAddLessonModal">Add New Lesson</button>
-            <button v-if="selectedLesson" @click="showEditLessonModal">
-              Edit Lesson Content
+            <button class="btn-green btn-icon" @click="showAddLessonModal">
+              <i class="fas fa-plus-circle"></i> Add New Lesson
             </button>
             <button
+              class="btn-green btn-icon"
+              v-if="selectedLesson"
+              @click="showEditLessonModal"
+            >
+              <i class="fas fa-edit"></i> Edit Lesson Content
+            </button>
+            <button
+              class="btn-red btn-icon"
               v-if="selectedLesson"
               @click="showDeleteLessonModal"
-              class="delete-button"
             >
-              Delete Lesson
+              <i class="fas fa-trash"></i> Delete Lesson
             </button>
           </div>
+
           <div v-if="selectedLesson" class="lesson-container">
             <h3 class="lesson-title">{{ selectedLesson.title }}</h3>
             <div v-html="selectedLesson.content" class="lesson-text"></div>
+            <div v-if="selectedLesson.codeExample">
+              <h4 class="example-title">Example Code:</h4>
+              <div class="example-box">
+                <pre class="example-code">{{ selectedLesson.codeExample }}</pre>
+              </div>
+              <button
+                v-if="selectedLesson.codeExample"
+                class="btn-green btn-icon try-button"
+                @click="tryExample"
+              >
+                <i class="fas fa-terminal"></i> Try it Yourself
+              </button>
+            </div>
           </div>
           <div v-else class="empty-content-message">
             <h2>Please select a lesson to view or edit its content.</h2>
           </div>
           <div class="lesson-navigation" v-if="selectedLesson">
             <button
-              class="prev-button"
+              class="btn-green btn-icon"
               v-if="selectedLessonIndex > 0"
               @click="previousLesson"
             >
-              &lt; Previous Lesson
+              <i class="fas fa-arrow-left"></i> Previous Lesson
             </button>
+
+            <div class="spacer"></div>
+
             <button
-              class="next-button"
+              class="btn-green btn-icon"
               v-if="selectedLessonIndex < lessons.length - 1"
               @click="nextLesson"
             >
-              Next Lesson &gt;
+              Next Lesson <i class="fas fa-arrow-right"></i>
             </button>
+
             <button
-              class="finish-button"
+              class="btn-green btn-icon"
               v-if="selectedLessonIndex === lessons.length - 1"
               @click="finishCourse"
             >
-              Finish Course
+              <i class="fas fa-flag-checkered"></i> Finish Course
             </button>
           </div>
         </div>
@@ -88,8 +113,12 @@
       <!-- Edit Lesson Modal -->
       <div v-if="showEditLessonModalWindow" class="modal-overlay">
         <div class="modal">
-          <h2>Edit Lesson Content</h2>
+          <h2 style="text-align: center">Edit Lesson Content</h2>
           <div ref="quillEditor" class="quill-editor"></div>
+
+          <label>Code Example (HTML/CSS/JS):</label>
+          <div ref="codeEditor" class="code-editor-container"></div>
+
           <button @click="saveLessonContent">Save</button>
           <button type="button" @click="closeEditLessonModal">Cancel</button>
         </div>
@@ -108,8 +137,12 @@
       <div v-if="showFinishModal" class="modal-overlay">
         <div class="modal">
           <h2>{{ finishMessage }}</h2>
-          <button @click="goHome">Back to Home</button>
-          <button @click="attemptQuiz">Attempt Now</button>
+          <button @click="goHome">
+            <i class="fas fa-home"></i> Back to Home
+          </button>
+          <button @click="attemptQuiz">
+            <i class="fas fa-question-circle"></i> Attempt Now
+          </button>
         </div>
       </div>
     </div>
@@ -123,6 +156,11 @@ import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import { mapState } from "vuex";
 
+import CodeMirror from "codemirror";
+import "codemirror/lib/codemirror.css";
+import "codemirror/theme/monokai.css";
+import "codemirror/mode/htmlmixed/htmlmixed.js";
+
 export default {
   name: "LessonPage",
   components: {
@@ -130,12 +168,15 @@ export default {
   },
   data() {
     return {
+      isLoading: false,
       lessons: [],
       showAddLessonModalWindow: false,
       showEditLessonModalWindow: false,
       showDeleteLessonModalWindow: false,
       showFinishModal: false,
       newLessonTitle: "",
+      editableCodeExample: "",
+      codeMirrorInstance: null,
       selectedLesson: null,
       selectedLessonIndex: -1,
       quill: null,
@@ -158,6 +199,7 @@ export default {
   },
   methods: {
     async fetchLessons() {
+      this.isLoading = true;
       try {
         const response = await axios.get(
           `http://localhost:8081/api/courses/${this.courseId}`
@@ -165,9 +207,12 @@ export default {
         this.lessons = response.data.lessons;
       } catch (error) {
         console.error("Error fetching lessons:", error);
+      } finally {
+        this.isLoading = false;
       }
     },
     async fetchUserProgress() {
+      this.isLoading = true;
       try {
         const response = await axios.get(
           `http://localhost:8081/api/userProgress/${this.userId}/${this.courseId}`
@@ -184,6 +229,8 @@ export default {
         }
       } catch (error) {
         console.error("Error fetching user progress:", error);
+      } finally {
+        this.isLoading = false;
       }
     },
     showAddLessonModal() {
@@ -214,6 +261,7 @@ export default {
     },
     showEditLessonModal() {
       this.showEditLessonModalWindow = true;
+
       this.$nextTick(() => {
         this.quill = new Quill(this.$refs.quillEditor, {
           theme: "snow",
@@ -227,7 +275,16 @@ export default {
         if (this.selectedLesson) {
           this.quill.root.innerHTML = this.selectedLesson.content;
         }
+
+        this.codeMirrorInstance = CodeMirror(this.$refs.codeEditor, {
+          value: this.selectedLesson.codeExample || "",
+          mode: "htmlmixed",
+          lineNumbers: true,
+          theme: "monokai",
+          tabSize: 2,
+        });
       });
+      this.editableCodeExample = this.selectedLesson.codeExample || "";
     },
     closeEditLessonModal() {
       this.showEditLessonModalWindow = false;
@@ -236,11 +293,19 @@ export default {
     async saveLessonContent() {
       if (this.selectedLesson) {
         try {
+          const updatedCode = this.codeMirrorInstance.getValue();
+          this.editableCodeExample = updatedCode;
+
           const response = await axios.put(
             `http://localhost:8081/api/courses/${this.courseId}/lessons/${this.selectedLesson._id}`,
-            { content: this.quill.root.innerHTML }
+            {
+              content: this.quill.root.innerHTML,
+              codeExample: updatedCode,
+            }
           );
+
           this.selectedLesson.content = this.quill.root.innerHTML;
+          this.selectedLesson.codeExample = this.editableCodeExample;
           this.lessons = response.data.lessons;
           this.closeEditLessonModal();
         } catch (error) {
@@ -360,6 +425,14 @@ export default {
         console.error("Error fetching quiz ID:", error);
       }
     },
+    tryExample() {
+      this.$router.push({
+        name: "CodeEditor",
+        query: {
+          code: encodeURIComponent(this.selectedLesson.codeExample || ""),
+        },
+      });
+    },
   },
 };
 </script>
@@ -430,13 +503,8 @@ export default {
   border-radius: 5px;
   cursor: pointer;
   font-size: 1rem;
-  background-color: #42b983;
   color: white;
   transition: background-color 0.3s;
-}
-
-.content button:hover {
-  background-color: #36a273;
 }
 
 .delete-button {
@@ -451,7 +519,12 @@ export default {
 .lesson-navigation {
   display: flex;
   justify-content: space-between;
-  align-items: center; /* Ensures buttons are aligned in the middle */
+  align-items: center;
+  margin-top: 20px;
+}
+
+.lesson-navigation .spacer {
+  flex-grow: 1;
 }
 
 .prev-button {
@@ -494,12 +567,16 @@ export default {
 }
 
 .modal {
+  display: flex;
+  flex-direction: column;
   background: #000;
   color: #fff;
   padding: 20px;
   border-radius: 10px;
-  max-width: 500px;
-  text-align: center;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  width: 90%;
 }
 
 .modal button {
@@ -515,7 +592,6 @@ export default {
 .modal button:first-of-type {
   background-color: #42b983;
   color: white;
-  margin-right: 10px;
 }
 
 .modal button:first-of-type:hover {
@@ -541,9 +617,21 @@ export default {
   font-size: 1.2rem; /* Increased font size */
 }
 
-.quill-editor {
-  height: 200px;
+.quill-editor,
+.code-editor-container {
+  flex-shrink: 0;
+  min-height: 150px;
+  max-height: 250px;
+  overflow-y: auto;
   margin-bottom: 20px;
+}
+
+.CodeMirror {
+  height: auto !important;
+  min-height: 150px;
+  max-height: 250px;
+  border-radius: 5px;
+  font-size: 14px;
 }
 
 .action-buttons {
@@ -564,5 +652,104 @@ export default {
 .lesson-text {
   font-size: 1.2rem;
   margin-bottom: 20px;
+}
+
+.example-title {
+  font-size: 1.25rem;
+  margin-bottom: 10px;
+}
+
+.example-box {
+  background-color: #1e293b; /* dark blue-gray */
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 15px;
+  overflow-x: auto;
+  margin-bottom: 15px;
+}
+
+.example-code {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 14px;
+  color: #f8f8f2;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.try-button {
+  background-color: #10b981; /* emerald-500 */
+  color: white;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.try-button:hover {
+  background-color: #059669; /* emerald-600 */
+}
+
+/* WebKit-based browsers (Chrome, Safari, Edge) */
+.modal::-webkit-scrollbar,
+.quill-editor::-webkit-scrollbar,
+.code-editor-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.modal::-webkit-scrollbar-track,
+.quill-editor::-webkit-scrollbar-track,
+.code-editor-container::-webkit-scrollbar-track {
+  background: #1e1e1e; /* Track background */
+  border-radius: 10px;
+}
+
+.modal::-webkit-scrollbar-thumb,
+.quill-editor::-webkit-scrollbar-thumb,
+.code-editor-container::-webkit-scrollbar-thumb {
+  background-color: #42b983; /* Scrollbar thumb color */
+  border-radius: 10px;
+  border: 2px solid #1e1e1e; /* Optional: padding around thumb */
+}
+
+.modal::-webkit-scrollbar-thumb:hover,
+.quill-editor::-webkit-scrollbar-thumb:hover,
+.code-editor-container::-webkit-scrollbar-thumb:hover {
+  background-color: #36a273;
+}
+
+.btn-green {
+  background-color: #42b983;
+  color: white;
+}
+.btn-green:hover {
+  background-color: #36a273;
+}
+
+.btn-red {
+  background-color: #ff4d4d;
+  color: white;
+}
+.btn-red:hover {
+  background-color: #ff1a1a;
+}
+
+.btn-gray {
+  background-color: #6c757d;
+  color: white;
+}
+.btn-gray:hover {
+  background-color: #5a6268;
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.btn-icon i {
+  font-size: 1.2rem;
 }
 </style>

@@ -3,17 +3,16 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const multer = require("multer");
 const bcrypt = require("bcrypt");
+const http = require("http");
+const socketIO = require("socket.io");
+
 const { connectDB } = require("./config/database");
 const Account = require("./models/account");
+const socketHandler = require("./controllers/socketController");
 
 const saltRounds = 10;
 
-// List of allowed origins
-const allowedOrigins = [
-  "http://localhost:8080",
-  "http://localhost:8082",
-  // Add other origins as needed
-];
+const allowedOrigins = ["http://localhost:8080", "http://localhost:8082"];
 
 connectDB()
   .then(async () => {
@@ -43,11 +42,20 @@ connectDB()
     }
 
     const app = express();
+    const server = http.createServer(app);
+    const io = socketIO(server, {
+      cors: {
+        origin: allowedOrigins,
+        methods: ["GET", "POST"],
+        credentials: true,
+      },
+    });
+
+    socketHandler(io);
 
     const corsOptions = {
       origin: function (origin, callback) {
         if (allowedOrigins.includes(origin) || !origin) {
-          // Allow requests with no origin (like mobile apps or curl requests)
           callback(null, true);
         } else {
           console.log("Blocked CORS request from origin:", origin);
@@ -74,11 +82,14 @@ connectDB()
     app.use("/api/courses", require("./routes/course"));
     app.use("/api/userProgress", require("./routes/userProgress"));
     app.use("/api/quizzes", require("./routes/quiz"));
+    app.use("/api/messages", require("./routes/message"));
 
     const PORT = process.env.PORT || 8081;
-    app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+    server.listen(PORT, () =>
+      console.log(`Server + Socket.IO running on port ${PORT}`)
+    );
   })
   .catch((err) => {
-    console.error(err);
+    console.error("Failed to start server:", err);
     process.exit(1);
   });

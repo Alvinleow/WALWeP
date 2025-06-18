@@ -7,8 +7,10 @@ import CourseProgressPage from "../views/CourseProgressPage.vue";
 import ContactPage from "../views/ContactPage.vue";
 import ProfilePage from "../views/ProfilePage.vue";
 import LessonPage from "../views/LessonPage.vue";
+import CodeEditor from "../views/CodeEditor.vue";
 import QuizPage from "../views/QuizPage.vue";
 import QuestionsPage from "../components/QuizMaterialsPage/QuestionsPage.vue";
+import ChatRoom from "../views/ChatRoom.vue";
 
 const routes = [
   { path: "/", name: "MainPage", component: MainPage },
@@ -43,9 +45,20 @@ const routes = [
     props: true,
   },
   {
+    path: "/code-editor",
+    name: "CodeEditor",
+    component: CodeEditor,
+  },
+  {
     path: "/quizzes/:quizId",
     name: "QuestionsPage",
     component: QuestionsPage,
+  },
+  {
+    path: "/chat/:otherUserId",
+    name: "ChatRoom",
+    component: ChatRoom,
+    props: true,
   },
 ];
 

@@ -1,5 +1,6 @@
 <template>
   <div class="course-progress">
+    <LoadingModal :visible="isLoading" />
     <h2>Course Progress</h2>
     <p>View your scores and track your progress in your courses.</p>
     <div v-for="course in courses" :key="course._id" class="progress-item">
@@ -25,7 +26,8 @@ export default {
       courses: [],
       lessonProgresses: [],
       quizResults: [],
-      quizzes: [], // Store all quizzes
+      quizzes: [],
+      isLoading: false,
     };
   },
   computed: {
@@ -35,10 +37,12 @@ export default {
   },
   async created() {
     if (this.userId) {
+      this.isLoading = true;
       await this.fetchCourses();
       await this.fetchLessonProgresses();
-      await this.fetchQuizzes(); // Fetch all quizzes
+      await this.fetchQuizzes();
       await this.fetchQuizResults();
+      this.isLoading = false;
     }
   },
   methods: {

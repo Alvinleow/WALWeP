@@ -3,8 +3,7 @@
     <h1>WAL<span class="highlight">WeP</span></h1>
     <p>
       Our platform offers a variety of courses to help you expand your knowledge
-      and skills. Join us today to start learning from experts in various
-      fields!
+      and skills for Web Programming. Join us today to start learning!
     </p>
   </div>
 </template>
@@ -17,6 +16,8 @@ export default {
 
 <style scoped>
 .text-section {
+  position: static;
+  transform: none;
   color: white;
   max-width: 50%;
 }

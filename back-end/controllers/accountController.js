@@ -42,19 +42,42 @@ exports.getAccountByID = async (req, res) => {
   }
 };
 
+// Find account by email
+exports.getAccountByEmail = async (req, res) => {
+  try {
+    const account = await Account.findOne({ email: req.params.email });
+    if (!account) {
+      return res.status(404).json({ message: "Account not found" });
+    }
+    res.json(account);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
 // Register account
 exports.createAccount = async (req, res) => {
-  const { username, email, password, completedCourses, accountLevel } =
-    req.body;
+  const {
+    username,
+    email,
+    firebaseUid,
+    completedCourses,
+    accountLevel,
+    phone,
+    schoolName,
+    dob,
+  } = req.body;
 
   try {
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
     const account = new Account({
       username,
       email,
-      password: hashedPassword,
+      firebaseUid,
       completedCourses,
       accountLevel,
+      phone,
+      schoolName,
+      dob,
       profilePicUrl:
         "https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png",
     });
@@ -85,6 +108,7 @@ exports.loginAccount = async (req, res) => {
 
     res.json({ message: "Login successful", account });
   } catch (err) {
+    console.error("Login error:", err);
     res.status(500).json({ message: err.message });
   }
 };
@@ -135,7 +159,7 @@ exports.deleteAccount = async (req, res) => {
     const account = await Account.findById(req.params.id);
     if (!account) return res.status(404).json({ message: "Account not found" });
 
-await account.deleteOne();
+    await account.deleteOne();
     res.json({ message: "Account deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -208,5 +232,43 @@ exports.unenrollCourse = async (req, res) => {
   } catch (err) {
     console.error("Error unenrolling from course:", err);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.addToContacts = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { contactId } = req.body;
+
+    const user = await Account.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.contacts.includes(contactId)) {
+      return res.status(400).json({ message: "User is already in contacts" });
+    }
+
+    user.contacts.push(contactId);
+    await user.save();
+
+    res.status(200).json({ message: "User added to contacts", user });
+  } catch (err) {
+    console.error("Error adding contact:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.getUserContacts = async (req, res) => {
+  try {
+    const account = await Account.findById(req.params.userId).populate(
+      "contacts"
+    );
+    if (!account) {
+      return res.status(404).json({ message: "Account not found" });
+    }
+    res.json({ contacts: account.contacts });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
