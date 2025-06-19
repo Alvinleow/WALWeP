@@ -49,13 +49,22 @@
           </div>
           <div class="form-group">
             <label for="password">🔒 Kata Laluan:</label>
-            <input
-              type="password"
-              id="password"
-              v-model="password"
-              @blur="validatePassword"
-              required
-            />
+            <div class="password-wrapper">
+              <input
+                :type="showPassword ? 'text' : 'password'"
+                id="password"
+                v-model="password"
+                @blur="validatePassword"
+                required
+              />
+              <i
+                :class="[
+                  'toggle-password',
+                  showPassword ? 'fas fa-eye-slash' : 'fas fa-eye',
+                ]"
+                @click="showPassword = !showPassword"
+              ></i>
+            </div>
             <span v-if="passwordError" class="error-message">{{
               passwordError
             }}</span>
@@ -64,13 +73,24 @@
             <label for="reenter-password"
               >🔁 Masukkan Semula Kata Laluan:</label
             >
-            <input
-              type="password"
-              id="reenter-password"
-              v-model="reenterPassword"
-              @blur="validateReenterPassword"
-              required
-            />
+            <div class="password-wrapper">
+              <input
+                :type="showReenterPassword ? 'text' : 'password'"
+                id="reenter-password"
+                v-model="reenterPassword"
+                @blur="validateReenterPassword"
+                autocomplete="new-password"
+                required
+              />
+              <i
+                :class="[
+                  'toggle-password',
+                  showReenterPassword ? 'fas fa-eye-slash' : 'fas fa-eye',
+                ]"
+                @click="showReenterPassword = !showReenterPassword"
+              ></i>
+            </div>
+
             <span v-if="reenterPasswordError" class="error-message">{{
               reenterPasswordError
             }}</span>
@@ -120,6 +140,8 @@ export default {
       reenterPasswordError: "",
       registrationSuccess: false,
       countdown: 5,
+      showPassword: false,
+      showReenterPassword: false,
     };
   },
   methods: {
@@ -309,5 +331,45 @@ export default {
   transform: none;
   text-align: center;
   color: white;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 40px; /* space for the icon */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #888;
+  font-size: 1.1rem;
+}
+
+.toggle-password:hover {
+  color: #42b983;
+}
+
+/* Hide the default Chrome password reveal button */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-inner-spin-button,
+input[type="password"]::-webkit-clear-button {
+  display: none;
+}
+
+/* Chrome-specific fix */
+input[type="password"]::-webkit-textfield-decoration-container {
+  display: none !important;
 }
 </style>

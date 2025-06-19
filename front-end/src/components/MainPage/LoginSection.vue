@@ -8,13 +8,23 @@
       </div>
       <div class="form-group">
         <label for="password">Kata Laluan:</label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          v-model="password"
-          required
-        />
+        <div class="password-wrapper">
+          <input
+            :type="showPassword ? 'text' : 'password'"
+            id="password"
+            name="password"
+            v-model="password"
+            required
+          />
+          <i
+            :class="[
+              'toggle-password',
+              showPassword ? 'fas fa-eye-slash' : 'fas fa-eye',
+            ]"
+            @click="showPassword = !showPassword"
+            style="font-size: 20px"
+          ></i>
+        </div>
         <span v-if="loginError" class="error-message">{{ loginError }}</span>
       </div>
       <button type="submit" class="login-button">Log Masuk</button>
@@ -38,6 +48,7 @@ export default {
       email: "",
       password: "",
       loginError: "",
+      showPassword: false,
     };
   },
   methods: {
@@ -184,5 +195,29 @@ export default {
 }
 .switch-form a:hover {
   text-decoration: underline;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 40px; /* Make room for the icon */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #888;
+  font-size: 1.1rem;
+  height: 20px;
+}
+
+.toggle-password:hover {
+  color: #42b983;
 }
 </style>
