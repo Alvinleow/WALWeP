@@ -33,10 +33,10 @@ export default createStore({
     async login({ commit }, credentials) {
       try {
         const response = await axios.post(
-          "http://localhost:8081/api/accounts/login",
+          `${process.env.VUE_APP_API_BASE}/api/accounts/login`,
           credentials
         );
-        const user = response.data.account; // Assuming the response includes the account details
+        const user = response.data.account;
         commit("SET_USER", user);
       } catch (error) {
         console.error("Error logging in:", error);
@@ -48,7 +48,7 @@ export default createStore({
     },
     async enrollInCourse({ commit, state }, courseId) {
       try {
-        await axios.put(`http://localhost:8081/api/accounts/enroll`, {
+        await axios.put(`${process.env.VUE_APP_API_BASE}/api/accounts/enroll`, {
           userId: state.user._id,
           courseId,
         });
@@ -60,10 +60,13 @@ export default createStore({
     },
     async unenrollFromCourse({ commit, state }, courseId) {
       try {
-        await axios.put(`http://localhost:8081/api/accounts/unenroll`, {
-          userId: state.user._id,
-          courseId,
-        });
+        await axios.put(
+          `${process.env.VUE_APP_API_BASE}/api/accounts/unenroll`,
+          {
+            userId: state.user._id,
+            courseId,
+          }
+        );
         commit("UNENROLL_COURSE", courseId);
       } catch (error) {
         console.error("Error unenrolling from course:", error);

@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 
-const uri =
-  "mongodb+srv://Alvin:Izumisagiri%401210@walwepmaincluster.jsgyyca.mongodb.net/WALWePDB?retryWrites=true&w=majority&appName=WALWePMainCluster";
+const uri = process.env.MONGODB_URI;
 
 async function connectDB() {
   try {

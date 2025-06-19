@@ -1,9 +1,9 @@
 const admin = require("firebase-admin");
-const serviceAccount = require("./walwep-349b6-firebase-adminsdk-fbsvc-11eb344c18.json");
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  storageBucket: "walwep-349b6.firebasestorage.app",
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
 });
 
 const storage = admin.storage().bucket();
