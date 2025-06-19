@@ -15,7 +15,7 @@ const socketHandler = require("./controllers/socketController");
 const saltRounds = 10;
 // test again
 const allowedOrigins = [
-  process.env.VUE_APP_FRONTEND_URL,
+  //process.env.VUE_APP_FRONTEND_URL,
   "https://walwep.netlify.app",
   "http://localhost:8081",
   "http://localhost:8082",
