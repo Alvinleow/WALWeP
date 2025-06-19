@@ -9,7 +9,7 @@ import ProfilePage from "../views/ProfilePage.vue";
 import LessonPage from "../views/LessonPage.vue";
 import CodeEditor from "../views/CodeEditor.vue";
 import QuizPage from "../views/QuizPage.vue";
-import QuestionsPage from "../components/QuizMaterialsPage/QuestionsPage.vue";
+import QuestionsPage from "../views/QuestionsPage.vue";
 import ChatRoom from "../views/ChatRoom.vue";
 
 const routes = [

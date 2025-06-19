@@ -1,258 +1,251 @@
 <template>
-  <div class="main">
-    <LoadingModal :visible="isLoading" />
-    <div class="questions-page">
-      <NavBar />
-      <div class="content">
-        <div class="sidebar">
-          <ul v-if="quiz?.questions?.length > 0">
-            <li
-              v-for="(question, index) in quiz.questions"
-              :key="question._id"
-              :class="{ selected: selectedQuestionIndex === index }"
-              @click="isAdmin ? selectQuestion(question, index) : null"
-            >
-              Soalan {{ index + 1 }}
-            </li>
-          </ul>
-          <div v-else>
-            <p>Tiada soalan tersedia. Sila tambah soalan.</p>
-          </div>
+  <LoadingModal :visible="isLoading" />
+  <div class="questions-page">
+    <div class="content">
+      <div class="sidebar">
+        <ul v-if="quiz?.questions?.length > 0">
+          <li
+            v-for="(question, index) in quiz.questions"
+            :key="question._id"
+            :class="{ selected: selectedQuestionIndex === index }"
+            @click="isAdmin ? selectQuestion(question, index) : null"
+          >
+            Soalan {{ index + 1 }}
+          </li>
+        </ul>
+        <div v-else>
+          <p>Tiada soalan tersedia. Sila tambah soalan.</p>
         </div>
-        <div class="main-content">
-          <div class="action-buttons" v-if="isAdmin">
-            <button class="btn-green btn-icon" @click="showAddQuestionModal">
-              <i class="fas fa-plus-circle"></i> Tambah Soalan
-            </button>
-            <button
-              class="btn-green btn-icon"
-              @click="showEditQuestionModal"
-              :disabled="!selectedQuestion"
-            >
-              <i class="fas fa-edit"></i> Edit Soalan
-            </button>
-            <button
-              class="btn-red btn-icon"
-              @click="showDeleteQuestionModal"
-              :disabled="!selectedQuestion"
-            >
-              <i class="fas fa-trash-alt"></i> Padam Soalan
-            </button>
-          </div>
+      </div>
+      <div class="main-content">
+        <div class="action-buttons" v-if="isAdmin">
+          <button class="btn-green btn-icon" @click="showAddQuestionModal">
+            <i class="fas fa-plus-circle"></i> Tambah Soalan
+          </button>
+          <button
+            class="btn-green btn-icon"
+            @click="showEditQuestionModal"
+            :disabled="!selectedQuestion"
+          >
+            <i class="fas fa-edit"></i> Edit Soalan
+          </button>
+          <button
+            class="btn-red btn-icon"
+            @click="showDeleteQuestionModal"
+            :disabled="!selectedQuestion"
+          >
+            <i class="fas fa-trash-alt"></i> Padam Soalan
+          </button>
+        </div>
 
-          <div v-if="selectedQuestion" class="question-container">
-            <h3 class="question-title">
-              Soalan {{ selectedQuestionIndex + 1 }}
-            </h3>
-            <p class="question-text">{{ selectedQuestion.text }}</p>
-            <form @submit.prevent="submitAnswer">
-              <div class="options">
-                <label
-                  v-for="(option, index) in selectedQuestion.options"
-                  :key="index"
-                  :class="{ selected: selectedAnswer === option }"
-                >
-                  <input
-                    type="radio"
-                    :value="option"
-                    v-model="selectedAnswer"
-                    name="options"
-                    :disabled="answerSubmitted"
-                  />
-                  {{ option }}
-                </label>
-              </div>
-              <button
-                type="submit"
-                class="btn-green btn-icon"
-                :disabled="answerSubmitted"
+        <div v-if="selectedQuestion" class="question-container">
+          <h3 class="question-title">Soalan {{ selectedQuestionIndex + 1 }}</h3>
+          <p class="question-text">{{ selectedQuestion.text }}</p>
+          <form @submit.prevent="submitAnswer">
+            <div class="options">
+              <label
+                v-for="(option, index) in selectedQuestion.options"
+                :key="index"
+                :class="{ selected: selectedAnswer === option }"
               >
-                <i class="fas fa-paper-plane"></i> Hantar Jawapan
-              </button>
-            </form>
-            <p
-              v-if="showCorrectAnswer"
-              :class="answerCorrect ? 'correct-answer' : 'wrong-answer'"
-            >
-              {{ answerCorrect ? "Jawapan Betul" : "Jawapan Salah" }}
-            </p>
-          </div>
-          <div v-else>
-            <h2>Sila pilih satu soalan untuk melihat butirannya.</h2>
-          </div>
-          <div class="navigation-buttons">
-            <button
-              class="btn-green btn-icon"
-              v-if="selectedQuestionIndex > 0"
-              @click="previousQuestion"
-            >
-              <i class="fas fa-arrow-left"></i> Sebelum
-            </button>
-
-            <div class="spacer"></div>
-
-            <button
-              class="btn-green btn-icon"
-              v-if="selectedQuestionIndex < quiz?.questions?.length - 1"
-              @click="nextQuestion"
-            >
-              Seterusnya <i class="fas fa-arrow-right"></i>
-            </button>
-
-            <button
-              class="btn-green btn-icon"
-              v-if="selectedQuestionIndex === quiz?.questions?.length - 1"
-              @click="checkBeforeFinish"
-            >
-              <i class="fas fa-flag-checkered"></i> Tamat Kuiz
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Add Question Modal -->
-      <div v-if="showAddQuestionModalWindow" class="modal-overlay">
-        <div class="modal">
-          <h2>Tambah Soalan Baharu</h2>
-          <form @submit.prevent="addQuestion">
-            <div>
-              <label for="questionText">Teks Soalan:</label>
-              <input
-                type="text"
-                id="questionText"
-                v-model="newQuestion.text"
-                required
-              />
+                <input
+                  type="radio"
+                  :value="option"
+                  v-model="selectedAnswer"
+                  name="options"
+                  :disabled="answerSubmitted"
+                />
+                {{ option }}
+              </label>
             </div>
-            <div>
-              <label for="options">Pilihan:</label>
-              <input
-                type="text"
-                id="options"
-                v-model="newQuestion.options"
-                placeholder="Separate options with commas"
-                required
-              />
-            </div>
-            <div>
-              <label for="correctAnswer">Jawapan Betul:</label>
-              <input
-                type="text"
-                id="correctAnswer"
-                v-model="newQuestion.correctAnswer"
-                required
-              />
-            </div>
-            <button type="submit" class="btn-green btn-icon">
-              <i class="fas fa-check-circle"></i> Simpan
-            </button>
             <button
-              type="button"
-              class="btn-red btn-icon"
-              @click="closeAddQuestionModal"
+              type="submit"
+              class="btn-green btn-icon"
+              :disabled="answerSubmitted"
             >
-              <i class="fas fa-times-circle"></i> Batal
+              <i class="fas fa-paper-plane"></i> Hantar Jawapan
             </button>
           </form>
-        </div>
-      </div>
-
-      <!-- Edit Question Modal -->
-      <div v-if="showEditQuestionModalWindow" class="modal-overlay">
-        <div class="modal">
-          <h2>Edit Soalan</h2>
-          <form @submit.prevent="editQuestion">
-            <div>
-              <label for="editQuestionText">Teks Soalan:</label>
-              <input
-                type="text"
-                id="editQuestionText"
-                v-model="editQuestionData.text"
-                required
-              />
-            </div>
-            <div>
-              <label for="editOptions">Pilihan:</label>
-              <input
-                type="text"
-                id="editOptions"
-                v-model="editQuestionData.options"
-                placeholder="Separate options with commas"
-                required
-              />
-            </div>
-            <div>
-              <label for="editCorrectAnswer">Jawapan Betul:</label>
-              <input
-                type="text"
-                id="editCorrectAnswer"
-                v-model="editQuestionData.correctAnswer"
-                required
-              />
-            </div>
-            <button type="submit" class="btn-green btn-icon">
-              Simpan Perubahan
-            </button>
-            <button
-              type="button"
-              class="btn-red btn-icon"
-              @click="closeEditQuestionModal"
-            >
-              Batal
-            </button>
-          </form>
-        </div>
-      </div>
-
-      <!-- Delete Question Modal -->
-      <div v-if="showDeleteQuestionModalWindow" class="modal-overlay">
-        <div class="modal">
-          <h2>Sahkan Pemadaman</h2>
-          <p>Adakah anda pasti mahu padam soalan ini?</p>
-          <button class="btn-green btn-icon" @click="deleteQuestion">Ya</button>
-          <button class="btn-red btn-icon" @click="closeDeleteQuestionModal">
-            Tidak
-          </button>
-        </div>
-      </div>
-
-      <!-- Quiz Result Modal -->
-      <div v-if="showQuizResultModal" class="modal-overlay">
-        <div class="modal">
-          <h2>Keputusan Kuiz</h2>
-          <p>Markah anda ialah {{ quizResult.score }}%</p>
-          <button class="btn-green btn-icon" @click="goHome">
-            Kembali ke Laman Utama
-          </button>
-        </div>
-      </div>
-
-      <!-- Answer Reminder Modal -->
-      <div v-if="showAnswerReminderModal" class="modal-overlay">
-        <div class="modal">
-          <h2>Peringatan</h2>
-          <p>
-            Sila pilih dan hantar jawapan anda sebelum ke soalan seterusnya.
+          <p
+            v-if="showCorrectAnswer"
+            :class="answerCorrect ? 'correct-answer' : 'wrong-answer'"
+          >
+            {{ answerCorrect ? "Jawapan Betul" : "Jawapan Salah" }}
           </p>
-          <button class="btn-green btn-icon" @click="closeAnswerReminderModal">
-            OK
+        </div>
+        <div v-else>
+          <h2>Sila pilih satu soalan untuk melihat butirannya.</h2>
+        </div>
+        <div class="navigation-buttons">
+          <button
+            class="btn-green btn-icon"
+            v-if="selectedQuestionIndex > 0"
+            @click="previousQuestion"
+          >
+            <i class="fas fa-arrow-left"></i> Sebelum
+          </button>
+
+          <div class="spacer"></div>
+
+          <button
+            class="btn-green btn-icon"
+            v-if="selectedQuestionIndex < quiz?.questions?.length - 1"
+            @click="nextQuestion"
+          >
+            Seterusnya <i class="fas fa-arrow-right"></i>
+          </button>
+
+          <button
+            class="btn-green btn-icon"
+            v-if="selectedQuestionIndex === quiz?.questions?.length - 1"
+            @click="checkBeforeFinish"
+          >
+            <i class="fas fa-flag-checkered"></i> Tamat Kuiz
           </button>
         </div>
       </div>
-      <div v-if="showLeaveConfirmModal" class="modal-overlay">
-        <div class="modal">
-          <h2>Tinggalkan Kuiz?</h2>
-          <p>
-            Jawapan anda tidak akan disimpan. Adakah anda pasti mahu keluar dari
-            halaman ini?
-          </p>
-          <button class="btn-red btn-icon" @click="confirmLeaveQuiz">
-            Ya, Keluar
+    </div>
+
+    <!-- Add Question Modal -->
+    <div v-if="showAddQuestionModalWindow" class="modal-overlay">
+      <div class="modal">
+        <h2>Tambah Soalan Baharu</h2>
+        <form @submit.prevent="addQuestion">
+          <div>
+            <label for="questionText">Teks Soalan:</label>
+            <input
+              type="text"
+              id="questionText"
+              v-model="newQuestion.text"
+              required
+            />
+          </div>
+          <div>
+            <label for="options">Pilihan:</label>
+            <input
+              type="text"
+              id="options"
+              v-model="newQuestion.options"
+              placeholder="Separate options with commas"
+              required
+            />
+          </div>
+          <div>
+            <label for="correctAnswer">Jawapan Betul:</label>
+            <input
+              type="text"
+              id="correctAnswer"
+              v-model="newQuestion.correctAnswer"
+              required
+            />
+          </div>
+          <button type="submit" class="btn-green btn-icon">
+            <i class="fas fa-check-circle"></i> Simpan
           </button>
-          <button class="btn-green btn-icon" @click="cancelLeaveQuiz">
+          <button
+            type="button"
+            class="btn-red btn-icon"
+            @click="closeAddQuestionModal"
+          >
+            <i class="fas fa-times-circle"></i> Batal
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Edit Question Modal -->
+    <div v-if="showEditQuestionModalWindow" class="modal-overlay">
+      <div class="modal">
+        <h2>Edit Soalan</h2>
+        <form @submit.prevent="editQuestion">
+          <div>
+            <label for="editQuestionText">Teks Soalan:</label>
+            <input
+              type="text"
+              id="editQuestionText"
+              v-model="editQuestionData.text"
+              required
+            />
+          </div>
+          <div>
+            <label for="editOptions">Pilihan:</label>
+            <input
+              type="text"
+              id="editOptions"
+              v-model="editQuestionData.options"
+              placeholder="Separate options with commas"
+              required
+            />
+          </div>
+          <div>
+            <label for="editCorrectAnswer">Jawapan Betul:</label>
+            <input
+              type="text"
+              id="editCorrectAnswer"
+              v-model="editQuestionData.correctAnswer"
+              required
+            />
+          </div>
+          <button type="submit" class="btn-green btn-icon">
+            Simpan Perubahan
+          </button>
+          <button
+            type="button"
+            class="btn-red btn-icon"
+            @click="closeEditQuestionModal"
+          >
             Batal
           </button>
-        </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Delete Question Modal -->
+    <div v-if="showDeleteQuestionModalWindow" class="modal-overlay">
+      <div class="modal">
+        <h2>Sahkan Pemadaman</h2>
+        <p>Adakah anda pasti mahu padam soalan ini?</p>
+        <button class="btn-green btn-icon" @click="deleteQuestion">Ya</button>
+        <button class="btn-red btn-icon" @click="closeDeleteQuestionModal">
+          Tidak
+        </button>
+      </div>
+    </div>
+
+    <!-- Quiz Result Modal -->
+    <div v-if="showQuizResultModal" class="modal-overlay">
+      <div class="modal">
+        <h2>Keputusan Kuiz</h2>
+        <p>Markah anda ialah {{ quizResult.score }}%</p>
+        <button class="btn-green btn-icon" @click="goHome">
+          Kembali ke Laman Utama
+        </button>
+      </div>
+    </div>
+
+    <!-- Answer Reminder Modal -->
+    <div v-if="showAnswerReminderModal" class="modal-overlay">
+      <div class="modal">
+        <h2>Peringatan</h2>
+        <p>Sila pilih dan hantar jawapan anda sebelum ke soalan seterusnya.</p>
+        <button class="btn-green btn-icon" @click="closeAnswerReminderModal">
+          OK
+        </button>
+      </div>
+    </div>
+    <div v-if="showLeaveConfirmModal" class="modal-overlay">
+      <div class="modal">
+        <h2>Tinggalkan Kuiz?</h2>
+        <p>
+          Jawapan anda tidak akan disimpan. Adakah anda pasti mahu keluar dari
+          halaman ini?
+        </p>
+        <button class="btn-red btn-icon" @click="confirmLeaveQuiz">
+          Ya, Keluar
+        </button>
+        <button class="btn-green btn-icon" @click="cancelLeaveQuiz">
+          Batal
+        </button>
       </div>
     </div>
   </div>
@@ -260,14 +253,10 @@
 
 <script>
 import axios from "axios";
-import NavBar from "../NavBar.vue";
 import { mapState } from "vuex";
 
 export default {
-  name: "QuestionsPage",
-  components: {
-    NavBar,
-  },
+  name: "Questions",
   data() {
     return {
       quiz: null,

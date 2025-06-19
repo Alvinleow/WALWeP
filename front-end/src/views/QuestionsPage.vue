@@ -1,19 +1,19 @@
 <template>
   <div class="main">
     <NavBar />
-    <Lessons />
+    <Questions />
   </div>
 </template>
 
 <script>
 import NavBar from "../components/NavBar.vue";
-import Lessons from "../components/CourseMaterialsPage/Lessons.vue";
+import Questions from "../components/QuizMaterialsPage/Questions.vue";
 
 export default {
-  name: "LessonPage",
+  name: "QuestionsPage",
   components: {
     NavBar,
-    Lessons,
+    Questions,
   },
 };
 </script>
