@@ -120,7 +120,9 @@ export default {
     async fetchQuizzes() {
       this.isLoading = true;
       try {
-        const response = await axios.get("http://localhost:8081/api/quizzes");
+        const response = await axios.get(
+          `${process.env.VUE_APP_API_BASE}/api/quizzes`
+        );
         this.quizzes = response.data.map((quiz) => ({
           ...quiz,
           courseTitle: quiz.courseId.title,
@@ -135,7 +137,9 @@ export default {
     async fetchCourses() {
       this.isLoading = true;
       try {
-        const response = await axios.get("http://localhost:8081/api/courses");
+        const response = await axios.get(
+          `${process.env.VUE_APP_API_BASE}/api/courses`
+        );
         this.courses = response.data;
       } catch (error) {
         console.error("Error fetching courses:", error);
@@ -172,7 +176,7 @@ export default {
         this.isLoading = true;
         try {
           const response = await axios.post(
-            `http://localhost:8081/api/quizzes/${this.selectedCourseId}`,
+            `${process.env.VUE_APP_API_BASE}/api/quizzes/${this.selectedCourseId}`,
             {
               courseId: this.selectedCourseId,
             }
@@ -220,7 +224,7 @@ export default {
         this.isLoading = true;
         try {
           await axios.delete(
-            `http://localhost:8081/api/quizzes/${this.selectedQuiz._id}`
+            `${process.env.VUE_APP_API_BASE}/api/quizzes/${this.selectedQuiz._id}`
           );
           this.quizzes = this.quizzes.filter(
             (quiz) => quiz._id !== this.selectedQuiz._id

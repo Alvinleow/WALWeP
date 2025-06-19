@@ -215,7 +215,7 @@ export default {
         };
 
         const response = await axios.post(
-          "http://localhost:8081/api/accounts",
+          `${process.env.VUE_APP_API_BASE}/api/accounts`,
           userData
         );
         console.log("Account created in backend:", response.data);

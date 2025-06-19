@@ -211,7 +211,7 @@ export default {
       const userId = this.$route.params.id;
       try {
         const response = await axios.get(
-          `http://localhost:8081/api/accounts/${userId}`
+          `${process.env.VUE_APP_API_BASE}/api/accounts/${userId}`
         );
         this.$store.commit("SET_USER", response.data);
       } catch (error) {
@@ -275,7 +275,7 @@ export default {
         }
 
         const response = await axios.put(
-          `http://localhost:8081/api/accounts/${this.userId}`,
+          `${process.env.VUE_APP_API_BASE}/api/accounts/${this.userId}`,
           formData,
           {
             headers: {
@@ -332,7 +332,7 @@ export default {
       try {
         console.log("Verifying password...");
         const verifyResponse = await axios.post(
-          `http://localhost:8081/api/accounts/${this.userId}/verify-password`,
+          `${process.env.VUE_APP_API_BASE}/api/accounts/${this.userId}/verify-password`,
           {
             password: this.deletePassword,
           }
@@ -346,7 +346,7 @@ export default {
 
         console.log("Deleting account...");
         const deleteResponse = await axios.delete(
-          `http://localhost:8081/api/accounts/${this.userId}`
+          `${process.env.VUE_APP_API_BASE}/api/accounts/${this.userId}`
         );
         console.log("Account deleted:", deleteResponse.data);
 
@@ -421,7 +421,10 @@ export default {
           firebaseUid: firebaseUser.uid,
         };
 
-        await axios.post("http://localhost:8081/api/accounts", adminData);
+        await axios.post(
+          `${process.env.VUE_APP_API_BASE}/api/accounts`,
+          adminData
+        );
 
         this.openAlertModal("Akaun admin berjaya didaftarkan.");
         this.closeAdminModal();

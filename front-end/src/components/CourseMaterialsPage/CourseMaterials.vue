@@ -248,7 +248,7 @@ export default {
       this.isLoading = true;
       try {
         const response = await axios.get(
-          "http://localhost:8081/api/courses?sort=-createdAt"
+          `${process.env.VUE_APP_API_BASE}/api/courses?sort=-createdAt`
         );
         this.courses = response.data.reverse();
         this.filteredCourses = this.courses;
@@ -306,7 +306,7 @@ export default {
 
       try {
         const response = await axios.post(
-          "http://localhost:8081/api/courses",
+          `${process.env.VUE_APP_API_BASE}/api/courses`,
           formData,
           {
             headers: {
@@ -337,7 +337,7 @@ export default {
     async enrollInCourse() {
       try {
         await axios.put(
-          `http://localhost:8081/api/accounts/enroll/${this.userId}`,
+          `${process.env.VUE_APP_API_BASE}/api/accounts/enroll/${this.userId}`,
           {
             courseId: this.selectedCourse._id,
           }
@@ -358,7 +358,7 @@ export default {
     async unenrollFromCourse() {
       try {
         await axios.put(
-          `http://localhost:8081/api/accounts/unenroll/${this.userId}`,
+          `${process.env.VUE_APP_API_BASE}/api/accounts/unenroll/${this.userId}`,
           {
             courseId: this.selectedCourse._id,
           }
@@ -388,7 +388,7 @@ export default {
     async editCourse() {
       try {
         const response = await axios.put(
-          `http://localhost:8081/api/courses/${this.selectedCourse._id}`,
+          `${process.env.VUE_APP_API_BASE}/api/courses/${this.selectedCourse._id}`,
           {
             title: this.selectedCourse.title,
             description: this.selectedCourse.description,
@@ -409,7 +409,7 @@ export default {
     async deleteCourse() {
       try {
         await axios.delete(
-          `http://localhost:8081/api/courses/${this.selectedCourse._id}`
+          `${process.env.VUE_APP_API_BASE}/api/courses/${this.selectedCourse._id}`
         );
         this.courses = this.courses.filter(
           (course) => course._id !== this.selectedCourse._id

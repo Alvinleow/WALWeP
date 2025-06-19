@@ -320,7 +320,7 @@ export default {
       const quizId = this.$route.params.quizId;
       try {
         const response = await axios.get(
-          `http://localhost:8081/api/quizzes/${quizId}`
+          `${process.env.VUE_APP_API_BASE}/api/quizzes/${quizId}`
         );
         console.log(response.data);
         this.quiz = response.data || { questions: [] };
@@ -373,7 +373,7 @@ export default {
         };
         try {
           await axios.post(
-            `http://localhost:8081/api/quizzes/${this.quizId}/questions`,
+            `${process.env.VUE_APP_API_BASE}/api/quizzes/${this.quizId}/questions`,
             questionData
           );
           await this.fetchQuiz();
@@ -415,7 +415,7 @@ export default {
         };
         try {
           const response = await axios.put(
-            `http://localhost:8081/api/quizzes/${this.quizId}/questions/${this.selectedQuestion._id}`,
+            `${process.env.VUE_APP_API_BASE}/api/quizzes/${this.quizId}/questions/${this.selectedQuestion._id}`,
             updatedQuestionData
           );
           const updatedQuestionIndex = this.quiz.questions.findIndex(
@@ -438,7 +438,7 @@ export default {
     async deleteQuestion() {
       try {
         await axios.delete(
-          `http://localhost:8081/api/quizzes/${this.quizId}/questions/${this.selectedQuestion._id}`
+          `${process.env.VUE_APP_API_BASE}/api/quizzes/${this.quizId}/questions/${this.selectedQuestion._id}`
         );
         const updatedQuestionIndex = this.quiz.questions.findIndex(
           (question) => question._id === this.selectedQuestion._id
@@ -484,7 +484,7 @@ export default {
       }
       try {
         const response = await axios.post(
-          `http://localhost:8081/api/quizzes/${this.quizId}/submit`,
+          `${process.env.VUE_APP_API_BASE}/api/quizzes/${this.quizId}/submit`,
           {
             userId: this.userId,
             answers: this.userAnswers,

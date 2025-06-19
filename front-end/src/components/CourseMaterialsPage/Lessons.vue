@@ -195,7 +195,7 @@ export default {
       this.isLoading = true;
       try {
         const response = await axios.get(
-          `http://localhost:8081/api/courses/${this.courseId}`
+          `${process.env.VUE_APP_API_BASE}/api/courses/${this.courseId}`
         );
         this.lessons = response.data.lessons;
       } catch (error) {
@@ -208,7 +208,7 @@ export default {
       this.isLoading = true;
       try {
         const response = await axios.get(
-          `http://localhost:8081/api/userProgress/${this.userId}/${this.courseId}`
+          `${process.env.VUE_APP_API_BASE}/api/userProgress/${this.userId}/${this.courseId}`
         );
         if (response.data && response.data.lessonStatuses) {
           this.lessons.forEach((lesson) => {
@@ -237,7 +237,7 @@ export default {
       if (this.newLessonTitle.trim()) {
         try {
           const response = await axios.post(
-            `http://localhost:8081/api/courses/${this.courseId}/lessons`,
+            `${process.env.VUE_APP_API_BASE}/api/courses/${this.courseId}/lessons`,
             { title: this.newLessonTitle }
           );
           this.lessons = response.data.lessons;
@@ -290,7 +290,7 @@ export default {
           this.editableCodeExample = updatedCode;
 
           const response = await axios.put(
-            `http://localhost:8081/api/courses/${this.courseId}/lessons/${this.selectedLesson._id}`,
+            `${process.env.VUE_APP_API_BASE}/api/courses/${this.courseId}/lessons/${this.selectedLesson._id}`,
             {
               content: this.quill.root.innerHTML,
               codeExample: updatedCode,
@@ -316,7 +316,7 @@ export default {
       if (this.selectedLesson) {
         try {
           const deleteResponse = await axios.delete(
-            `http://localhost:8081/api/courses/${this.courseId}/lessons/${this.selectedLesson._id}`
+            `${process.env.VUE_APP_API_BASE}/api/courses/${this.courseId}/lessons/${this.selectedLesson._id}`
           );
           console.log("Delete response:", deleteResponse.data);
 
@@ -327,7 +327,7 @@ export default {
           console.log(`Updated number of lessons: ${this.lessons.length}`);
 
           const updateResponse = await axios.put(
-            `http://localhost:8081/api/courses/${this.courseId}`,
+            `${process.env.VUE_APP_API_BASE}/api/courses/${this.courseId}`,
             {
               totalOfLessons: this.lessons.length,
             }
@@ -343,7 +343,7 @@ export default {
     },
     async updateLessonStatus(lessonId, status) {
       try {
-        await axios.put(`http://localhost:8081/api/userProgress`, {
+        await axios.put(`${process.env.VUE_APP_API_BASE}/api/userProgress`, {
           userId: this.userId,
           courseId: this.courseId,
           lessonId,
@@ -406,7 +406,7 @@ export default {
     async attemptQuiz() {
       try {
         const response = await axios.get(
-          `http://localhost:8081/api/quizzes/${this.courseId}/quiz`
+          `${process.env.VUE_APP_API_BASE}/api/quizzes/${this.courseId}/quiz`
         );
         const quizId = response.data.quizId;
         if (quizId) {

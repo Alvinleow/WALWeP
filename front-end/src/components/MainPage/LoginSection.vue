@@ -103,7 +103,7 @@ export default {
       if (this.email === "admin@gmail.com") {
         try {
           const response = await axios.post(
-            "http://localhost:8081/api/accounts/login",
+            `${process.env.VUE_APP_API_BASE}/api/accounts/login`,
             {
               email: this.email,
               password: this.password,
@@ -129,7 +129,7 @@ export default {
       try {
         // 2. Fetch backend user info by email
         const userResponse = await axios.get(
-          `http://localhost:8081/api/accounts/email/${this.email}`
+          `${process.env.VUE_APP_API_BASE}/api/accounts/email/${this.email}`
         );
         const backendUser = userResponse.data;
 

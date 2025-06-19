@@ -48,12 +48,15 @@ export default {
         message: this.message,
       });
       try {
-        const response = await axios.post("http://localhost:8081/api/contact", {
-          name: this.name,
-          email: this.email,
-          subject: this.subject,
-          message: this.message,
-        });
+        const response = await axios.post(
+          `${process.env.VUE_APP_API_BASE}/api/contact`,
+          {
+            name: this.name,
+            email: this.email,
+            subject: this.subject,
+            message: this.message,
+          }
+        );
         console.log("Form submitted successfully:", response.data);
         this.successMessage = true;
         this.resetForm();

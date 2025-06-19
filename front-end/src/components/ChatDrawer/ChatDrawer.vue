@@ -144,14 +144,16 @@ export default {
     async fetchUsers() {
       if (!this.userId) return;
 
-      const response = await fetch("http://localhost:8081/api/accounts");
+      const response = await fetch(
+        `${process.env.VUE_APP_API_BASE}/api/accounts`
+      );
       const data = await response.json();
       this.users = data.filter((u) => u._id !== this.userId);
     },
     async fetchContacts() {
       try {
         const response = await fetch(
-          `http://localhost:8081/api/accounts/${this.userId}/contacts`
+          `${process.env.VUE_APP_API_BASE}/api/accounts/${this.userId}/contacts`
         );
         const data = await response.json();
         this.contacts = data.contacts;
@@ -165,7 +167,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://localhost:8081/api/messages/${room}`
+          `${process.env.VUE_APP_API_BASE}/api/messages/${room}`
         );
         const data = await response.json();
         this.messages = data;
@@ -177,7 +179,7 @@ export default {
     async addToContacts(user) {
       try {
         const response = await fetch(
-          `http://localhost:8081/api/accounts/${this.userId}/add-contact`,
+          `${process.env.VUE_APP_API_BASE}/api/accounts/${this.userId}/add-contact`,
           {
             method: "POST",
             body: JSON.stringify({ contactId: user._id }),

@@ -89,7 +89,9 @@ export default {
   async created() {
     this.isLoading = true;
     try {
-      const response = await axios.get("http://localhost:8081/api/contact");
+      const response = await axios.get(
+        `${process.env.VUE_APP_API_BASE}/api/contact`
+      );
       this.contacts = response.data;
     } catch (error) {
       console.error("Error fetching contacts:", error);
@@ -100,9 +102,12 @@ export default {
   methods: {
     async markAsDone(id) {
       try {
-        await axios.put(`http://localhost:8081/api/contact/${id}/status`, {
-          status: "solved",
-        });
+        await axios.put(
+          `${process.env.VUE_APP_API_BASE}/api/contact/${id}/status`,
+          {
+            status: "solved",
+          }
+        );
         this.contacts = this.contacts.map((contact) =>
           contact._id === id ? { ...contact, status: "solved" } : contact
         );
@@ -112,7 +117,7 @@ export default {
     },
     async deleteContact(id) {
       try {
-        await axios.delete(`http://localhost:8081/api/contact/${id}`);
+        await axios.delete(`${process.env.VUE_APP_API_BASE}/api/contact/${id}`);
         this.contacts = this.contacts.filter((contact) => contact._id !== id);
       } catch (error) {
         console.error("Error deleting contact:", error);
