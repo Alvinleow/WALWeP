@@ -99,6 +99,7 @@ export default {
   methods: {
     ...mapMutations(["SET_USER"]),
     async handleLogin() {
+      // 1. Check for default admin
       if (this.email === "admin@gmail.com") {
         try {
           const response = await axios.post(
@@ -125,9 +126,21 @@ export default {
         return;
       }
 
-      const auth = getAuth();
-
       try {
+        // 2. Fetch backend user info by email
+        const userResponse = await axios.get(
+          `http://localhost:8081/api/accounts/email/${this.email}`
+        );
+        const backendUser = userResponse.data;
+
+        if (!backendUser || !backendUser._id) {
+          this.loginError = "Akaun tidak dijumpai dalam pangkalan data kami.";
+          return;
+        }
+
+        const auth = getAuth();
+
+        // 3. Login with Firebase
         const userCredential = await signInWithEmailAndPassword(
           auth,
           this.email,
@@ -135,30 +148,27 @@ export default {
         );
         const firebaseUser = userCredential.user;
 
-        if (!firebaseUser.emailVerified) {
-          this.loginError = "Sila sahkan emel anda sebelum log masuk.";
-          return;
+        // 4. Check if admin account
+        if (backendUser.accountLevel === 1) {
+          // Skip email verification check
+          this.SET_USER(backendUser);
+          this.$router.push("/home");
+        } else {
+          // Enforce verification for regular users
+          if (!firebaseUser.emailVerified) {
+            this.loginError = "Sila sahkan emel anda sebelum log masuk.";
+            return;
+          }
+
+          this.SET_USER(backendUser);
+          this.$router.push("/home");
         }
-
-        const response = await axios.get(
-          `http://localhost:8081/api/accounts/email/${firebaseUser.email}`
-        );
-        const backendUser = response.data;
-
-        if (!backendUser || !backendUser._id) {
-          this.loginError = "Akaun tidak dijumpai dalam pangkalan data kami.";
-          return;
-        }
-
-        this.SET_USER(backendUser);
-
-        this.$router.push("/home");
       } catch (error) {
         console.error("Firebase login error:", error.code, error.message);
 
         if (error.code === "auth/invalid-credential") {
           this.loginError =
-            "Bukti kelayakan tidak sah. Sila semak semula e-mel dan kata laluan anda";
+            "Bukti kelayakan tidak sah. Sila semak semula e-mel dan kata laluan anda.";
         } else {
           this.loginError = "Log masuk gagal. Sila cuba lagi.";
         }

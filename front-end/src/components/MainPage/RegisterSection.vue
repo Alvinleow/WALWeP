@@ -1,5 +1,6 @@
 <template>
   <div class="register-section">
+    <LoadingModal :visible="isLoading" />
     <form
       @submit.prevent="handleRegister"
       v-if="!registrationSuccess"
@@ -113,6 +114,14 @@
       </p>
       <p>Mengalih ke halaman log masuk dalam {{ countdown }} saat...</p>
     </div>
+
+    <div v-if="showErrorModal" class="custom-modal-overlay">
+      <div class="custom-modal">
+        <h3>Ralat Pendaftaran</h3>
+        <p>{{ errorMessage }}</p>
+        <button @click="showErrorModal = false">Tutup</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -142,6 +151,9 @@ export default {
       countdown: 5,
       showPassword: false,
       showReenterPassword: false,
+      isLoading: false,
+      showErrorModal: false,
+      errorMessage: "",
     };
   },
   methods: {
@@ -178,6 +190,8 @@ export default {
         return;
       }
 
+      this.isLoading = true;
+
       try {
         const userCredential = await createUserWithEmailAndPassword(
           auth,
@@ -197,6 +211,7 @@ export default {
           completedCourses: [],
           accountLevel: 0,
           firebaseUid: firebaseUser.uid,
+          password: this.password,
         };
 
         const response = await axios.post(
@@ -209,7 +224,10 @@ export default {
         this.startCountdown();
       } catch (error) {
         console.error("Firebase registration error:", error);
-        alert("Gagal mencipta akaun: " + error.message);
+        this.errorMessage = "Gagal mencipta akaun: " + error.message;
+        this.showErrorModal = true;
+      } finally {
+        this.isLoading = false;
       }
     },
     startCountdown() {
@@ -371,5 +389,53 @@ input[type="password"]::-webkit-clear-button {
 /* Chrome-specific fix */
 input[type="password"]::-webkit-textfield-decoration-container {
   display: none !important;
+}
+
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.custom-modal {
+  background: white;
+  padding: 20px 30px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.custom-modal h3 {
+  margin-top: 0;
+  color: #e74c3c;
+}
+
+.custom-modal p {
+  margin: 15px 0;
+  color: #333;
+  word-break: break-word;
+}
+
+.custom-modal button {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.custom-modal button:hover {
+  background-color: #c0392b;
 }
 </style>

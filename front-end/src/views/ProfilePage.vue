@@ -2,72 +2,80 @@
   <div class="main">
     <NavBar />
     <div class="main-content">
-      <div v-if="loading" class="loading">Loading...</div>
-      <div v-else>
-        <div v-if="user && !deletionSuccess" class="profile-container">
-          <div class="profile-header">
-            <div class="profile-pic-wrapper">
-              <img
-                :src="previewProfilePicUrl || user.profilePicUrl"
-                alt="Ikon Pengguna"
-                class="user-icon"
-                @click="triggerFileInput"
-              />
-              <span v-if="isEditing" class="edit-icon">&#9998;</span>
-              <input
-                type="file"
-                ref="fileInput"
-                style="display: none"
-                @change="handleFileChange"
-                accept="image/png, image/jpeg"
-              />
-            </div>
-
-            <div class="profile-details">
-              <h2 v-if="!isEditing" class="username-header">
-                👤 <span class="highlight-name">{{ user.username }}</span>
-              </h2>
-              <input
-                v-else
-                v-model="editableUsername"
-                type="text"
-                class="editable-username"
-              />
-
-              <ul class="profile-info-list">
-                <li>📧 <strong>Emel:</strong> {{ user.email }}</li>
-                <li>📞 <strong>No. Telefon:</strong> {{ user.phone }}</li>
-                <li>🏫 <strong>Sekolah:</strong> {{ user.schoolName }}</li>
-                <li>
-                  🎂 <strong>Tarikh Lahir:</strong> {{ formatDate(user.dob) }}
-                </li>
-              </ul>
-            </div>
+      <LoadingModal :visible="isLoading" />
+      <div v-if="user && !deletionSuccess" class="profile-container">
+        <div class="profile-header">
+          <div class="profile-pic-wrapper">
+            <img
+              :src="previewProfilePicUrl || user.profilePicUrl"
+              alt="Ikon Pengguna"
+              class="user-icon"
+              @click="triggerFileInput"
+            />
+            <span v-if="isEditing" class="edit-icon">&#9998;</span>
+            <input
+              type="file"
+              ref="fileInput"
+              style="display: none"
+              @change="handleFileChange"
+              accept="image/png, image/jpeg"
+            />
           </div>
 
-          <div class="button-row">
-            <button
-              v-if="!isEditing"
-              class="edit-profile-btn"
-              @click="enterEditMode"
-            >
-              Edit Profil
-            </button>
-            <template v-else>
-              <button class="save-btn" @click="saveChanges">
-                Simpan Perubahan
-              </button>
-              <button class="cancel-btn" @click="cancelEdit">Batal</button>
-            </template>
-            <button class="delete-account-btn" @click="promptDeleteAccount">
-              Padam Akaun
-            </button>
+          <div class="profile-details">
+            <h2 v-if="!isEditing" class="username-header">
+              👤 <span class="highlight-name">{{ user.username }}</span>
+            </h2>
+            <input
+              v-else
+              v-model="editableUsername"
+              type="text"
+              class="editable-username"
+            />
+
+            <ul class="profile-info-list">
+              <li>📧 <strong>Emel:</strong> {{ user.email }}</li>
+              <li>📞 <strong>No. Telefon:</strong> {{ user.phone }}</li>
+              <li>🏫 <strong>Sekolah:</strong> {{ user.schoolName }}</li>
+              <li>
+                🎂 <strong>Tarikh Lahir:</strong> {{ formatDate(user.dob) }}
+              </li>
+            </ul>
           </div>
         </div>
-        <div v-if="deletionSuccess" class="success-message">
-          <h2>Akaun Berjaya Dipadam!</h2>
-          <p>Keluar dalam {{ countdown }} saat...</p>
+
+        <div class="button-row">
+          <button
+            v-if="!isEditing"
+            class="edit-profile-btn"
+            @click="enterEditMode"
+          >
+            Edit Profil
+          </button>
+          <template v-else>
+            <button class="save-btn" @click="saveChanges">
+              Simpan Perubahan
+            </button>
+            <button class="cancel-btn" @click="cancelEdit">Batal</button>
+          </template>
         </div>
+
+        <div class="button-row">
+          <button
+            v-if="user && user.accountLevel === 1"
+            class="add-admin-btn"
+            @click="showAdminModal = true"
+          >
+            Tambah Akaun Admin
+          </button>
+          <button class="delete-account-btn" @click="promptDeleteAccount">
+            Padam Akaun
+          </button>
+        </div>
+      </div>
+      <div v-if="deletionSuccess" class="success-message">
+        <h2>Akaun Berjaya Dipadam!</h2>
+        <p>Keluar dalam {{ countdown }} saat...</p>
       </div>
     </div>
 
@@ -87,6 +95,72 @@
         <button class="confirm-delete-btn" @click="deleteAccount">
           Sahkan Padam
         </button>
+      </div>
+    </div>
+
+    <div v-if="showAdminModal" class="modal">
+      <div class="modal-content">
+        <span class="close" @click="closeAdminModal">&times;</span>
+        <h2>Daftar Akaun Admin Baharu</h2>
+        <form @submit.prevent="registerAdmin" autocomplete="off">
+          <div class="form-group">
+            <label for="admin-username">👤 Nama Pengguna:</label>
+            <div class="password-wrapper">
+              <input
+                type="text"
+                id="admin-username"
+                v-model="adminUsername"
+                required
+                autocomplete="off"
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="admin-email">📧 Emel:</label>
+            <div class="password-wrapper">
+              <input
+                type="email"
+                id="admin-email"
+                v-model="adminEmail"
+                required
+                autocomplete="off"
+                @blur="validateAdminEmail"
+              />
+              <span class="error-message">{{ adminEmailError || " " }}</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="admin-password">🔒 Kata Laluan:</label>
+            <div class="password-wrapper">
+              <input
+                :type="showAdminPassword ? 'text' : 'password'"
+                id="admin-password"
+                v-model="adminPassword"
+                required
+                autocomplete="off"
+                @blur="validateAdminPassword"
+              />
+              <i
+                :class="[
+                  'toggle-password',
+                  showAdminPassword ? 'fas fa-eye-slash' : 'fas fa-eye',
+                ]"
+                @click="showAdminPassword = !showAdminPassword"
+              ></i>
+            </div>
+            <span class="error-message">{{ adminPasswordError || " " }}</span>
+          </div>
+          <p class="error-message">{{ adminError || " " }}</p>
+          <button class="save-btn" type="submit">Daftar Admin</button>
+        </form>
+      </div>
+    </div>
+
+    <div v-if="showAlertModal" class="modal">
+      <div class="modal-content">
+        <span class="close" @click="closeAlertModal">&times;</span>
+        <p>{{ alertMessage }}</p>
+        <button class="save-btn" @click="closeAlertModal">OK</button>
       </div>
     </div>
   </div>
@@ -110,7 +184,6 @@ export default {
   },
   data() {
     return {
-      loading: true,
       isEditing: false,
       editableUsername: "",
       newProfilePic: null,
@@ -120,6 +193,17 @@ export default {
       deleteError: "",
       deletionSuccess: false,
       countdown: 3,
+      showAdminModal: false,
+      adminEmail: "",
+      adminPassword: "",
+      adminUsername: "",
+      adminError: "",
+      adminEmailError: "",
+      adminPasswordError: "",
+      showAdminPassword: false,
+      isLoading: false,
+      showAlertModal: false,
+      alertMessage: "",
     };
   },
   async created() {
@@ -134,9 +218,29 @@ export default {
         console.error("Error fetching user data:", error);
       }
     }
-    this.loading = false;
+    this.isLoading = false;
   },
   methods: {
+    validateAdminEmail() {
+      const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      this.adminEmailError = pattern.test(this.adminEmail)
+        ? ""
+        : "Format emel tidak sah.";
+    },
+    validateAdminPassword() {
+      const pattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,15}$/;
+      this.adminPasswordError = pattern.test(this.adminPassword)
+        ? ""
+        : "Kata laluan mesti antara 8 hingga 15 aksara dan mengandungi huruf dan nombor.";
+    },
+    openAlertModal(message) {
+      this.alertMessage = message;
+      this.showAlertModal = true;
+    },
+    closeAlertModal() {
+      this.showAlertModal = false;
+      this.alertMessage = "";
+    },
     formatDate(dateStr) {
       const date = new Date(dateStr);
       return date.toLocaleDateString("en-GB", {
@@ -157,11 +261,11 @@ export default {
     },
     async saveChanges() {
       if (!this.editableUsername.trim()) {
-        alert("Nama pengguna tidak boleh kosong");
+        this.openAlertModal("Nama pengguna tidak boleh kosong");
         return;
       }
 
-      this.loading = true;
+      this.isLoading = true;
 
       try {
         const formData = new FormData();
@@ -185,9 +289,9 @@ export default {
         this.previewProfilePicUrl = null;
       } catch (error) {
         console.error("Error saving changes:", error);
-        alert("Failed to save changes. Please try again.");
+        this.openAlertModal("Failed to save changes. Please try again.");
       } finally {
-        this.loading = false;
+        this.isLoading = false;
       }
     },
     handleFileChange(event) {
@@ -201,7 +305,7 @@ export default {
         };
         reader.readAsDataURL(file);
       } else {
-        alert("Sila pilih fail imej yang sah (jpg atau png).");
+        this.openAlertModal("Sila pilih fail imej yang sah (jpg atau png).");
       }
     },
     triggerFileInput() {
@@ -222,6 +326,8 @@ export default {
         this.deleteError = "Kata laluan diperlukan.";
         return;
       }
+
+      this.isLoading = true;
 
       try {
         console.log("Verifying password...");
@@ -251,6 +357,8 @@ export default {
       } catch (error) {
         console.error("Error deleting account:", error);
         this.deleteError = "Gagal memadam akaun. Sila semak kata laluan anda.";
+      } finally {
+        this.isLoading = false;
       }
     },
     startCountdown() {
@@ -262,6 +370,67 @@ export default {
           this.$router.push({ name: "MainPage" });
         }
       }, 1000);
+    },
+    closeAdminModal() {
+      this.showAdminModal = false;
+      this.adminEmail = "";
+      this.adminPassword = "";
+      this.adminUsername = "";
+      this.adminError = "";
+    },
+    async registerAdmin() {
+      this.validateAdminEmail();
+      this.validateAdminPassword();
+
+      if (
+        !this.adminEmail ||
+        !this.adminPassword ||
+        !this.adminUsername ||
+        this.adminEmailError ||
+        this.adminPasswordError
+      ) {
+        this.adminError = "Sila lengkapkan semua maklumat dengan betul.";
+        return;
+      }
+
+      this.isLoading = true;
+
+      try {
+        const { createUserWithEmailAndPassword } = await import(
+          "firebase/auth"
+        );
+        const { auth } = await import("../firebase");
+
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          this.adminEmail,
+          this.adminPassword
+        );
+
+        const firebaseUser = userCredential.user;
+
+        const adminData = {
+          email: this.adminEmail,
+          username: this.adminUsername,
+          password: this.adminPassword,
+          phone: "N/A",
+          schoolName: "Admin",
+          dob: "2000-01-01",
+          completedCourses: [],
+          accountLevel: 1,
+          firebaseUid: firebaseUser.uid,
+        };
+
+        await axios.post("http://localhost:8081/api/accounts", adminData);
+
+        this.openAlertModal("Akaun admin berjaya didaftarkan.");
+        this.closeAdminModal();
+      } catch (error) {
+        console.error("Admin registration error:", error);
+        this.adminError = "Gagal mendaftar admin. " + error.message;
+      } finally {
+        this.isLoading = false;
+      }
     },
   },
 };
@@ -403,6 +572,7 @@ export default {
   flex: 1 1 30%;
 }
 
+.add-admin-btn,
 .edit-profile-btn,
 .save-btn,
 .cancel-btn,
@@ -419,6 +589,13 @@ export default {
   transition: background-color 0.3s;
   margin-top: 20px;
   text-align: center;
+}
+
+.add-admin-btn {
+  background-color: #0066cc;
+}
+.add-admin-btn:hover {
+  background-color: #0052a3;
 }
 
 .edit-profile-btn {
@@ -461,12 +638,6 @@ export default {
   background-color: #ff1a1a;
 }
 
-.loading {
-  text-align: center;
-  color: #42b983;
-  font-size: 1.5rem;
-}
-
 .no-user {
   text-align: center;
   color: #ff4d4d;
@@ -489,29 +660,86 @@ export default {
 }
 
 .modal-content {
+  position: relative;
   background-color: #000000;
   padding: 20px;
   border: 1px solid #888;
-  width: 300px;
+  width: 100%;
+  max-width: 400px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
   color: white;
 }
 
-.close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-  cursor: pointer;
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
 }
 
-.close:hover,
-.close:focus {
-  color: #000;
-  text-decoration: none;
+.modal-content input {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.modal-content input::placeholder {
+  color: #999;
+}
+
+.modal-content h2 {
+  font-size: 1.4rem;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.modal-content .confirm-delete-btn {
+  background-color: #ff4d4d;
+  border: none;
+  padding: 10px;
+  font-size: 1.1rem;
+  border-radius: 5px;
+  color: white;
   cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.modal-content .confirm-delete-btn:hover {
+  background-color: #ff1a1a;
+}
+
+.modal-content .error-message {
+  font-size: 0.9rem;
+  color: red;
+  margin-top: -5px;
+}
+
+.modal-content .save-btn {
+  margin: 20px auto 0 auto;
+  display: block;
+  padding: 10px 20px;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #ccc;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.close:hover {
+  color: #fff;
 }
 
 .password-input {
@@ -526,5 +754,35 @@ export default {
 .success-message {
   text-align: center;
   color: white;
+}
+
+.modal-content form label {
+  display: block;
+  text-align: left;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #888;
+  font-size: 1.1rem;
+}
+
+.toggle-password:hover {
+  color: #42b983;
 }
 </style>
