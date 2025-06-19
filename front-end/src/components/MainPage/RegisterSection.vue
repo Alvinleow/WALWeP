@@ -5,26 +5,26 @@
       v-if="!registrationSuccess"
       class="register-form"
     >
-      <h2>Register</h2>
+      <h2>Daftar</h2>
 
       <!-- Group: Personal Info -->
       <fieldset class="form-group-set">
-        <legend>Personal Information</legend>
+        <legend>Maklumat Peribadi</legend>
         <div class="form-grid">
           <div class="form-group">
-            <label for="username">👤 Username:</label>
+            <label for="username">👤 Nama Pengguna:</label>
             <input type="text" id="username" v-model="username" required />
           </div>
           <div class="form-group">
-            <label for="phone">📞 Phone:</label>
+            <label for="phone">📞 Telefon:</label>
             <input type="tel" id="phone" v-model="phone" required />
           </div>
           <div class="form-group">
-            <label for="schoolName">🏫 School Name:</label>
+            <label for="schoolName">🏫 Nama Sekolah:</label>
             <input type="text" id="schoolName" v-model="schoolName" required />
           </div>
           <div class="form-group">
-            <label for="dob">🎂 Date of Birth:</label>
+            <label for="dob">🎂 Tarikh Lahir:</label>
             <input type="date" id="dob" v-model="dob" required />
           </div>
         </div>
@@ -32,10 +32,10 @@
 
       <!-- Group: Account Info -->
       <fieldset class="form-group-set">
-        <legend>Account Information</legend>
+        <legend>Maklumat Akaun</legend>
         <div class="form-grid">
           <div class="form-group">
-            <label for="email">📧 Email:</label>
+            <label for="email">📧 Emel:</label>
             <input
               type="email"
               id="email"
@@ -48,7 +48,7 @@
             }}</span>
           </div>
           <div class="form-group">
-            <label for="password">🔒 Password:</label>
+            <label for="password">🔒 Kata Laluan:</label>
             <input
               type="password"
               id="password"
@@ -61,7 +61,9 @@
             }}</span>
           </div>
           <div class="form-group">
-            <label for="reenter-password">🔁 Re-enter Password:</label>
+            <label for="reenter-password"
+              >🔁 Masukkan Semula Kata Laluan:</label
+            >
             <input
               type="password"
               id="reenter-password"
@@ -77,19 +79,19 @@
       </fieldset>
 
       <!-- Submit -->
-      <button type="submit" class="register-button">Register</button>
+      <button type="submit" class="register-button">Daftar</button>
       <p class="switch-form">
-        Already have an account?
-        <a @click.prevent="switchToLogin" href="#">Login here</a>
+        Sudah mempunyai akaun?
+        <a @click.prevent="switchToLogin" href="#">Log Masuk di sini</a>
       </p>
     </form>
     <div v-else class="success-message">
-      <h2>Account Register Successful!</h2>
+      <h2>Pendaftaran Akaun Berjaya!</h2>
       <p>
-        A verification email has been sent to <strong>{{ email }}</strong
-        >. Please check your inbox and verify your email before logging in.
+        Emel pengesahan telah dihantar ke <strong>{{ email }}</strong
+        >. Sila semak inbox anda dan sahkan emel sebelum log masuk.
       </p>
-      <p>Redirecting to login page in {{ countdown }} seconds...</p>
+      <p>Mengalih ke halaman log masuk dalam {{ countdown }} saat...</p>
     </div>
   </div>
 </template>
@@ -124,7 +126,7 @@ export default {
     validateEmail() {
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailPattern.test(this.email)) {
-        this.emailError = "Invalid email format.";
+        this.emailError = "Format emel tidak sah.";
       } else {
         this.emailError = "";
       }
@@ -133,14 +135,14 @@ export default {
       const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,15}$/;
       if (!passwordPattern.test(this.password)) {
         this.passwordError =
-          "Password must be 8-15 characters long and contain both letters and numbers";
+          "Kata laluan mesti antara 8 hingga 15 aksara dan mengandungi huruf dan nombor.";
       } else {
         this.passwordError = "";
       }
     },
     validateReenterPassword() {
       if (this.password !== this.reenterPassword) {
-        this.reenterPasswordError = "Passwords do not match!";
+        this.reenterPasswordError = "Kata laluan tidak sepadan!";
       } else {
         this.reenterPasswordError = "";
       }
@@ -185,7 +187,7 @@ export default {
         this.startCountdown();
       } catch (error) {
         console.error("Firebase registration error:", error);
-        alert("Failed to create account: " + error.message);
+        alert("Gagal mencipta akaun: " + error.message);
       }
     },
     startCountdown() {

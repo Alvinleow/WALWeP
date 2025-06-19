@@ -2,8 +2,9 @@
   <div class="text-section">
     <h1>WAL<span class="highlight">WeP</span></h1>
     <p>
-      Our platform offers a variety of courses to help you expand your knowledge
-      and skills for Web Programming. Join us today to start learning!
+      Platform kami menawarkan pelbagai kursus untuk membantu anda mengembangkan
+      pengetahuan dan kemahiran dalam Pengaturcaraan Web. Sertai kami hari ini
+      untuk mula belajar!
     </p>
   </div>
 </template>

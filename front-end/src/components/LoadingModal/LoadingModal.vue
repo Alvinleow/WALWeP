@@ -27,7 +27,7 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(200, 200, 200, 0.5); /* Light grey overlay */
+  background: rgba(200, 200, 200, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;

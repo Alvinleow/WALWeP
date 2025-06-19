@@ -15,28 +15,28 @@
                 'not-viewed': lesson.status === 'not viewed',
               }"
             >
-              Lesson {{ index + 1 }}: {{ lesson.title }}
+              Pelajaran {{ index + 1 }}: {{ lesson.title }}
             </li>
           </ul>
         </div>
         <div class="content">
           <div class="action-buttons" v-if="isAdmin">
             <button class="btn-green btn-icon" @click="showAddLessonModal">
-              <i class="fas fa-plus-circle"></i> Add New Lesson
+              <i class="fas fa-plus-circle"></i> Tambah Pelajaran Baharu
             </button>
             <button
               class="btn-green btn-icon"
               v-if="selectedLesson"
               @click="showEditLessonModal"
             >
-              <i class="fas fa-edit"></i> Edit Lesson Content
+              <i class="fas fa-edit"></i> Edit Kandungan Pelajaran
             </button>
             <button
               class="btn-red btn-icon"
               v-if="selectedLesson"
               @click="showDeleteLessonModal"
             >
-              <i class="fas fa-trash"></i> Delete Lesson
+              <i class="fas fa-trash"></i> Padam Pelajaran
             </button>
           </div>
 
@@ -44,7 +44,7 @@
             <h3 class="lesson-title">{{ selectedLesson.title }}</h3>
             <div v-html="selectedLesson.content" class="lesson-text"></div>
             <div v-if="selectedLesson.codeExample">
-              <h4 class="example-title">Example Code:</h4>
+              <h4 class="example-title">Contoh Kod:</h4>
               <div class="example-box">
                 <pre class="example-code">{{ selectedLesson.codeExample }}</pre>
               </div>
@@ -53,12 +53,12 @@
                 class="btn-green btn-icon try-button"
                 @click="tryExample"
               >
-                <i class="fas fa-terminal"></i> Try it Yourself
+                <i class="fas fa-terminal"></i> Cuba Sendiri
               </button>
             </div>
           </div>
           <div v-else class="empty-content-message">
-            <h2>Please select a lesson to view or edit its content.</h2>
+            <h2>Sila pilih pelajaran untuk lihat kandungannya..</h2>
           </div>
           <div class="lesson-navigation" v-if="selectedLesson">
             <button
@@ -66,7 +66,7 @@
               v-if="selectedLessonIndex > 0"
               @click="previousLesson"
             >
-              <i class="fas fa-arrow-left"></i> Previous Lesson
+              <i class="fas fa-arrow-left"></i> Pelajaran Sebelumnya
             </button>
 
             <div class="spacer"></div>
@@ -76,7 +76,7 @@
               v-if="selectedLessonIndex < lessons.length - 1"
               @click="nextLesson"
             >
-              Next Lesson <i class="fas fa-arrow-right"></i>
+              Pelajaran Seterusnya <i class="fas fa-arrow-right"></i>
             </button>
 
             <button
@@ -84,7 +84,7 @@
               v-if="selectedLessonIndex === lessons.length - 1"
               @click="finishCourse"
             >
-              <i class="fas fa-flag-checkered"></i> Finish Course
+              <i class="fas fa-flag-checkered"></i> Tamat Kursus
             </button>
           </div>
         </div>
@@ -93,10 +93,10 @@
       <!-- Add Lesson Modal -->
       <div v-if="showAddLessonModalWindow" class="modal-overlay">
         <div class="modal">
-          <h2>Add New Lesson</h2>
+          <h2>Tambah Pelajaran Baharu</h2>
           <form @submit.prevent="addLesson">
             <div>
-              <label for="lessonTitle">Lesson Title:</label>
+              <label for="lessonTitle">Tajuk Pelajaran:</label>
               <input
                 type="text"
                 id="lessonTitle"
@@ -104,8 +104,8 @@
                 required
               />
             </div>
-            <button type="submit">Add Lesson</button>
-            <button type="button" @click="closeAddLessonModal">Cancel</button>
+            <button type="submit">Tambah Pelajaran</button>
+            <button type="button" @click="closeAddLessonModal">Batal</button>
           </form>
         </div>
       </div>
@@ -113,23 +113,23 @@
       <!-- Edit Lesson Modal -->
       <div v-if="showEditLessonModalWindow" class="modal-overlay">
         <div class="modal">
-          <h2 style="text-align: center">Edit Lesson Content</h2>
+          <h2 style="text-align: center">Edit Kandungan Pelajaran</h2>
           <div ref="quillEditor" class="quill-editor"></div>
 
-          <label>Code Example (HTML/CSS/JS):</label>
+          <label>Contoh Kod (HTML/CSS/JS):</label>
           <div ref="codeEditor" class="code-editor-container"></div>
 
-          <button @click="saveLessonContent">Save</button>
-          <button type="button" @click="closeEditLessonModal">Cancel</button>
+          <button @click="saveLessonContent">Simpan</button>
+          <button type="button" @click="closeEditLessonModal">Batal</button>
         </div>
       </div>
 
       <!-- Delete Lesson Confirmation Modal -->
       <div v-if="showDeleteLessonModalWindow" class="modal-overlay">
         <div class="modal">
-          <h2>Are you sure you want to delete this lesson?</h2>
-          <button @click="deleteLesson">Yes</button>
-          <button type="button" @click="closeDeleteLessonModal">No</button>
+          <h2>Adakah anda pasti mahu memadam pelajaran ini?</h2>
+          <button @click="deleteLesson">Ya</button>
+          <button type="button" @click="closeDeleteLessonModal">Tidak</button>
         </div>
       </div>
 
@@ -138,10 +138,10 @@
         <div class="modal">
           <h2>{{ finishMessage }}</h2>
           <button @click="goHome">
-            <i class="fas fa-home"></i> Back to Home
+            <i class="fas fa-home"></i> Kembali ke Laman Utama
           </button>
           <button @click="attemptQuiz">
-            <i class="fas fa-question-circle"></i> Attempt Now
+            <i class="fas fa-question-circle"></i> Jawab Sekarang
           </button>
         </div>
       </div>
@@ -385,7 +385,7 @@ export default {
       // Check if all previous lessons are viewed
       for (let i = 0; i < this.selectedLessonIndex; i++) {
         if (this.lessons[i].status !== "viewed") {
-          this.finishMessage = "You haven't completed all the lessons yet.";
+          this.finishMessage = "Anda belum melengkapkan semua pelajaran.";
           this.showFinishModal = true;
           return;
         }
@@ -398,9 +398,9 @@ export default {
 
       if (this.lessons.every((lesson) => lesson.status === "viewed")) {
         this.finishMessage =
-          "Congratulations! You have completed all the lessons! Do you want to proceed to the quiz for this course?";
+          "Tahniah! Anda telah melengkapkan semua pelajaran! Mahu teruskan ke kuiz untuk kursus ini?";
       } else {
-        this.finishMessage = "You haven't completed all the lessons yet.";
+        this.finishMessage = "Anda belum melengkapkan semua pelajaran.";
       }
       this.showFinishModal = true;
     },

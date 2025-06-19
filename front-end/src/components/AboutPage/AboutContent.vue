@@ -1,22 +1,23 @@
 <template>
   <div class="about-content">
-    <h1>About WALWeP</h1>
+    <h1>Tentang WALWeP</h1>
     <p>
-      WALWeP is an innovative online learning platform dedicated to providing
-      the best educational resources and courses. Our mission is to empower
-      learners from around the world to achieve their personal and professional
-      goals through accessible and high-quality education.
+      WALWeP ialah platform pembelajaran dalam talian yang inovatif yang
+      berdedikasi untuk menyediakan sumber pendidikan dan kursus terbaik. Misi
+      kami ialah untuk memperkasa para pelajar di seluruh dunia mencapai
+      matlamat peribadi dan profesional mereka melalui pendidikan yang
+      berkualiti tinggi dan mudah diakses.
     </p>
     <p>
-      Whether you're looking to enhance your skills, explore new interests, or
-      advance your career, WALWeP offers a wide range of courses to meet your
-      needs. Our platform is designed to be user-friendly, engaging, and
-      adaptable to various learning styles.
+      Sama ada anda ingin meningkatkan kemahiran, meneroka minat baharu atau
+      memajukan kerjaya anda, WALWeP menawarkan pelbagai kursus untuk memenuhi
+      keperluan anda. Platform kami direka bentuk agar mesra pengguna, menarik
+      dan menyesuaikan diri dengan pelbagai gaya pembelajaran.
     </p>
     <p>
-      Join us on our journey to make education more inclusive and effective.
-      Explore our courses, connect with experienced instructors, and take your
-      learning to the next level with WALWeP.
+      Sertai kami dalam usaha menjadikan pendidikan lebih inklusif dan berkesan.
+      Terokai kursus kami, hubungi tenaga pengajar berpengalaman dan tingkatkan
+      pembelajaran anda ke tahap yang lebih tinggi dengan WALWeP.
     </p>
   </div>
 </template>

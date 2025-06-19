@@ -6,16 +6,16 @@
     </div>
     <div class="menu">
       <ul>
-        <li><router-link to="/home">HOME</router-link></li>
-        <li><router-link to="/about">ABOUT</router-link></li>
+        <li><router-link to="/home">LAMAN UTAMA</router-link></li>
+        <li><router-link to="/about">TENTANG WALWeP</router-link></li>
         <li>
-          <router-link to="/course-materials">COURSE MATERIALS</router-link>
+          <router-link to="/course-materials">BAHAN KURSUS</router-link>
         </li>
-        <li><router-link to="/quizzes">QUIZZES</router-link></li>
+        <li><router-link to="/quizzes">KUIZ</router-link></li>
         <li>
-          <router-link to="/course-progress">COURSE PROGRESS</router-link>
+          <router-link to="/course-progress">KEMAJUAN KURSUS</router-link>
         </li>
-        <li><router-link to="/contact">CONTACT US</router-link></li>
+        <li><router-link to="/contact">HUBUNGI KAMI</router-link></li>
       </ul>
     </div>
     <div class="right-icons">
@@ -36,8 +36,8 @@
           class="profile-icon"
         />
         <div class="dropdown-menu" v-if="menuVisible">
-          <a @click="navigateToProfile">View Profile</a>
-          <a @click="logOut"><span class="highlightLogOut">Log Out</span></a>
+          <a @click="navigateToProfile">Lihat Profil</a>
+          <a @click="logOut"><span class="highlightLogOut">Log Keluar</span></a>
         </div>
       </div>
     </div>

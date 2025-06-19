@@ -4,18 +4,18 @@
     <div class="search-sort-bar">
       <input
         type="text"
-        placeholder="Search quizzes..."
+        placeholder="Cari kuiz..."
         v-model="searchQuery"
         @input="filterQuizzes"
       />
       <select v-model="sortKey" @change="sortQuizzes">
-        <option value="date">Date</option>
-        <option value="questions">Number of Questions</option>
+        <option value="date">Tarikh</option>
+        <option value="questions">Bilangan Soalan</option>
       </select>
     </div>
     <div class="add-quiz-button-container" v-if="isAdmin">
       <button class="btn-green btn-icon" @click="showAddQuizModal">
-        <i class="fas fa-plus-circle"></i> Add Quiz
+        <i class="fas fa-plus-circle"></i> Tambah Kuiz
       </button>
     </div>
 
@@ -26,18 +26,18 @@
         :key="quiz._id"
         @click="handleQuizClick(quiz)"
       >
-        <h2 class="quiz-title">Quiz for {{ quiz.courseTitle }}</h2>
-        <p class="quiz-questions">{{ quiz.questions.length }} questions</p>
+        <h2 class="quiz-title">Kuiz untuk {{ quiz.courseTitle }}</h2>
+        <p class="quiz-questions">{{ quiz.questions.length }} soalan</p>
       </div>
     </div>
 
     <!-- Add Quiz Modal -->
     <div v-if="showAddQuizModalWindow" class="modal-overlay">
       <div class="modal">
-        <h2>Add New Quiz</h2>
+        <h2>Tambah Kuiz Baharu</h2>
         <form @submit.prevent="addQuiz">
           <div class="form-group">
-            <label for="course">Select Course:</label>
+            <label for="course">Tambah Kuiz untuk Kursus:</label>
             <select v-model="selectedCourseId" required>
               <option
                 v-for="course in courses"
@@ -50,14 +50,14 @@
           </div>
           <div class="form-buttons">
             <button type="submit" class="btn-green btn-icon">
-              <i class="fas fa-paper-plane"></i> Add Quiz
+              <i class="fas fa-paper-plane"></i> Tambah Kuiz
             </button>
             <button
               type="button"
               class="btn-red btn-icon"
               @click="closeAddQuizModal"
             >
-              <i class="fas fa-times"></i> Cancel
+              <i class="fas fa-times"></i> Batal
             </button>
           </div>
         </form>
@@ -69,13 +69,13 @@
         <button class="cancel-btn" @click="closeQuizOptionsModal">
           <i class="fas fa-times-circle"></i>
         </button>
-        <h2>What would you like to do with this quiz?</h2>
+        <h2>Apa yang anda ingin lakukan dengan kuiz ini?</h2>
         <div class="form-buttons">
           <button class="btn-green btn-icon" @click="editQuiz">
-            <i class="fas fa-edit"></i> Edit Quiz Content
+            <i class="fas fa-edit"></i> Edit Kandungan Kuiz
           </button>
           <button class="btn-red btn-icon" @click="deleteQuiz">
-            <i class="fas fa-trash"></i> Delete Quiz
+            <i class="fas fa-trash"></i> Padam Kuiz
           </button>
         </div>
       </div>

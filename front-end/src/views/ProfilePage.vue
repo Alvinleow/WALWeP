@@ -9,7 +9,7 @@
             <div class="profile-pic-wrapper">
               <img
                 :src="previewProfilePicUrl || user.profilePicUrl"
-                alt="User Icon"
+                alt="Ikon Pengguna"
                 class="user-icon"
                 @click="triggerFileInput"
               />
@@ -35,10 +35,12 @@
               />
 
               <ul class="profile-info-list">
-                <li>📧 <strong>Email:</strong> {{ user.email }}</li>
-                <li>📞 <strong>Phone:</strong> {{ user.phone }}</li>
-                <li>🏫 <strong>School:</strong> {{ user.schoolName }}</li>
-                <li>🎂 <strong>DOB:</strong> {{ formatDate(user.dob) }}</li>
+                <li>📧 <strong>Emel:</strong> {{ user.email }}</li>
+                <li>📞 <strong>No. Telefon:</strong> {{ user.phone }}</li>
+                <li>🏫 <strong>Sekolah:</strong> {{ user.schoolName }}</li>
+                <li>
+                  🎂 <strong>Tarikh Lahir:</strong> {{ formatDate(user.dob) }}
+                </li>
               </ul>
             </div>
           </div>
@@ -49,22 +51,22 @@
               class="edit-profile-btn"
               @click="enterEditMode"
             >
-              Edit Profile
+              Edit Profil
             </button>
             <template v-else>
               <button class="save-btn" @click="saveChanges">
-                Save Changes
+                Simpan Perubahan
               </button>
-              <button class="cancel-btn" @click="cancelEdit">Cancel</button>
+              <button class="cancel-btn" @click="cancelEdit">Batal</button>
             </template>
             <button class="delete-account-btn" @click="promptDeleteAccount">
-              Delete Account
+              Padam Akaun
             </button>
           </div>
         </div>
         <div v-if="deletionSuccess" class="success-message">
-          <h2>Account Deleted Successfully!</h2>
-          <p>Exiting in {{ countdown }} seconds...</p>
+          <h2>Akaun Berjaya Dipadam!</h2>
+          <p>Keluar dalam {{ countdown }} saat...</p>
         </div>
       </div>
     </div>
@@ -73,17 +75,17 @@
     <div v-if="showDeleteModal" class="modal">
       <div class="modal-content">
         <span class="close" @click="closeDeleteModal">&times;</span>
-        <h2>Confirm Account Deletion</h2>
-        <p>Please enter your password to confirm account deletion.</p>
+        <h2>Sahkan Pemadaman Akaun</h2>
+        <p>Sila masukkan kata laluan untuk sahkan pemadaman akaun.</p>
         <input
           type="password"
           v-model="deletePassword"
-          placeholder="Enter your password"
+          placeholder="Masukkan kata laluan anda"
           class="password-input"
         />
         <span v-if="deleteError" class="error-message">{{ deleteError }}</span>
         <button class="confirm-delete-btn" @click="deleteAccount">
-          Confirm Delete
+          Sahkan Padam
         </button>
       </div>
     </div>
@@ -155,7 +157,7 @@ export default {
     },
     async saveChanges() {
       if (!this.editableUsername.trim()) {
-        alert("Username cannot be empty");
+        alert("Nama pengguna tidak boleh kosong");
         return;
       }
 
@@ -199,7 +201,7 @@ export default {
         };
         reader.readAsDataURL(file);
       } else {
-        alert("Please select a valid image file (jpg or png).");
+        alert("Sila pilih fail imej yang sah (jpg atau png).");
       }
     },
     triggerFileInput() {
@@ -217,7 +219,7 @@ export default {
     },
     async deleteAccount() {
       if (!this.deletePassword) {
-        this.deleteError = "Password is required.";
+        this.deleteError = "Kata laluan diperlukan.";
         return;
       }
 
@@ -232,7 +234,7 @@ export default {
         console.log("Password verified:", verifyResponse.data);
 
         if (!verifyResponse.data.success) {
-          this.deleteError = "Incorrect password.";
+          this.deleteError = "Kata laluan salah.";
           return;
         }
 
@@ -242,16 +244,13 @@ export default {
         );
         console.log("Account deleted:", deleteResponse.data);
 
-        // Account deletion successful, update UI
         this.deletionSuccess = true;
-        this.showDeleteModal = false; // Close the delete modal
+        this.showDeleteModal = false;
 
-        // Optionally, start countdown or redirect user
         this.startCountdown();
       } catch (error) {
         console.error("Error deleting account:", error);
-        this.deleteError =
-          "Failed to delete account. Please check your password.";
+        this.deleteError = "Gagal memadam akaun. Sila semak kata laluan anda.";
       }
     },
     startCountdown() {

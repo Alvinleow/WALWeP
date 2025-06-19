@@ -1,8 +1,10 @@
 <template>
   <div class="button-section">
-    <button @click="$emit('show-login')" class="action-button">Login</button>
+    <button @click="$emit('show-login')" class="action-button">
+      Log Masuk
+    </button>
     <button @click="$emit('show-register')" class="action-button">
-      Register
+      Daftar
     </button>
   </div>
 </template>

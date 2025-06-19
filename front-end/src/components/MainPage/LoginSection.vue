@@ -1,13 +1,13 @@
 <template>
   <div class="login-section">
     <form @submit.prevent="handleLogin" class="login-form">
-      <h2>Login</h2>
+      <h2>Log Masuk</h2>
       <div class="form-group">
-        <label for="email">Email:</label>
+        <label for="email">Emel:</label>
         <input type="email" id="email" name="email" v-model="email" required />
       </div>
       <div class="form-group">
-        <label for="password">Password:</label>
+        <label for="password">Kata Laluan:</label>
         <input
           type="password"
           id="password"
@@ -17,10 +17,10 @@
         />
         <span v-if="loginError" class="error-message">{{ loginError }}</span>
       </div>
-      <button type="submit" class="login-button">Login</button>
+      <button type="submit" class="login-button">Log Masuk</button>
       <p class="switch-form">
-        Don't have an account?
-        <a @click.prevent="switchToRegister" href="#">Register here</a>
+        Belum mempunyai akaun?
+        <a @click.prevent="switchToRegister" href="#">Daftar di sini</a>
       </p>
     </form>
   </div>
@@ -56,7 +56,7 @@ export default {
           const backendUser = response.data.account;
 
           if (!backendUser || !backendUser._id) {
-            this.loginError = "Admin account not found.";
+            this.loginError = "Akaun admin tidak dijumpai.";
             return;
           }
 
@@ -64,7 +64,7 @@ export default {
           this.$router.push("/home");
         } catch (error) {
           console.error("Admin login error:", error);
-          this.loginError = "Invalid admin credentials.";
+          this.loginError = "Maklumat admin salah.";
         }
         return;
       }
@@ -80,7 +80,7 @@ export default {
         const firebaseUser = userCredential.user;
 
         if (!firebaseUser.emailVerified) {
-          this.loginError = "Please verify your email before logging in.";
+          this.loginError = "Sila sahkan emel anda sebelum log masuk.";
           return;
         }
 
@@ -90,7 +90,7 @@ export default {
         const backendUser = response.data;
 
         if (!backendUser || !backendUser._id) {
-          this.loginError = "Account not found in our database.";
+          this.loginError = "Akaun tidak dijumpai dalam pangkalan data kami.";
           return;
         }
 
@@ -100,12 +100,11 @@ export default {
       } catch (error) {
         console.error("Firebase login error:", error.code, error.message);
 
-        if (error.code === "auth/user-not-found") {
-          this.loginError = "No account found with this email.";
-        } else if (error.code === "auth/wrong-password") {
-          this.loginError = "Incorrect password.";
+        if (error.code === "auth/invalid-credential") {
+          this.loginError =
+            "Bukti kelayakan tidak sah. Sila semak semula e-mel dan kata laluan anda";
         } else {
-          this.loginError = "Login failed. Please try again.";
+          this.loginError = "Log masuk gagal. Sila cuba lagi.";
         }
       }
     },

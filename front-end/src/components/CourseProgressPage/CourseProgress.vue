@@ -1,16 +1,16 @@
 <template>
   <div class="course-progress">
     <LoadingModal :visible="isLoading" />
-    <h2>Course Progress</h2>
-    <p>View your scores and track your progress in your courses.</p>
+    <h2>Kemajuan Kursus</h2>
+    <p>Lihat markah anda dan jejak kemajuan anda dalam kursus.</p>
     <div v-for="course in courses" :key="course._id" class="progress-item">
       <h3>{{ course.title }}</h3>
       <p>
-        Lessons Completed: {{ getCompletedLessons(course._id) }}/{{
+        Pelajaran Selesai: {{ getCompletedLessons(course._id) }}/{{
           getTotalLessons(course._id)
         }}
       </p>
-      <p>Score: {{ getCourseScore(course._id) }}%</p>
+      <p>Markah: {{ getCourseScore(course._id) }}%</p>
     </div>
   </div>
 </template>

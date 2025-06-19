@@ -1,7 +1,7 @@
 <template>
   <LoadingModal :visible="isLoading" />
   <div class="home-content">
-    <h1 class="title">What's New on WALWeP?</h1>
+    <h1 class="title">Kursus Baharu di WALWeP</h1>
     <div class="courses" ref="courses">
       <div
         class="course"

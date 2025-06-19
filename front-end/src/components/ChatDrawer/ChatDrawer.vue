@@ -25,7 +25,7 @@
         <input
           v-model="messageText"
           @keyup.enter="sendMessage"
-          placeholder="Write a message..."
+          placeholder="Tulis mesej..."
         />
         <button @click="sendMessage">➤</button>
       </div>
@@ -39,11 +39,11 @@
       </div>
 
       <div class="header">
-        <input v-model="search" placeholder="Search users..." />
+        <input v-model="search" placeholder="Cari pengguna..." />
       </div>
 
       <div v-if="search && filteredUsers.length" class="section">
-        <h4><i class="fas fa-search"></i> Search Results</h4>
+        <h4><i class="fas fa-search"></i> Hasil Carian</h4>
         <div v-for="user in filteredUsers" :key="user._id" class="user-item">
           <span class="username">{{ user.username }}</span>
 
@@ -52,7 +52,7 @@
               v-if="isInContacts(user)"
               class="message-icon btn"
               @click.stop="startChat(user)"
-              title="Start Chat"
+              title="Mulakan Chat"
             >
               <i class="fas fa-comment"></i> Chat
             </button>
@@ -61,7 +61,7 @@
               v-else
               class="add-icon btn"
               @click.stop="addToContacts(user)"
-              title="Add to Contacts"
+              title="Tambah ke Contacts"
             >
               <i class="fas fa-user-plus"></i> Add
             </button>
@@ -71,7 +71,7 @@
 
       <!-- Empty Section for Contacts List -->
       <div v-if="!search && contacts.length" class="section">
-        <h4><i class="fas fa-users"></i> Your Contacts</h4>
+        <h4><i class="fas fa-users"></i> Contacts</h4>
         <div v-for="user in contacts" :key="user._id" class="user-item">
           <span class="username">{{ user.username }}</span>
 
@@ -79,7 +79,7 @@
             <button
               class="message-icon btn"
               @click.stop="startChat(user)"
-              title="Start Chat"
+              title="Mulakan Chat"
             >
               <i class="fas fa-comment"></i> Chat
             </button>
@@ -188,13 +188,13 @@ export default {
         );
         const data = await response.json();
         console.log("Added to contacts:", data);
-        this.modalMessage = "User added to contacts!";
+        this.modalMessage = "Pengguna telah ditambah ke contacts!";
         this.modalVisible = true;
 
         await this.fetchContacts(); // Refresh contacts after adding
       } catch (error) {
         console.error("Failed to add user to contacts:", error);
-        this.modalMessage = "Failed to add user to contacts.";
+        this.modalMessage = "Gagal menambah pengguna ke contacts.";
         this.modalVisible = true;
       }
     },

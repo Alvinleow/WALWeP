@@ -1,25 +1,25 @@
 <template>
   <div class="admin-contact-page">
     <LoadingModal :visible="isLoading" />
-    <h2>Contact Submissions</h2>
+    <h2>Penyerahan Laporan</h2>
     <div class="tabs">
       <div :class="{ active: view === 'pending' }" @click="view = 'pending'">
-        Pending
+        Belum Selesai
       </div>
       <div :class="{ active: view === 'solved' }" @click="view = 'solved'">
-        Solved
+        Selesai
       </div>
     </div>
     <div v-if="view === 'pending'" class="pending-submissions">
-      <h3>Pending</h3>
+      <h3>Belum Selesai</h3>
       <table>
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Subject</th>
-            <th>Message</th>
-            <th>Actions</th>
+            <th>Nama</th>
+            <th>Emel</th>
+            <th>Subjek</th>
+            <th>Mesej</th>
+            <th>Tindakan</th>
           </tr>
         </thead>
         <tbody>
@@ -30,7 +30,7 @@
             <td>{{ contact.message }}</td>
             <td>
               <button class="btn-green" @click="markAsDone(contact._id)">
-                Mark as Done
+                Tandakan Selesai
               </button>
             </td>
           </tr>
@@ -38,15 +38,15 @@
       </table>
     </div>
     <div v-if="view === 'solved'" class="solved-submissions">
-      <h3>Solved</h3>
+      <h3>Selesai</h3>
       <table>
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Subject</th>
-            <th>Message</th>
-            <th>Actions</th>
+            <th>Nama</th>
+            <th>Emel</th>
+            <th>Subjek</th>
+            <th>Mesej</th>
+            <th>Tindakan</th>
           </tr>
         </thead>
         <tbody>
@@ -57,7 +57,7 @@
             <td>{{ contact.message }}</td>
             <td>
               <button class="btn-red" @click="deleteContact(contact._id)">
-                Delete
+                Padam
               </button>
             </td>
           </tr>
