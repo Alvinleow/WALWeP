@@ -6,7 +6,7 @@
         <label for="email">Emel:</label>
         <input type="email" id="email" name="email" v-model="email" required />
       </div>
-      <div class="form-group">
+      <div class="form-group-password">
         <label for="password">Kata Laluan:</label>
         <div class="password-wrapper">
           <input
@@ -27,17 +27,58 @@
         </div>
         <span v-if="loginError" class="error-message">{{ loginError }}</span>
       </div>
+
+      <p class="password-reset">
+        <a @click.prevent="showResetModal = true" href="#">Lupa Kata Laluan?</a>
+      </p>
+
       <button type="submit" class="login-button">Log Masuk</button>
+
       <p class="switch-form">
         Belum mempunyai akaun?
         <a @click.prevent="switchToRegister" href="#">Daftar di sini</a>
       </p>
     </form>
+
+    <div class="modal" v-if="showResetModal">
+      <div class="modal-content">
+        <span class="close-x" @click="showResetModal = false">&times;</span>
+        <h3>Reset Kata Laluan</h3>
+        <p>Sila masukkan emel anda untuk menerima pautan reset:</p>
+        <input
+          type="email"
+          v-model="resetEmail"
+          placeholder="Alamat emel"
+          class="reset-input"
+        />
+        <p v-if="resetError" class="error-message">{{ resetError }}</p>
+        <button class="login-button" @click="sendResetEmail">
+          Hantar Reset
+        </button>
+      </div>
+    </div>
+
+    <div class="modal" v-if="resetSent">
+      <div class="modal-content">
+        <span class="close-x" @click="resetSent = false">&times;</span>
+        <h3>Emel Dihantar</h3>
+        <p>
+          Pautan reset kata laluan telah dihantar ke
+          <strong>{{ resetEmail }}</strong
+          >. Sila semak inbox anda — mungkin juga berada di folder
+          <strong>Spam</strong> atau <strong>Promosi</strong>.
+        </p>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+} from "firebase/auth";
 import axios from "axios";
 import { mapMutations } from "vuex";
 
@@ -49,6 +90,10 @@ export default {
       password: "",
       loginError: "",
       showPassword: false,
+      showResetModal: false,
+      resetEmail: "",
+      resetSent: false,
+      resetError: "",
     };
   },
   methods: {
@@ -122,6 +167,24 @@ export default {
     switchToRegister() {
       this.$emit("show-register");
     },
+    async sendResetEmail() {
+      this.resetError = "";
+      const auth = getAuth();
+
+      if (!this.resetEmail) {
+        this.resetError = "Sila masukkan emel anda.";
+        return;
+      }
+
+      try {
+        await sendPasswordResetEmail(auth, this.resetEmail);
+        this.showResetModal = false;
+        this.resetSent = true;
+      } catch (error) {
+        console.error("Reset email error:", error);
+        this.resetError = "Gagal menghantar reset. Pastikan emel sah.";
+      }
+    },
   },
 };
 </script>
@@ -149,13 +212,19 @@ export default {
   margin-bottom: 15px;
 }
 
-.form-group label {
+.form-group-password {
+  margin-bottom: 5px;
+}
+
+.form-group label,
+.form-group-password label {
   display: block;
   margin-bottom: 5px;
   color: #333;
 }
 
-.form-group input {
+.form-group input,
+.form-group-password input {
   width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
@@ -188,11 +257,19 @@ export default {
   margin-top: 15px;
   text-align: center;
 }
+
+.password-reset {
+  margin-bottom: 15px;
+  text-align: right;
+}
+
+.password-reset a,
 .switch-form a {
   color: #42b983;
   cursor: pointer;
   text-decoration: none;
 }
+.password-reset a:hover,
 .switch-form a:hover {
   text-decoration: underline;
 }
@@ -219,5 +296,56 @@ export default {
 
 .toggle-password:hover {
   color: #42b983;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal h3 {
+  margin: 10px;
+}
+
+.modal-content {
+  position: relative;
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  width: 350px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.reset-input {
+  width: 100%;
+  padding: 10px;
+  margin: 15px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.close-x {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #999;
+  cursor: pointer;
+  transition: color 0.3s;
+  z-index: 10;
+}
+
+.close-x:hover {
+  color: #ff1a1a;
 }
 </style>
