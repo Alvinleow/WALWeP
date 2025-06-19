@@ -17,6 +17,7 @@ const saltRounds = 10;
 const allowedOrigins = [
   process.env.VUE_APP_FRONTEND_URL,
   "https://walwep.netlify.app",
+  "http://localhost:8081",
   "http://localhost:8082",
 ];
 
@@ -50,6 +51,7 @@ connectDB()
     const app = express();
     const server = http.createServer(app);
     const io = socketIO(server, {
+      path: "/socket.io",
       cors: {
         origin: allowedOrigins,
         methods: ["GET", "POST"],
