@@ -1,9 +1,12 @@
 .DS_Store
 node_modules
 /dist
+/front-end/dist
 
 
 # local env files
+.env
+.env.production
 .env.local
 .env.*.local
 
@@ -22,5 +25,4 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
-sololeveling-eb695-firebase-adminsdk-dbyid-46b4a955e6.json
 walwep-349b6-firebase-adminsdk-fbsvc-11eb344c18.json
