@@ -1,7 +1,7 @@
 <template>
   <LoadingModal :visible="isLoading" />
   <div class="home-content">
-    <h1 class="title">What's New on WALWeP?</h1>
+    <h1 class="title">Kursus Baharu di WALWeP</h1>
     <div class="courses" ref="courses">
       <div
         class="course"
@@ -32,6 +32,7 @@ export default {
     await this.fetchLatestCourses();
   },
   mounted() {
+    console.log("Current API_BASE:", process.env.VUE_APP_API_BASE); // check API base URL
     this.$refs.courses.addEventListener("wheel", this.handleScroll);
   },
   beforeUnmount() {
@@ -41,7 +42,7 @@ export default {
     async fetchLatestCourses() {
       try {
         const response = await axios.get(
-          "http://localhost:8081/api/courses?limit=10&sort=desc"
+          `${process.env.VUE_APP_API_BASE}/api/courses?limit=10&sort=desc`
         );
         this.courses = response.data;
       } catch (error) {

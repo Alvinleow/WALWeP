@@ -1,16 +1,16 @@
 <template>
   <div class="course-progress">
     <LoadingModal :visible="isLoading" />
-    <h2>Course Progress</h2>
-    <p>View your scores and track your progress in your courses.</p>
+    <h2>Kemajuan Kursus</h2>
+    <p>Lihat markah anda dan jejak kemajuan anda dalam kursus.</p>
     <div v-for="course in courses" :key="course._id" class="progress-item">
       <h3>{{ course.title }}</h3>
       <p>
-        Lessons Completed: {{ getCompletedLessons(course._id) }}/{{
+        Pelajaran Selesai: {{ getCompletedLessons(course._id) }}/{{
           getTotalLessons(course._id)
         }}
       </p>
-      <p>Score: {{ getCourseScore(course._id) }}%</p>
+      <p>Markah: {{ getCourseScore(course._id) }}%</p>
     </div>
   </div>
 </template>
@@ -48,7 +48,9 @@ export default {
   methods: {
     async fetchCourses() {
       try {
-        const response = await axios.get("http://localhost:8081/api/courses");
+        const response = await axios.get(
+          `${process.env.VUE_APP_API_BASE}/api/courses`
+        );
         this.courses = response.data;
       } catch (error) {
         console.error("Error fetching courses:", error);
@@ -57,7 +59,7 @@ export default {
     async fetchLessonProgresses() {
       try {
         const response = await axios.get(
-          `http://localhost:8081/api/userProgress/${this.userId}`
+          `${process.env.VUE_APP_API_BASE}/api/userProgress/${this.userId}`
         );
         this.lessonProgresses = response.data;
       } catch (error) {
@@ -66,7 +68,9 @@ export default {
     },
     async fetchQuizzes() {
       try {
-        const response = await axios.get("http://localhost:8081/api/quizzes");
+        const response = await axios.get(
+          `${process.env.VUE_APP_API_BASE}/api/quizzes`
+        );
         this.quizzes = response.data;
       } catch (error) {
         console.error("Error fetching quizzes:", error);
@@ -75,7 +79,7 @@ export default {
     async fetchQuizResults() {
       try {
         const response = await axios.get(
-          `http://localhost:8081/api/accounts/${this.userId}`
+          `${process.env.VUE_APP_API_BASE}/api/accounts/${this.userId}`
         );
         this.quizResults = response.data.quizResults;
       } catch (error) {

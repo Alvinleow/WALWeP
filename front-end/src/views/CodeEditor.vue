@@ -1,9 +1,9 @@
 <template>
   <div class="code-editor">
-    <h2 class="editor-title">Try It Yourself</h2>
+    <h2 class="editor-title">Cuba Sendiri</h2>
     <div class="button-row">
-      <button @click="goBack" class="back-button">← Back</button>
-      <button @click="resetCode" class="reset-button">Reset</button>
+      <button @click="goBack" class="back-button">← Kembali</button>
+      <button @click="resetCode" class="reset-button">Tetap Semula</button>
     </div>
     <div class="editor-container">
       <div class="editor-pane">

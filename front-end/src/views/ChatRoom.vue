@@ -9,9 +9,9 @@
     <input
       v-model="messageText"
       @keyup.enter="sendMessage"
-      placeholder="Type a message..."
+      placeholder="Taip mesej anda..."
     />
-    <button @click="sendMessage">Send</button>
+    <button @click="sendMessage">Hantar</button>
   </div>
 </template>
 

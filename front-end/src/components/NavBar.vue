@@ -6,16 +6,20 @@
     </div>
     <div class="menu">
       <ul>
-        <li><router-link to="/home">HOME</router-link></li>
-        <li><router-link to="/about">ABOUT</router-link></li>
+        <li><router-link to="/home">LAMAN UTAMA</router-link></li>
+        <li><router-link to="/about">TENTANG WALWeP</router-link></li>
         <li>
-          <router-link to="/course-materials">COURSE MATERIALS</router-link>
+          <router-link to="/course-materials">BAHAN KURSUS</router-link>
         </li>
-        <li><router-link to="/quizzes">QUIZZES</router-link></li>
+        <li><router-link to="/quizzes">KUIZ</router-link></li>
         <li>
-          <router-link to="/course-progress">COURSE PROGRESS</router-link>
+          <router-link to="/course-progress">KEMAJUAN KURSUS</router-link>
         </li>
-        <li><router-link to="/contact">CONTACT US</router-link></li>
+        <li>
+          <router-link to="/contact">
+            {{ isAdmin ? "HUBUNGI KAMI" : "LAPORAN" }}
+          </router-link>
+        </li>
       </ul>
     </div>
     <div class="right-icons">
@@ -36,8 +40,8 @@
           class="profile-icon"
         />
         <div class="dropdown-menu" v-if="menuVisible">
-          <a @click="navigateToProfile">View Profile</a>
-          <a @click="logOut"><span class="highlightLogOut">Log Out</span></a>
+          <a @click="navigateToProfile">Lihat Profil</a>
+          <a @click="logOut"><span class="highlightLogOut">Log Keluar</span></a>
         </div>
       </div>
     </div>
@@ -56,8 +60,12 @@ export default {
   name: "NavBar",
   computed: {
     ...mapState({
+      user: (state) => state.user,
       userId: (state) => (state.user ? state.user._id : null),
     }),
+    isAdmin() {
+      return this.accountLevel === 1;
+    },
   },
   data() {
     return {
@@ -92,31 +100,32 @@ export default {
   height: 100px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 0 20px;
-  background: rgb(0, 0, 0);
+  background: #000;
   position: fixed;
   top: 0;
   left: 0;
   z-index: 1000;
+  box-sizing: border-box;
 }
 
 .icon {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
 .logo-image {
-  width: 60px;
-  height: 60px;
-  margin-right: 10px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
 }
 
 .logo {
   color: #42b983;
-  font-size: 30px;
+  font-size: 26px;
   font-family: Cambria;
+  margin: 0;
 }
 
 .highlight {
@@ -124,35 +133,32 @@ export default {
 }
 
 .menu {
-  flex: 1;
+  flex-grow: 1;
   display: flex;
   justify-content: center;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
 }
 
-ul {
+.menu ul {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  gap: 40px;
   list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
-ul li {
-  margin-left: 30px;
+.menu ul li {
   font-size: 14px;
 }
 
-ul li a {
+.menu ul li a {
   text-decoration: none;
   color: #fff;
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   font-weight: bold;
-  transition: 0.4s ease-in-out;
+  transition: 0.3s ease;
 }
 
-ul li a:hover {
+.menu ul li a:hover {
   color: #42b983;
 }
 
@@ -162,43 +168,35 @@ ul li a:hover {
   gap: 20px;
 }
 
-.chat {
+.chat-icon,
+.profile-icon {
+  width: 35px;
+  height: 35px;
   cursor: pointer;
-}
-
-.chat-icon {
-  width: 30px;
-  height: 30px;
 }
 
 .profile {
   position: relative;
   display: flex;
   align-items: center;
-  cursor: pointer;
-}
-
-.profile-icon {
-  width: 40px;
-  height: 40px;
 }
 
 .dropdown-menu {
   position: absolute;
-  top: 60px;
+  top: 45px;
   right: 0;
-  background: rgba(0, 0, 0, 0.7);
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  z-index: 1;
-  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 6px;
   width: 150px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 999;
 }
 
 .dropdown-menu a {
-  color: white;
-  padding: 12px 16px;
-  text-decoration: none;
   display: block;
+  padding: 12px 16px;
+  color: #fff;
+  text-decoration: none;
   white-space: nowrap;
 }
 

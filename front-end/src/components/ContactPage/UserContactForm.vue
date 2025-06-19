@@ -1,71 +1,74 @@
 <template>
   <div class="contact-form">
     <form @submit.prevent="submitForm">
-      <h2>Contact Us</h2>
+      <h2>Hubungi Kami</h2>
       <div class="form-group">
-        <label for="name">Name:</label>
+        <label for="name">Nama:</label>
         <input type="text" id="name" v-model="name" required />
       </div>
       <div class="form-group">
-        <label for="email">Email:</label>
+        <label for="email">Emel:</label>
         <input type="email" id="email" v-model="email" required />
       </div>
       <div class="form-group">
-        <label for="subject">Subject:</label>
+        <label for="subject">Subjek:</label>
         <input type="text" id="subject" v-model="subject" required />
       </div>
       <div class="form-group">
-        <label for="message">Message:</label>
+        <label for="message">Mesej:</label>
         <textarea id="message" v-model="message" required></textarea>
       </div>
-      <button type="submit" class="submit-btn">Submit</button>
+      <button type="submit" class="submit-btn">Hantar</button>
     </form>
     <div v-if="successMessage" class="success-message">
-      Form submitted successfully!
+      Borang berjaya dihantar!
     </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios'; 
+import axios from "axios";
 
 export default {
   data() {
     return {
-      name: '',
-      email: '',
-      subject: '',
-      message: '',
+      name: "",
+      email: "",
+      subject: "",
+      message: "",
       successMessage: false,
     };
   },
   methods: {
     async submitForm() {
-      console.log('Submitting form with data:', {
+      console.log("Submitting form with data:", {
         name: this.name,
         email: this.email,
         subject: this.subject,
         message: this.message,
       });
       try {
-        const response = await axios.post('http://localhost:8081/api/contact', {
-          name: this.name,
-          email: this.email,
-          subject: this.subject,
-          message: this.message,
-        });
-        console.log('Form submitted successfully:', response.data);
-        this.successMessage = true; 
-        this.resetForm(); 
+        const response = await axios.post(
+          `${process.env.VUE_APP_API_BASE}/api/contact`,
+          {
+            name: this.name,
+            email: this.email,
+            subject: this.subject,
+            message: this.message,
+          }
+        );
+        console.log("Form submitted successfully:", response.data);
+        this.successMessage = true;
+        this.resetForm();
       } catch (error) {
-        console.error('Error submitting form:', error);
+        console.error("Error submitting form:", error);
       }
     },
     resetForm() {
-      this.name = '';
-      this.email = '';
-      this.subject = '';
-      this.message = '';
+      this.name = "";
+      this.email = "";
+      this.subject = "";
+      this.message = "";
     },
   },
 };

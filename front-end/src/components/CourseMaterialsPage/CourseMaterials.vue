@@ -4,18 +4,18 @@
     <div class="search-sort-bar">
       <input
         type="text"
-        placeholder="Search courses..."
+        placeholder="Cari kursus..."
         v-model="searchQuery"
         @input="filterCourses"
       />
       <select v-model="sortKey" @change="sortCourses">
-        <option value="date">Date</option>
-        <option value="enrollment">Enrollment</option>
+        <option value="date">Tarikh</option>
+        <option value="enrollment">Pendaftaran</option>
       </select>
     </div>
     <div class="add-course-button-container" v-if="isAdmin">
       <button class="btn-green btn-icon" @click="showAddCourseModal">
-        <i class="fas fa-plus-circle"></i> Add Course
+        <i class="fas fa-plus-circle"></i> Tambah Kursus
       </button>
     </div>
     <div class="course-list">
@@ -31,18 +31,18 @@
           class="course-thumbnail"
         />
         <h2 class="course-title">{{ course.title }}</h2>
-        <p class="course-lessons">{{ course.totalOfLessons }} lessons</p>
-        <p class="course-enrollment">{{ course.enrollment }} enrollments</p>
+        <p class="course-lessons">{{ course.totalOfLessons }} pelajaran</p>
+        <p class="course-enrollment">{{ course.enrollment }} penyertaan</p>
       </div>
     </div>
 
     <!-- Add Course Modal -->
     <div v-if="showAddCourseModalWindow" class="course-modal-overlay">
       <div class="course-modal">
-        <h2>Add New Course</h2>
+        <h2>Tambah Kursus Baharu</h2>
         <form @submit.prevent="addCourse">
           <div class="form-group">
-            <label for="thumbnail">Thumbnail:</label>
+            <label for="thumbnail">Imej Kursus:</label>
             <input
               type="file"
               id="thumbnail"
@@ -57,11 +57,11 @@
             />
           </div>
           <div class="form-group">
-            <label for="title">Course Title:</label>
+            <label for="title">Tajuk Kursus:</label>
             <input type="text" id="title" v-model="newCourse.title" required />
           </div>
           <div class="form-group">
-            <label for="description">Course Description:</label>
+            <label for="description">Penerangan Kursus:</label>
             <textarea
               id="description"
               v-model="newCourse.description"
@@ -70,14 +70,14 @@
           </div>
           <div class="form-buttons">
             <button type="submit" class="btn-green btn-icon">
-              <i class="fas fa-paper-plane"></i> Submit
+              <i class="fas fa-paper-plane"></i> Hantar
             </button>
             <button
               type="button"
               class="btn-red btn-icon"
               @click="closeAddCourseModal"
             >
-              <i class="fas fa-times"></i> Cancel
+              <i class="fas fa-times"></i> Batal
             </button>
           </div>
         </form>
@@ -93,31 +93,35 @@
         <h2>{{ selectedCourse.title }}</h2>
         <img :src="selectedCourse.thumbnail" alt="Course Thumbnail" />
         <p>{{ selectedCourse.description }}</p>
-        <p>Total Lessons: {{ selectedCourse.totalOfLessons }}</p>
-        <p>Enrollments: {{ selectedCourse.enrollment }}</p>
+        <p>Jumlah Pelajaran: {{ selectedCourse.totalOfLessons }}</p>
+        <p>Penyertaan: {{ selectedCourse.enrollment }}</p>
         <div class="modal-buttons">
           <div v-if="!isEnrolledInCourse(selectedCourse._id)">
             <button class="btn-green btn-icon" @click="enrollInCourse">
-              <i class="fas fa-sign-in-alt"></i> Enroll Course
+              <i class="fas fa-sign-in-alt"></i> Daftar Kursus
             </button>
           </div>
           <div v-else>
             <button class="btn-green btn-icon" @click="navigateToLessons">
-              <div v-if="isAdmin"><i class="fas fa-edit"></i> Edit Lessons</div>
-              <div v-else><i class="fas fa-book-reader"></i> View Lessons</div>
+              <div v-if="isAdmin">
+                <i class="fas fa-edit"></i> Edit Pelajaran
+              </div>
+              <div v-else>
+                <i class="fas fa-book-reader"></i> Sambung Pelajaran
+              </div>
             </button>
 
             <button class="btn-red btn-icon" @click="confirmUnenroll">
-              <i class="fas fa-sign-out-alt"></i> Unenroll
+              <i class="fas fa-sign-out-alt"></i> Batalkan Pendaftaran
             </button>
           </div>
 
           <div v-if="isAdmin">
             <button class="btn-green btn-icon" @click="showEditCourseForm">
-              <i class="fas fa-edit"></i> Edit Course Info
+              <i class="fas fa-edit"></i> Edit Maklumat Kursus
             </button>
             <button class="btn-red btn-icon" @click="confirmDeleteCourse">
-              <i class="fas fa-trash"></i> Delete
+              <i class="fas fa-trash"></i> Padam Kursus
             </button>
           </div>
         </div>
@@ -127,14 +131,14 @@
     <!-- Edit Course Form -->
     <div v-if="showEditCourseFormWindow" class="course-modal-overlay">
       <div class="course-modal">
-        <h2>Edit Course</h2>
+        <h2>Edit Kursus</h2>
         <form @submit.prevent="editCourse">
           <div class="form-group">
-            <label for="editTitle">Title:</label>
+            <label for="editTitle">Tajuk:</label>
             <input type="text" id="editTitle" v-model="selectedCourse.title" />
           </div>
           <div class="form-group">
-            <label for="editDescription">Description:</label>
+            <label for="editDescription">Penerangan:</label>
             <textarea
               id="editDescription"
               v-model="selectedCourse.description"
@@ -142,14 +146,14 @@
           </div>
           <div class="form-buttons">
             <button class="btn-green btn-icon" type="submit">
-              Save Changes
+              Simpan Perubahan
             </button>
             <button
               class="btn-red btn-icon"
               type="button"
               @click="closeEditCourseForm"
             >
-              Cancel
+              Batal
             </button>
           </div>
         </form>
@@ -159,21 +163,21 @@
     <!-- Delete Course Confirmation Modal -->
     <div v-if="showDeleteCourseModalWindow" class="course-modal-overlay">
       <div class="course-modal">
-        <h2>Delete Course</h2>
+        <h2>Padam Kursus</h2>
         <p>
-          This action will permanently delete the course and all related data.
-          Are you sure you want to continue?
+          Tindakan ini akan memadam kursus dan semua data berkaitan secara
+          kekal. Adakah anda pasti ingin meneruskan?
         </p>
         <div class="form-buttons">
           <button class="btn-red btn-icon" @click="deleteCourse">
-            <i class="fas fa-trash-alt"></i> Delete
+            <i class="fas fa-trash-alt"></i> Padam
           </button>
           <button
             class="btn-green btn-icon"
             type="button"
             @click="closeDeleteCourseModal"
           >
-            <i class="fas fa-times-circle"></i> Cancel
+            <i class="fas fa-times-circle"></i> Batal
           </button>
         </div>
       </div>
@@ -182,17 +186,17 @@
     <!-- Unenroll Confirmation Modal -->
     <div v-if="showConfirmUnenrollModal" class="course-modal-overlay">
       <div class="course-modal">
-        <h2>Unenroll Course</h2>
+        <h2>Batalkan Pendaftaran Kursus</h2>
         <p>
-          You will lose all your progress if you unenroll from the course. Do
-          you want to continue?
+          Anda akan kehilangan semua kemajuan jika anda membatalkan pendaftaran
+          kursus ini. Adakah anda mahu meneruskan?
         </p>
         <div class="form-buttons">
           <button class="btn-red btn-icon" @click="unenrollFromCourse">
-            <i class="fas fa-sign-out-alt"></i> Unenroll
+            <i class="fas fa-sign-out-alt"></i> Batalkan Pendaftaran
           </button>
           <button class="btn-green btn-icon" @click="closeUnenrollModal">
-            <i class="fas fa-times-circle"></i> Cancel
+            <i class="fas fa-times-circle"></i> Batal
           </button>
         </div>
       </div>
@@ -244,7 +248,7 @@ export default {
       this.isLoading = true;
       try {
         const response = await axios.get(
-          "http://localhost:8081/api/courses?sort=-createdAt"
+          `${process.env.VUE_APP_API_BASE}/api/courses?sort=-createdAt`
         );
         this.courses = response.data.reverse();
         this.filteredCourses = this.courses;
@@ -302,7 +306,7 @@ export default {
 
       try {
         const response = await axios.post(
-          "http://localhost:8081/api/courses",
+          `${process.env.VUE_APP_API_BASE}/api/courses`,
           formData,
           {
             headers: {
@@ -333,7 +337,7 @@ export default {
     async enrollInCourse() {
       try {
         await axios.put(
-          `http://localhost:8081/api/accounts/enroll/${this.userId}`,
+          `${process.env.VUE_APP_API_BASE}/api/accounts/enroll/${this.userId}`,
           {
             courseId: this.selectedCourse._id,
           }
@@ -354,7 +358,7 @@ export default {
     async unenrollFromCourse() {
       try {
         await axios.put(
-          `http://localhost:8081/api/accounts/unenroll/${this.userId}`,
+          `${process.env.VUE_APP_API_BASE}/api/accounts/unenroll/${this.userId}`,
           {
             courseId: this.selectedCourse._id,
           }
@@ -384,7 +388,7 @@ export default {
     async editCourse() {
       try {
         const response = await axios.put(
-          `http://localhost:8081/api/courses/${this.selectedCourse._id}`,
+          `${process.env.VUE_APP_API_BASE}/api/courses/${this.selectedCourse._id}`,
           {
             title: this.selectedCourse.title,
             description: this.selectedCourse.description,
@@ -405,7 +409,7 @@ export default {
     async deleteCourse() {
       try {
         await axios.delete(
-          `http://localhost:8081/api/courses/${this.selectedCourse._id}`
+          `${process.env.VUE_APP_API_BASE}/api/courses/${this.selectedCourse._id}`
         );
         this.courses = this.courses.filter(
           (course) => course._id !== this.selectedCourse._id
