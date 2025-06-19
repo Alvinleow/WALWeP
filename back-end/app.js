@@ -15,8 +15,8 @@ const socketHandler = require("./controllers/socketController");
 const saltRounds = 10;
 
 const allowedOrigins = [
-  process.env.VUE_APP_FRONTEND_URL || "http://localhost:8080",
-  process.env.VUE_APP_FRONTEND_URL || "http://localhost:8082",
+  process.env.VUE_APP_FRONTEND_URL,
+  "http://localhost:8082",
 ];
 
 connectDB()
