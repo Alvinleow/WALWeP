@@ -102,8 +102,12 @@
               required
             />
           </div>
-          <button type="submit">Tambah Pelajaran</button>
-          <button type="button" @click="closeAddLessonModal">Batal</button>
+          <div class="modal-buttons">
+            <button class="btn-green" type="submit">Tambah Pelajaran</button>
+            <button class="btn-red" type="button" @click="closeAddLessonModal">
+              Batal
+            </button>
+          </div>
         </form>
       </div>
     </div>
@@ -117,17 +121,39 @@
         <label>Contoh Kod (HTML/CSS/JS):</label>
         <div ref="codeEditor" class="code-editor-container"></div>
 
-        <button @click="saveLessonContent">Simpan</button>
-        <button type="button" @click="closeEditLessonModal">Batal</button>
+        <div class="modal-buttons">
+          <button @click="saveLessonContent" class="btn-green btn-icon">
+            <i class="fas fa-save"></i> Simpan
+          </button>
+          <button
+            type="button"
+            @click="closeEditLessonModal"
+            class="btn-red btn-icon"
+          >
+            <i class="fas fa-times"></i> Batal
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- Delete Lesson Confirmation Modal -->
     <div v-if="showDeleteLessonModalWindow" class="modal-overlay">
       <div class="modal">
-        <h2>Adakah anda pasti mahu memadam pelajaran ini?</h2>
-        <button @click="deleteLesson">Ya</button>
-        <button type="button" @click="closeDeleteLessonModal">Tidak</button>
+        <h2 style="text-align: center">
+          Adakah anda pasti mahu memadam pelajaran ini?
+        </h2>
+        <div class="modal-buttons">
+          <button class="btn-red btn-icon" @click="deleteLesson">
+            <i class="fas fa-trash-alt"></i> Ya
+          </button>
+          <button
+            class="btn-green btn-icon"
+            type="button"
+            @click="closeDeleteLessonModal"
+          >
+            <i class="fas fa-times"></i> Tidak
+          </button>
+        </div>
       </div>
     </div>
 
@@ -284,6 +310,7 @@ export default {
       this.quill = null;
     },
     async saveLessonContent() {
+      this.isLoading = true;
       if (this.selectedLesson) {
         try {
           const updatedCode = this.codeMirrorInstance.getValue();
@@ -303,6 +330,8 @@ export default {
           this.closeEditLessonModal();
         } catch (error) {
           console.error("Error saving lesson content:", error);
+        } finally {
+          this.isLoading = false;
         }
       }
     },
@@ -313,6 +342,7 @@ export default {
       this.showDeleteLessonModalWindow = false;
     },
     async deleteLesson() {
+      this.isLoading = true;
       if (this.selectedLesson) {
         try {
           const deleteResponse = await axios.delete(
@@ -323,6 +353,9 @@ export default {
           this.lessons = this.lessons.filter(
             (lesson) => lesson._id !== this.selectedLesson._id
           );
+
+          this.selectedLesson = null;
+          this.selectedLessonIndex = -1;
 
           console.log(`Updated number of lessons: ${this.lessons.length}`);
 
@@ -338,6 +371,8 @@ export default {
           this.closeDeleteLessonModal();
         } catch (error) {
           console.error("Error deleting lesson:", error);
+        } finally {
+          this.isLoading = false;
         }
       }
     },
@@ -582,24 +617,6 @@ export default {
   margin-top: 20px;
 }
 
-.modal button:first-of-type {
-  background-color: #42b983;
-  color: white;
-}
-
-.modal button:first-of-type:hover {
-  background-color: #36a273;
-}
-
-.modal button:last-of-type {
-  background-color: #ff4d4d;
-  color: white;
-}
-
-.modal button:last-of-type:hover {
-  background-color: #ff1a1a;
-}
-
 .modal input,
 .modal textarea {
   width: 100%;
@@ -740,9 +757,27 @@ export default {
 .btn-icon {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
 }
 .btn-icon i {
   font-size: 1.2rem;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.modal-buttons button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 48%; /* Makes the buttons take equal width */
 }
 </style>

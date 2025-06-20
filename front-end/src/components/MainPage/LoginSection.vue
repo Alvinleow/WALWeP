@@ -1,5 +1,6 @@
 <template>
   <div class="login-section">
+    <LoadingModal :visible="isLoading" />
     <form @submit.prevent="handleLogin" class="login-form">
       <h2>Log Masuk</h2>
       <div class="form-group">
@@ -94,11 +95,13 @@ export default {
       resetEmail: "",
       resetSent: false,
       resetError: "",
+      isLoading: false,
     };
   },
   methods: {
     ...mapMutations(["SET_USER"]),
     async handleLogin() {
+      this.isLoading = true;
       // 1. Check for default admin
       if (this.email === "admin@gmail.com") {
         try {
@@ -122,6 +125,8 @@ export default {
         } catch (error) {
           console.error("Admin login error:", error);
           this.loginError = "Maklumat admin salah.";
+        } finally {
+          this.isLoading = false;
         }
         return;
       }
@@ -172,6 +177,8 @@ export default {
         } else {
           this.loginError = "Log masuk gagal. Sila cuba lagi.";
         }
+      } finally {
+        this.isLoading = false;
       }
     },
     switchToRegister() {
