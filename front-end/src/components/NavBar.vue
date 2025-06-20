@@ -17,7 +17,7 @@
         </li>
         <li>
           <router-link to="/contact">
-            {{ isAdmin ? "HUBUNGI KAMI" : "LAPORAN" }}
+            {{ isAdmin ? "LAPORAN" : "HUBUNGI KAMI" }}
           </router-link>
         </li>
       </ul>
