@@ -104,6 +104,7 @@ import { mapState } from "vuex";
 
 export default {
   name: "ChatDrawer",
+  emits: ["close"],
   data() {
     return {
       search: "",

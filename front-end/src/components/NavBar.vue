@@ -54,6 +54,7 @@ import { mapState, mapActions } from "vuex";
 import ChatDrawer from "../components/ChatDrawer/ChatDrawer.vue";
 
 export default {
+  emits: ["close"],
   components: {
     ChatDrawer,
   },
@@ -64,7 +65,7 @@ export default {
       userId: (state) => (state.user ? state.user._id : null),
     }),
     isAdmin() {
-      return this.accountLevel === 1;
+      return this.user && this.user.accountLevel === 1;
     },
   },
   data() {
