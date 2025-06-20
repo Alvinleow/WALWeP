@@ -51,6 +51,7 @@ connectDB()
 
     const app = express();
     const server = http.createServer(app);
+
     const io = socketIO(server, {
       path: "/socket.io",
       cors: {
