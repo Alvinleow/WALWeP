@@ -7,6 +7,7 @@ const multer = require("multer");
 const bcrypt = require("bcrypt");
 const http = require("http");
 const socketIO = require("socket.io");
+const path = require("path");
 
 const { connectDB } = require("./config/database");
 const Account = require("./models/account");
@@ -93,6 +94,14 @@ connectDB()
     app.use("/api/userProgress", require("./routes/userProgress"));
     app.use("/api/quizzes", require("./routes/quiz"));
     app.use("/api/messages", require("./routes/message"));
+
+    // Serve the Vue.js app
+    app.use(express.static(path.join(__dirname, "../front-end/dist")));
+
+    // Catch-all route to serve Vue.js index.html
+    app.get("*", (req, res) => {
+      res.sendFile(path.resolve(__dirname, "../front-end/dist", "index.html"));
+    });
 
     const PORT = 8081;
     server.listen(PORT, () =>
