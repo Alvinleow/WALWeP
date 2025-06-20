@@ -94,7 +94,7 @@ connectDB()
     app.use("/api/quizzes", require("./routes/quiz"));
     app.use("/api/messages", require("./routes/message"));
 
-    const PORT = process.env.PORT || 8081;
+    const PORT = 8081;
     server.listen(PORT, () =>
       console.log(`Server + Socket.IO running on port ${PORT}`)
     );
