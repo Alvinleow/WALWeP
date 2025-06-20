@@ -135,13 +135,19 @@
         <form @submit.prevent="editCourse">
           <div class="form-group">
             <label for="editTitle">Tajuk:</label>
-            <input type="text" id="editTitle" v-model="selectedCourse.title" />
+            <input
+              type="text"
+              id="editTitle"
+              v-model="selectedCourse.title"
+              required
+            />
           </div>
           <div class="form-group">
             <label for="editDescription">Penerangan:</label>
             <textarea
               id="editDescription"
               v-model="selectedCourse.description"
+              required
             ></textarea>
           </div>
           <div class="form-buttons">
