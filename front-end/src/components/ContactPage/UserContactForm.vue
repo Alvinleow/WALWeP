@@ -1,4 +1,5 @@
 <template>
+  <LoadingModal :visible="isLoading" />
   <div class="contact-form">
     <form @submit.prevent="submitForm">
       <h2>Hubungi Kami</h2>
@@ -20,14 +21,22 @@
       </div>
       <button type="submit" class="submit-btn">Hantar</button>
     </form>
-    <div v-if="successMessage" class="success-message">
-      Borang berjaya dihantar!
+  </div>
+
+  <div v-if="showModal" class="modal-overlay">
+    <div class="modal">
+      <h2>{{ modalTitle }}</h2>
+      <p>{{ modalMessage }}</p>
+      <button @click="closeModal" class="btn-green btn-icon">
+        <i class="fas fa-check-circle"></i> OK
+      </button>
     </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import { mapState } from "vuex";
 
 export default {
   data() {
@@ -36,8 +45,22 @@ export default {
       email: "",
       subject: "",
       message: "",
-      successMessage: false,
+      isLoading: false,
+      showModal: false,
+      modalTitle: "",
+      modalMessage: "",
     };
+  },
+  computed: {
+    ...mapState({
+      user: (state) => state.user,
+    }),
+  },
+  created() {
+    if (this.user) {
+      this.name = this.user.username || "";
+      this.email = this.user.email || "";
+    }
   },
   methods: {
     async submitForm() {
@@ -47,6 +70,9 @@ export default {
         subject: this.subject,
         message: this.message,
       });
+
+      this.isLoading = true;
+
       try {
         const response = await axios.post(
           `${process.env.VUE_APP_API_BASE}/api/contact`,
@@ -58,11 +84,28 @@ export default {
           }
         );
         console.log("Form submitted successfully:", response.data);
-        this.successMessage = true;
+        this.showSuccessModal();
         this.resetForm();
       } catch (error) {
         console.error("Error submitting form:", error);
+      } finally {
+        this.isLoading = false;
       }
+    },
+    showSuccessModal() {
+      this.modalTitle = "Borang Berjaya Dihantar!";
+      this.modalMessage =
+        "Terima kasih atas mesej anda. Kami akan menghubungi anda secepat mungkin.";
+      this.showModal = true;
+    },
+    showErrorModal() {
+      this.modalTitle = "Ralat Penghantaran!";
+      this.modalMessage =
+        "Maaf, berlaku ralat semasa menghantar borang. Sila cuba lagi.";
+      this.showModal = true;
+    },
+    closeModal() {
+      this.showModal = false;
     },
     resetForm() {
       this.name = "";
@@ -134,13 +177,50 @@ export default {
   background-color: #36a273;
 }
 
-.success-message {
-  margin-top: 20px;
-  padding: 10px;
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-  border-radius: 5px;
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #000;
+  color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 500px;
   text-align: center;
+}
+
+.modal h2 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: #42b983;
+}
+
+.modal p {
+  margin-bottom: 20px;
+}
+
+.modal button {
+  padding: 10px 20px;
+  background-color: #42b983;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.modal button:hover {
+  background-color: #36a273;
 }
 </style>
