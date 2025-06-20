@@ -17,6 +17,7 @@ const saltRounds = 10;
 const allowedOrigins = [
   //process.env.VUE_APP_FRONTEND_URL,
   "https://walwep.netlify.app",
+  "https://walwep-production.up.railway.app/",
   "http://localhost:8081",
   "http://localhost:8082",
 ];
