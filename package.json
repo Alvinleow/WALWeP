@@ -8,7 +8,9 @@
     "lint": "vue-cli-service lint",
     "start": "concurrently \"npm run server\" \"npm run client\"",
     "server": "cd back-end && node app.js",
-    "client": "cd front-end && npm run serve -- --port 8082"
+    "client": "cd front-end && npm run build",
+    "startDev": "concurrently \"npm run server\" \"npm run clientDev\"",
+    "clientDev": "cd front-end && npm run serve -- --port 8082"
   },
   "dependencies": {
     "@firebasegen/default-connector": "file:dataconnect-generated/js/default-connector",
