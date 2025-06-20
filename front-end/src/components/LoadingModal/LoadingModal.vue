@@ -57,4 +57,10 @@ export default {
     transform: rotate(360deg);
   }
 }
+
+.loading-spinner p {
+  margin-top: 10px;
+  color: black;
+  font-size: 1rem;
+}
 </style>
