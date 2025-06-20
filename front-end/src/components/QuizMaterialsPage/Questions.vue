@@ -126,7 +126,7 @@
               type="text"
               id="options"
               v-model="newQuestion.options"
-              placeholder="Separate options with commas"
+              placeholder="Contoh: Option 1, Option 2, Option 3, Option 4"
               required
             />
           </div>
@@ -136,18 +136,19 @@
               type="text"
               id="correctAnswer"
               v-model="newQuestion.correctAnswer"
+              placeholder="Masukkan hanya 1 jawapan betul"
               required
             />
           </div>
           <button type="submit" class="btn-green btn-icon">
-            <i class="fas fa-check-circle"></i> Simpan
+            <i class="fas fa-save"></i> Simpan
           </button>
           <button
             type="button"
             class="btn-red btn-icon"
             @click="closeAddQuestionModal"
           >
-            <i class="fas fa-times-circle"></i> Batal
+            <i class="fas fa-times"></i> Batal
           </button>
         </form>
       </div>
@@ -173,7 +174,7 @@
               type="text"
               id="editOptions"
               v-model="editQuestionData.options"
-              placeholder="Separate options with commas"
+              placeholder="Contoh: Option 1, Option 2, Option 3, Option 4"
               required
             />
           </div>
@@ -183,18 +184,19 @@
               type="text"
               id="editCorrectAnswer"
               v-model="editQuestionData.correctAnswer"
+              placeholder="Masukkan hanya 1 jawapan betul"
               required
             />
           </div>
           <button type="submit" class="btn-green btn-icon">
-            Simpan Perubahan
+            <i class="fas fa-save"></i> Simpan Perubahan
           </button>
           <button
             type="button"
             class="btn-red btn-icon"
             @click="closeEditQuestionModal"
           >
-            Batal
+            <i class="fas fa-times"></i> Batal
           </button>
         </form>
       </div>
@@ -205,9 +207,11 @@
       <div class="modal">
         <h2>Sahkan Pemadaman</h2>
         <p>Adakah anda pasti mahu padam soalan ini?</p>
-        <button class="btn-green btn-icon" @click="deleteQuestion">Ya</button>
-        <button class="btn-red btn-icon" @click="closeDeleteQuestionModal">
-          Tidak
+        <button class="btn-red btn-icon" @click="deleteQuestion">
+          <i class="fas fa-trash-alt"></i> Ya
+        </button>
+        <button class="btn-green btn-icon" @click="closeDeleteQuestionModal">
+          <i class="fas fa-times"></i> Tidak
         </button>
       </div>
     </div>
@@ -711,13 +715,18 @@ export default {
 }
 
 .modal {
-  background: #fff;
-  color: #000;
+  background: #000;
+  color: #fff;
   padding: 20px;
   border-radius: 10px;
   max-width: 500px;
   text-align: center;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modal h2,
+.modal p {
+  margin-bottom: 10px;
 }
 
 .modal button {
