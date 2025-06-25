@@ -169,6 +169,9 @@
     <!-- Delete Course Confirmation Modal -->
     <div v-if="showDeleteCourseModalWindow" class="course-modal-overlay">
       <div class="course-modal">
+        <button class="modal-close" @click="closeDeleteCourseModal">
+          <i class="fas fa-times-circle"></i>
+        </button>
         <h2>Padam Kursus</h2>
         <p>
           Tindakan ini akan memadam kursus dan semua data berkaitan secara
@@ -192,6 +195,9 @@
     <!-- Unenroll Confirmation Modal -->
     <div v-if="showConfirmUnenrollModal" class="course-modal-overlay">
       <div class="course-modal">
+        <button class="modal-close" @click="showEnrollmentModal = false">
+          <i class="fas fa-times-circle"></i>
+        </button>
         <h2>Batalkan Pendaftaran Kursus</h2>
         <p>
           Anda akan kehilangan semua kemajuan jika anda membatalkan pendaftaran
@@ -205,6 +211,43 @@
             <i class="fas fa-times-circle"></i> Batal
           </button>
         </div>
+      </div>
+    </div>
+
+    <!-- Enrollment Result Modal -->
+    <div v-if="showEnrollmentModal" class="course-modal-overlay">
+      <div class="course-modal">
+        <button class="modal-close" @click="showEnrollmentModal = false">
+          <i class="fas fa-times-circle"></i>
+        </button>
+        <h2 v-if="enrollmentStatus === 'success'" style="color: #42b983">
+          {{
+            currentAction === "enroll"
+              ? "Berjaya Mendaftar!"
+              : "Berjaya Dibatalkan!"
+          }}
+        </h2>
+        <h2 v-else style="color: #ff4d4d">
+          {{
+            currentAction === "enroll"
+              ? "Pendaftaran Gagal"
+              : "Gagal Membatalkan"
+          }}
+        </h2>
+        <p v-if="enrollmentStatus === 'success'">
+          {{
+            currentAction === "enroll"
+              ? "Anda telah berjaya mendaftar dalam kursus tersebut."
+              : "Pendaftaran kursus anda telah dibatalkan."
+          }}
+        </p>
+        <p v-else>
+          {{
+            currentAction === "enroll"
+              ? "Terdapat masalah semasa mendaftar. Sila cuba lagi kemudian."
+              : "Terdapat masalah semasa membatalkan pendaftaran. Sila cuba lagi."
+          }}
+        </p>
       </div>
     </div>
   </div>
@@ -235,6 +278,9 @@ export default {
       showEditCourseFormWindow: false,
       showDeleteCourseModalWindow: false,
       isLoading: false,
+      enrollmentStatus: null,
+      showEnrollmentModal: false,
+      currentAction: "",
     };
   },
   computed: {
@@ -350,9 +396,14 @@ export default {
         );
         this.user.enrolledCourses.push(this.selectedCourse._id);
         this.selectedCourse.enrollment += 1;
-        this.closeCourseModal();
+        this.enrollmentStatus = "success";
       } catch (error) {
         console.error("Error enrolling in course:", error);
+        this.enrollmentStatus = "fail";
+      } finally {
+        this.currentAction = "enroll";
+        this.closeCourseModal();
+        this.showEnrollmentModal = true;
       }
     },
     confirmUnenroll() {
@@ -373,10 +424,17 @@ export default {
           (id) => id !== this.selectedCourse._id
         );
         this.selectedCourse.enrollment -= 1;
+        this.enrollmentStatus = "success";
         this.closeUnenrollModal();
         this.closeCourseModal();
       } catch (error) {
         console.error("Error unenrolling from course:", error);
+        this.enrollmentStatus = "fail";
+      } finally {
+        this.currentAction = "unenroll";
+        this.closeUnenrollModal();
+        this.closeCourseModal();
+        this.showEnrollmentModal = true;
       }
     },
     navigateToLessons() {
@@ -560,6 +618,7 @@ export default {
   color: #42b983;
   font-size: 2rem;
   margin-bottom: 20px;
+  margin-top: 20px;
   font-weight: 600;
 }
 
