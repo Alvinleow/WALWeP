@@ -89,6 +89,7 @@ export default {
 
           // After the message is sent, push the user's message
           this.messages.push({ sender: "user", text: this.userInput });
+          console.log("Message sent with ID:", id);
         },
         (error) => console.error("Error sending message:", error)
       );
