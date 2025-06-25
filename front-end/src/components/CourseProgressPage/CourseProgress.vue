@@ -6,6 +6,14 @@
     <div v-for="course in courses" :key="course._id" class="progress-item">
       <h3>{{ course.title }}</h3>
       <p>
+        Status:
+        <strong
+          :style="{ color: isUserEnrolled(course._id) ? '#42b983' : 'red' }"
+        >
+          {{ isUserEnrolled(course._id) ? "Sudah Daftar" : "Belum Daftar" }}
+        </strong>
+      </p>
+      <p>
         Pelajaran Selesai: {{ getCompletedLessons(course._id) }}/{{
           getTotalLessons(course._id)
         }}
@@ -27,6 +35,7 @@ export default {
       lessonProgresses: [],
       quizResults: [],
       quizzes: [],
+      enrolledCourseIds: [],
       isLoading: false,
     };
   },
@@ -41,7 +50,7 @@ export default {
       await this.fetchCourses();
       await this.fetchLessonProgresses();
       await this.fetchQuizzes();
-      await this.fetchQuizResults();
+      await this.fetchUserData();
       this.isLoading = false;
     }
   },
@@ -76,15 +85,19 @@ export default {
         console.error("Error fetching quizzes:", error);
       }
     },
-    async fetchQuizResults() {
+    async fetchUserData() {
       try {
         const response = await axios.get(
           `${process.env.VUE_APP_API_BASE}/api/accounts/${this.userId}`
         );
         this.quizResults = response.data.quizResults;
+        this.enrolledCourseIds = response.data.enrolledCourses || [];
       } catch (error) {
         console.error("Error fetching quiz results:", error);
       }
+    },
+    isUserEnrolled(courseId) {
+      return this.enrolledCourseIds.includes(courseId);
     },
     getCompletedLessons(courseId) {
       const courseProgress = this.lessonProgresses.find(

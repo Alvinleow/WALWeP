@@ -28,6 +28,7 @@
       >
         <h2 class="quiz-title">Kuiz untuk {{ quiz.courseTitle }}</h2>
         <p class="quiz-questions">{{ quiz.questions.length }} soalan</p>
+        <p class="quiz-score">Best Skor Anda: {{ getQuizScore(quiz._id) }}</p>
       </div>
     </div>
 
@@ -96,6 +97,7 @@ export default {
       quizzes: [],
       courses: [],
       filteredQuizzes: [],
+      quizResults: [],
       showAddQuizModalWindow: false,
       selectedCourseId: null,
       selectedQuiz: null,
@@ -115,6 +117,7 @@ export default {
   mounted() {
     this.fetchQuizzes();
     this.fetchCourses();
+    this.fetchQuizResults();
   },
   methods: {
     async fetchQuizzes() {
@@ -146,6 +149,21 @@ export default {
       } finally {
         this.isLoading = false;
       }
+    },
+    async fetchQuizResults() {
+      if (!this.userId) return;
+      try {
+        const response = await axios.get(
+          `${process.env.VUE_APP_API_BASE}/api/accounts/${this.userId}`
+        );
+        this.quizResults = response.data.quizResults || [];
+      } catch (error) {
+        console.error("Error fetching quiz results:", error);
+      }
+    },
+    getQuizScore(quizId) {
+      const result = this.quizResults.find((r) => r.quizId === quizId);
+      return result ? result.score + "%" : "Belum Ambil";
     },
     filterQuizzes() {
       this.filteredQuizzes = this.quizzes.filter((quiz) =>
@@ -340,6 +358,12 @@ export default {
   font-size: 1rem;
   color: #fff;
   margin: 5px 0;
+}
+
+.quiz-score {
+  font-size: 1rem;
+  color: #ffd700;
+  margin-top: 5px;
 }
 
 .modal-overlay {
