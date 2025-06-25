@@ -47,9 +47,8 @@
         <div v-for="user in filteredUsers" :key="user._id" class="user-item">
           <span class="username">{{ user.username }}</span>
 
-          <div class="action-icons">
+          <div v-if="isInContacts(user)" class="action-icons">
             <button
-              v-if="isInContacts(user)"
               class="message-icon btn"
               @click.stop="startChat(user)"
               title="Mulakan Chat"
@@ -58,7 +57,23 @@
             </button>
 
             <button
-              v-else
+              class="menu-icon btn"
+              @click.stop="toggleContactMenu(user._id)"
+            >
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+
+            <div v-if="contactMenuOpenId === user._id" class="contact-menu">
+              <button
+                @click="removeFromContacts(user)"
+                style="color: red; font-weight: bold"
+              >
+                🗑️ Buang dari Contact
+              </button>
+            </div>
+          </div>
+          <div v-else class="action-icons">
+            <button
               class="add-icon btn"
               @click.stop="addToContacts(user)"
               title="Tambah ke Contacts"
@@ -83,6 +98,22 @@
             >
               <i class="fas fa-comment"></i> Chat
             </button>
+
+            <button
+              class="menu-icon btn"
+              @click.stop="toggleContactMenu(user._id)"
+            >
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+
+            <div v-if="contactMenuOpenId === user._id" class="contact-menu">
+              <button
+                @click="removeFromContacts(user)"
+                style="color: red; font-weight: bold"
+              >
+                🗑️ Buang dari Contact
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -117,6 +148,7 @@ export default {
       contacts: [],
       modalVisible: false,
       modalMessage: "",
+      contactMenuOpenId: null,
     };
   },
   computed: {
@@ -204,6 +236,32 @@ export default {
     isInContacts(user) {
       console.log("Checking if user is in contacts:", this.contacts);
       return this.contacts.some((contact) => contact._id === user._id);
+    },
+    toggleContactMenu(userId) {
+      this.contactMenuOpenId =
+        this.contactMenuOpenId === userId ? null : userId;
+    },
+    async removeFromContacts(user) {
+      try {
+        await fetch(
+          `${process.env.VUE_APP_API_BASE}/api/accounts/${this.userId}/remove-contact`,
+          {
+            method: "POST",
+            body: JSON.stringify({ contactId: user._id }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        this.contactMenuOpenId = null;
+        this.modalMessage = "Pengguna telah dibuang dari contact anda.";
+        this.modalVisible = true;
+        await this.fetchContacts(); // Refresh
+      } catch (error) {
+        console.error("Gagal membuang dari contact:", error);
+        this.modalMessage = "Gagal membuang pengguna dari contact anda.";
+        this.modalVisible = true;
+      }
     },
     /*startGroupChat(group) {
       this.$router.push({
@@ -486,5 +544,35 @@ export default {
 .modal-message {
   font-size: 1.2rem;
   margin-top: 10px;
+}
+
+.menu-icon {
+  background-color: #555;
+}
+
+.contact-menu {
+  position: absolute;
+  top: 40px;
+  right: 10px;
+  background-color: #111;
+  border: 1px solid #333;
+  border-radius: 5px;
+  padding: 5px;
+  z-index: 10;
+}
+
+.contact-menu button {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #fff;
+  padding: 8px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.contact-menu button:hover {
+  background-color: #222;
 }
 </style>

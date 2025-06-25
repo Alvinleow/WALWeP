@@ -37,5 +37,6 @@ router.put("/unenroll/:userId", accountController.unenrollCourse);
 
 router.post("/:userId/add-contact", accountController.addToContacts);
 router.get("/:userId/contacts", accountController.getUserContacts);
+router.post("/:userId/remove-contact", accountController.removeContact);
 
 module.exports = router;
