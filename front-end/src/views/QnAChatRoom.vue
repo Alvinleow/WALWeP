@@ -68,7 +68,7 @@ export default {
 
     // Send a message to the bot
     sendMessage() {
-      if (!this.userInput.trim()) return;
+      if (!this.userInput.trim()) return; // If the input is empty, do nothing
 
       // Create the activity (message) from the user
       const activity = {
@@ -77,16 +77,24 @@ export default {
         text: this.userInput,
       };
 
-      // Send the message to the bot
+      // First, push the bot's response to messages
       this.directLine.postActivity(activity).subscribe(
         (id) => {
-          // Add the user message to the chat only after sending to bot
+          // Listen for the bot's response after sending the user's message
+          this.directLine.activity$
+            .filter((activity) => activity.type === "message")
+            .subscribe((activity) => {
+              this.messages.push({ sender: "bot", text: activity.text });
+            });
+
+          // After the message is sent, push the user's message
           this.messages.push({ sender: "user", text: this.userInput });
-          this.userInput = ""; // Clear the input field
-          console.log("Message sent with ID:", id);
         },
         (error) => console.error("Error sending message:", error)
       );
+
+      // Clear the input field
+      this.userInput = "";
     },
 
     // Close the chat room
