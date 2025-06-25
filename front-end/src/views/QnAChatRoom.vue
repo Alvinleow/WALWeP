@@ -62,7 +62,9 @@ export default {
       this.directLine.activity$
         .filter((activity) => activity.type === "message")
         .subscribe((activity) => {
-          this.messages.push({ sender: "bot", text: activity.text });
+          if (!this.messages.some((msg) => msg.text === activity.text)) {
+            this.messages.push({ sender: "bot", text: activity.text });
+          }
         });
     },
 
