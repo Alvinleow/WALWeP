@@ -68,28 +68,35 @@ export default {
 
     // Send a message to the bot
     sendMessage() {
-      if (!this.userInput.trim()) return; // If the input is empty, do nothing
+      if (!this.messageText.trim()) return;
 
-      // Create the activity (message) from the user
-      const activity = {
-        type: "message",
-        from: { id: "user123", name: "John Doe" },
-        text: this.userInput,
+      const msgData = {
+        roomId: this.roomId,
+        senderUid: this.userId,
+        senderName: this.username,
+        message: this.messageText,
+        timestamp: Date.now(),
       };
 
-      // Send the message to the bot
-      this.directLine.postActivity(activity).subscribe(
-        (id) => console.log("Message sent with ID:", id),
-        (error) => console.error("Error sending message:", error)
-      );
+      // Push the user message first
+      this.messages.push(msgData);
 
-      // Add the user message to the chat
-      this.messages.push({ sender: "user", text: this.userInput });
+      // Clear the input
+      this.messageText = "";
 
-      // Clear the input field
-      this.userInput = "";
+      // Then, simulate the bot's response with a delay
+      setTimeout(() => {
+        const botResponse = {
+          senderUid: "bot",
+          senderName: "Bot",
+          message: "Your bot response goes here", // Example response
+          timestamp: Date.now(),
+        };
+
+        // Push the bot's response after a small delay
+        this.messages.push(botResponse);
+      }, 1000); // You can adjust the delay time here
     },
-
     // Close the chat room
     closeChatRoom() {
       this.$emit("close");
