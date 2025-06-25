@@ -169,6 +169,12 @@
         </button>
       </div>
     </div>
+
+    <div class="floating-qna-icon" @click="openQnAChatRoom">
+      <i class="fas fa-comment-alt"></i>
+    </div>
+
+    <QnAChatRoom v-if="showQnAChatRoom" @close="closeQnAChatRoom" />
   </div>
 </template>
 
@@ -183,8 +189,13 @@ import "codemirror/lib/codemirror.css";
 import "codemirror/theme/monokai.css";
 import "codemirror/mode/htmlmixed/htmlmixed.js";
 
+import QnAChatRoom from "../../views/QnAChatRoom.vue";
+
 export default {
   name: "Lessons",
+  components: {
+    QnAChatRoom,
+  },
   data() {
     return {
       isLoading: false,
@@ -201,6 +212,7 @@ export default {
       quill: null,
       finishMessage: "",
       courseId: this.$route.params.courseId,
+      showQnAChatRoom: false,
     };
   },
   computed: {
@@ -217,6 +229,12 @@ export default {
     await this.fetchUserProgress();
   },
   methods: {
+    openQnAChatRoom() {
+      this.showQnAChatRoom = true;
+    },
+    closeQnAChatRoom() {
+      this.showQnAChatRoom = false;
+    },
     async fetchLessons() {
       this.isLoading = true;
       try {
@@ -779,5 +797,27 @@ export default {
   cursor: pointer;
   transition: background-color 0.3s;
   width: 48%; /* Makes the buttons take equal width */
+}
+
+.floating-qna-icon {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #42b983; /* Green background */
+  color: white;
+  border-radius: 50%;
+  padding: 15px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease;
+}
+
+.floating-qna-icon:hover {
+  background-color: #36a273; /* Darker green */
+}
+
+.floating-qna-icon i {
+  font-size: 1.5rem;
 }
 </style>
