@@ -7,13 +7,45 @@ const directLineSecret =
 const botEndpoint =
   "https://qna-walwep-fyp-bot-7a35.azurewebsites.net/api/messages";
 
+async function generateToken() {
+  try {
+    const response = await fetch(
+      "https://directline.botframework.com/v3/directline/tokens/generate",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${directLineSecret}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user: {
+            id: "dl_" + Math.random().toString(36).substr(2, 9), // Generate a unique user ID
+          },
+        }),
+      }
+    );
+
+    const data = await response.json();
+    if (!data.token) {
+      throw new Error("Failed to generate token");
+    }
+
+    return data.token; // Return the generated token
+  } catch (error) {
+    console.error("Error generating token:", error);
+    throw new Error("Failed to generate token");
+  }
+}
+
 // Start a conversation with the bot
 async function startConversation() {
   try {
+    const token = await generateToken(); // Get token for the conversation
+
     const response = await fetch(botEndpoint, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${directLineSecret}`,
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
@@ -25,7 +57,7 @@ async function startConversation() {
       );
     }
 
-    return data.conversationId;
+    return data.conversationId; // Return the conversationId
   } catch (error) {
     console.error("Error starting conversation:", error);
     throw new Error("Failed to start conversation");
@@ -38,25 +70,35 @@ async function sendMessage(conversationId, message) {
     throw new Error("conversationId is missing");
   }
 
-  const response = await fetch(`${botEndpoint}/${conversationId}/activities`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${directLineSecret}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      type: "message",
-      from: { id: "user" },
-      text: message,
-    }),
-  });
+  try {
+    const token = await generateToken(); // Get token for the conversation
 
-  const data = await response.json();
-  if (!data) {
-    throw new Error("No response from bot API");
+    const response = await fetch(
+      `${botEndpoint}/${conversationId}/activities`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type: "message",
+          from: { id: "user" },
+          text: message,
+        }),
+      }
+    );
+
+    const data = await response.json();
+    if (!data) {
+      throw new Error("No response from bot API");
+    }
+
+    return data; // Return the response data from the bot
+  } catch (error) {
+    console.error("Error sending message to bot", error);
+    throw new Error("Failed to send message");
   }
-
-  return data; // Return the response data from the bot
 }
 
 // Public API to interact with the bot
