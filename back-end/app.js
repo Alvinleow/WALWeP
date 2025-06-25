@@ -12,6 +12,7 @@ const path = require("path");
 const { connectDB } = require("./config/database");
 const Account = require("./models/account");
 const socketHandler = require("./controllers/socketController");
+const { askQuestion } = require("./config/qnabot");
 
 const saltRounds = 10;
 // test again
@@ -94,6 +95,17 @@ connectDB()
     app.use("/api/userProgress", require("./routes/userProgress"));
     app.use("/api/quizzes", require("./routes/quiz"));
     app.use("/api/messages", require("./routes/message"));
+
+    app.post("/api/ask", async (req, res) => {
+      const { question } = req.body;
+
+      try {
+        const answer = await askQuestion(question); // Send question to the bot
+        res.json(answer); // Send back the bot's response
+      } catch (error) {
+        res.status(500).send("Error interacting with the bot");
+      }
+    });
 
     // Serve the Vue.js app
     app.use(express.static(path.join(__dirname, "../front-end/dist")));
