@@ -70,6 +70,9 @@ export default {
     sendMessage() {
       if (!this.userInput.trim()) return; // If the input is empty, do nothing
 
+      // First, push the user's message to messages
+      this.messages.push({ sender: "user", text: this.userInput });
+
       // Create the activity (message) from the user
       const activity = {
         type: "message",
@@ -77,22 +80,20 @@ export default {
         text: this.userInput,
       };
 
-      // First, push the bot's response to messages
+      // Send the message to the bot
       this.directLine.postActivity(activity).subscribe(
         (id) => {
-          // Listen for the bot's response after sending the user's message
-          this.directLine.activity$
-            .filter((activity) => activity.type === "message")
-            .subscribe((activity) => {
-              this.messages.push({ sender: "bot", text: activity.text });
-            });
-
-          // After the message is sent, push the user's message
-          this.messages.push({ sender: "user", text: this.userInput });
           console.log("Message sent with ID:", id);
         },
         (error) => console.error("Error sending message:", error)
       );
+
+      // Listen for the bot's response
+      this.directLine.activity$
+        .filter((activity) => activity.type === "message")
+        .subscribe((activity) => {
+          this.messages.push({ sender: "bot", text: activity.text });
+        });
 
       // Clear the input field
       this.userInput = "";
