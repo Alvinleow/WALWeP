@@ -28,70 +28,72 @@
 </template>
 
 <script>
-import axios from "axios";
+import { DirectLine } from "botframework-directlinejs"; // Import DirectLine JS SDK
 
 export default {
-  name: "QnAChatRoom",
   data() {
     return {
-      userInput: "",
-      messages: [], // Store conversation
-      conversationId: null, // To manage the conversation
+      messages: [], // Store messages in the chat
+      userInput: "", // User input for sending messages
+      directLine: null, // DirectLine connection
     };
   },
+  mounted() {
+    this.initializeBotConnection();
+  },
   methods: {
+    // Fetch the DirectLine token from the backend
+    async getDirectLineToken() {
+      try {
+        const response = await fetch("/api/directline/token"); // Call the backend for the token
+        const data = await response.json();
+        return data.token;
+      } catch (error) {
+        console.error("Error fetching DirectLine token:", error);
+      }
+    },
+
+    // Initialize Direct Line connection with token
+    async initializeBotConnection() {
+      const token = await this.getDirectLineToken();
+      this.directLine = new DirectLine({ token }); // Create a DirectLine connection
+
+      // Subscribe to incoming messages
+      this.directLine.activity$
+        .filter((activity) => activity.type === "message")
+        .subscribe((activity) => {
+          this.messages.push({ sender: "bot", text: activity.text });
+        });
+    },
+
+    // Send a message to the bot
+    sendMessage() {
+      if (!this.userInput.trim()) return; // If the input is empty, do nothing
+
+      // Create the activity (message) from the user
+      const activity = {
+        type: "message",
+        from: { id: "user123", name: "John Doe" },
+        text: this.userInput,
+      };
+
+      // Send the message to the bot
+      this.directLine.postActivity(activity).subscribe(
+        (id) => console.log("Message sent with ID:", id),
+        (error) => console.error("Error sending message:", error)
+      );
+
+      // Add the user message to the chat
+      this.messages.push({ sender: "user", text: this.userInput });
+
+      // Clear the input field
+      this.userInput = "";
+    },
+
     // Close the chat room
     closeChatRoom() {
       this.$emit("close");
     },
-
-    // Start the conversation
-    async startConversation() {
-      const response = await axios.post(
-        `${process.env.VUE_APP_API_BASE}/api/ask`,
-        {
-          question: "start",
-        }
-      );
-      this.conversationId = response.data.conversationId;
-    },
-
-    // Send the user's message to the bot
-    async sendMessage() {
-      if (!this.userInput) return;
-
-      // Add user message to the chat
-      this.messages.push({ sender: "user", text: this.userInput });
-
-      try {
-        // Send user message to the backend
-        const response = await axios.post(
-          `${process.env.VUE_APP_API_BASE}/api/ask`,
-          {
-            question: this.userInput,
-          }
-        );
-
-        // Get the bot's response
-        const botAnswer =
-          response.data.answers?.[0]?.answer || "Sorry, I didn't get that.";
-
-        // Add bot message to the chat
-        this.messages.push({ sender: "bot", text: botAnswer });
-      } catch (error) {
-        console.error("Error sending message to bot", error);
-        this.messages.push({
-          sender: "bot",
-          text: "There was an issue with the bot. Please try again.",
-        });
-      }
-
-      // Clear input field
-      this.userInput = "";
-    },
-  },
-  mounted() {
-    this.startConversation(); // Start conversation when the chat is opened
   },
 };
 </script>
@@ -127,8 +129,8 @@ export default {
 .close-btn {
   background: transparent;
   border: none;
-  color: white;
   font-size: 1.2rem;
+  color: white;
   cursor: pointer;
 }
 

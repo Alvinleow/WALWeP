@@ -13,6 +13,7 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
+    "botframework-directlinejs": "^0.15.6",
     "busboy": "^1.6.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
