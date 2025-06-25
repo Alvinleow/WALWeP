@@ -83,6 +83,7 @@ export default {
           // Add the user message to the chat only after sending to bot
           this.messages.push({ sender: "user", text: this.userInput });
           this.userInput = ""; // Clear the input field
+          console.log("Message sent with ID:", id);
         },
         (error) => console.error("Error sending message:", error)
       );
