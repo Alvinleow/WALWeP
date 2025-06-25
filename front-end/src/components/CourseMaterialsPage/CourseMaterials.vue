@@ -25,6 +25,16 @@
         :key="course._id"
         @click="showCourseDetails(course)"
       >
+        <div
+          class="enroll-ribbon"
+          :class="{
+            enrolled: isEnrolledInCourse(course._id),
+            notEnrolled: !isEnrolledInCourse(course._id),
+          }"
+        >
+          {{ isEnrolledInCourse(course._id) ? "Sudah Daftar" : "Belum Daftar" }}
+        </div>
+
         <img
           :src="course.thumbnail"
           alt="Course Thumbnail"
@@ -561,6 +571,7 @@ export default {
   padding: 20px;
   cursor: pointer;
   transition: transform 0.3s ease-in-out;
+  position: relative;
 }
 
 .course:hover {
@@ -637,6 +648,32 @@ export default {
   font-size: 1.2rem;
   transition: background-color 0.3s;
   margin-top: 20px;
+}
+
+.enroll-ribbon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 10px;
+  background-color: #ccc;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: bold;
+  border-radius: 5px;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.enroll-ribbon.enrolled {
+  background-color: #42b983; /* green */
+}
+
+.enroll-ribbon.notEnrolled {
+  background-color: #ff4d4d; /* red */
+}
+
+.course {
+  position: relative;
 }
 
 .delete-button {
