@@ -63,8 +63,8 @@ export default {
       // Add user message to the chat
       this.messages.push({ sender: "user", text: this.userInput });
 
-      // Send user message to the backend
       try {
+        // Send user message to the backend
         const response = await axios.post(
           `${process.env.VUE_APP_API_BASE}/api/ask`,
           {
@@ -73,12 +73,17 @@ export default {
         );
 
         // Get the bot's response
-        const botAnswer = response.data.answers[0].answer;
+        const botAnswer =
+          response.data.answers?.[0]?.answer || "Sorry, I didn't get that.";
 
         // Add bot message to the chat
         this.messages.push({ sender: "bot", text: botAnswer });
       } catch (error) {
         console.error("Error sending message to bot", error);
+        this.messages.push({
+          sender: "bot",
+          text: "There was an issue with the bot. Please try again.",
+        });
       }
 
       // Clear input field
