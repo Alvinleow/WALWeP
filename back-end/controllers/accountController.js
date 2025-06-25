@@ -276,3 +276,31 @@ exports.getUserContacts = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.removeContact = async (req, res) => {
+  const { userId } = req.params;
+  const { contactId } = req.body;
+
+  try {
+    if (!userId || !contactId) {
+      return res.status(400).json({ error: "Missing userId or contactId" });
+    }
+
+    const user = await Account.findById(userId);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    user.contacts = user.contacts.filter(
+      (id) => id.toString() !== contactId.toString()
+    );
+
+    await user.save();
+
+    res.json({
+      message: "Contact removed successfully",
+      contacts: user.contacts,
+    });
+  } catch (error) {
+    console.error("Error removing contact:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
