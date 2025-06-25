@@ -2,8 +2,10 @@ const fetch = require("node-fetch");
 require("dotenv").config();
 
 // Direct Line API details
-const directLineSecret = process.env.DIRECT_LINE_SECRET;
-const botEndpoint = process.env.BOT_ENDPOINT;
+const directLineSecret =
+  "AHIAtTyKIYh7pZThbQSAC7ayxVLBduu4XlAXvuZYepxajnjdhqbNJQQJ99BFAC24pbEAArohAAABAZBS3IZi.Ep1B8qod0NyIVKV9zceCjT1lBtO64nJFvrTfdXtXVAYU1VHEmNwtJQQJ99BFACqBBLyAArohAAABAZBS4BI2";
+const botEndpoint =
+  "https://qna-walwep-fyp-bot-7a35.azurewebsites.net/api/messages";
 
 // Start a conversation with the bot
 async function startConversation() {
