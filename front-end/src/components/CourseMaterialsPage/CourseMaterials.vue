@@ -623,6 +623,7 @@ export default {
   max-width: 700px;
   text-align: center;
   position: relative;
+  min-width: 400px;
 }
 
 .course-modal h2 {
