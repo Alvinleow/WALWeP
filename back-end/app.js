@@ -100,10 +100,11 @@ connectDB()
       const { question } = req.body;
 
       try {
-        const answer = await askQuestion(question); // Send question to the bot
-        res.json(answer); // Send back the bot's response
+        const answer = await askQuestion(question);
+        res.json(answer);
       } catch (error) {
-        res.status(500).send("Error interacting with the bot");
+        console.error("Error interacting with the bot:", error);
+        res.status(500).json({ error: "Error interacting with the bot" });
       }
     });
 
