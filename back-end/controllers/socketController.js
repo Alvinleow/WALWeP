@@ -26,7 +26,19 @@ function socketHandler(io) {
       }
 
       // Broadcast to the room
-      io.to(data.roomId).emit("receive_message", data);
+      io.to(data.roomId).emit("receive_message", {
+        ...data,
+        _id: newMessage._id, // include MongoDB _id
+      });
+    });
+
+    socket.on("delete_message", async ({ roomId, messageId }) => {
+      try {
+        await Message.deleteOne({ roomId, _id: messageId });
+        io.to(roomId).emit("message_deleted", messageId);
+      } catch (err) {
+        console.error("Error deleting message:", err);
+      }
     });
 
     socket.on("disconnect", () => {
