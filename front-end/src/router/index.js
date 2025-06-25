@@ -11,6 +11,7 @@ import CodeEditor from "../views/CodeEditor.vue";
 import QuizPage from "../views/QuizPage.vue";
 import QuestionsPage from "../views/QuestionsPage.vue";
 import ChatRoom from "../views/ChatRoom.vue";
+import QnAChatRoom from "@/views/QnAChatRoom.vue";
 
 const routes = [
   { path: "/", name: "MainPage", component: MainPage },
@@ -59,6 +60,11 @@ const routes = [
     name: "ChatRoom",
     component: ChatRoom,
     props: true,
+  },
+  {
+    path: "/qna-chat",
+    name: "QnAChatRoom",
+    component: QnAChatRoom,
   },
 ];
 
