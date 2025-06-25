@@ -70,9 +70,6 @@ export default {
     sendMessage() {
       if (!this.userInput.trim()) return; // If the input is empty, do nothing
 
-      // First, push the user's message to messages
-      this.messages.push({ sender: "user", text: this.userInput });
-
       // Create the activity (message) from the user
       const activity = {
         type: "message",
@@ -82,18 +79,12 @@ export default {
 
       // Send the message to the bot
       this.directLine.postActivity(activity).subscribe(
-        (id) => {
-          console.log("Message sent with ID:", id);
-        },
+        (id) => console.log("Message sent with ID:", id),
         (error) => console.error("Error sending message:", error)
       );
 
-      // Listen for the bot's response
-      this.directLine.activity$
-        .filter((activity) => activity.type === "message")
-        .subscribe((activity) => {
-          this.messages.push({ sender: "bot", text: activity.text });
-        });
+      // Add the user message to the chat
+      this.messages.push({ sender: "user", text: this.userInput });
 
       // Clear the input field
       this.userInput = "";
