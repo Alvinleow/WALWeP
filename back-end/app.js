@@ -99,7 +99,7 @@ connectDB()
     app.use(express.static(path.join(__dirname, "../front-end/dist")));
 
     // Catch-all route to serve Vue.js index.html
-    app.get("*", (req, res) => {
+    app.get(/^\/(?!api).*/, (req, res) => {
       res.sendFile(path.resolve(__dirname, "../front-end/dist", "index.html"));
     });
 
