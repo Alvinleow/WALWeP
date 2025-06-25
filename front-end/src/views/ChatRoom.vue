@@ -102,13 +102,6 @@ export default {
       this.showMenuIndex = null;
     },
   },
-  beforeDestroy() {
-    this.$nextTick(() => {
-      this.$refs.messageBubble.forEach((bubble) => {
-        bubble.removeEventListener("contextmenu");
-      });
-    });
-  },
 };
 </script>
 
