@@ -3,8 +3,14 @@
     <!-- Chat View -->
     <div v-if="selectedUser">
       <div class="chat-header">
-        <button @click="selectedUser = null">←</button>
+        <button class="back-buttton" @click="selectedUser = null">←</button>
         <span>{{ selectedUser.username }}</span>
+        <button
+          @click="toggleDeleteMode"
+          :class="['toggle-delete-btn', deleteMode ? 'active' : '']"
+        >
+          <i class="fas fa-trash-alt"></i> Delete Message
+        </button>
       </div>
 
       <div class="messages">
@@ -17,7 +23,18 @@
           ]"
         >
           <div class="sender-name">{{ msg.senderName }}</div>
-          <div class="message-text">{{ msg.message }}</div>
+          <div class="message-text-container">
+            <div class="message-text">{{ msg.message }}</div>
+
+            <div
+              v-if="deleteMode && msg.senderUid === userId"
+              class="message-menu"
+            >
+              <button @click="deleteMessage(index, msg)" class="delete-btn">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -149,6 +166,7 @@ export default {
       modalVisible: false,
       modalMessage: "",
       contactMenuOpenId: null,
+      deleteMode: false,
     };
   },
   computed: {
@@ -193,6 +211,9 @@ export default {
       } catch (error) {
         console.error("Failed to fetch contacts:", error);
       }
+    },
+    toggleDeleteMode() {
+      this.deleteMode = !this.deleteMode;
     },
     async startChat(user) {
       this.selectedUser = user;
@@ -283,6 +304,13 @@ export default {
 
       socket.emit("send_message", msgData);
       this.messageText = "";
+    },
+    deleteMessage(index, msg) {
+      socket.emit("delete_message", {
+        roomId: this.roomId,
+        messageId: msg._id || msg.timestamp,
+      });
+      this.messages.splice(index, 1);
     },
   },
   mounted() {
@@ -421,16 +449,17 @@ export default {
   font-weight: bold;
   margin-bottom: 10px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 10px;
 }
 
-.chat-header button {
+.back-buttton {
   background: transparent;
   border: none;
   color: #42b983;
-  font-size: 1.5rem;
   cursor: pointer;
+  font-size: 1.5rem;
 }
 
 .messages {
@@ -454,6 +483,24 @@ export default {
   word-wrap: break-word;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+}
+
+.message-text-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.message-text {
+  font-size: 1rem;
+  flex: 1;
+}
+
+.message-menu {
+  display: flex;
+  align-items: center;
 }
 
 .sent {
@@ -574,5 +621,44 @@ export default {
 
 .contact-menu button:hover {
   background-color: #222;
+}
+
+/* Toggle Delete Button Styling */
+.toggle-delete-btn {
+  background-color: #e74c3c; /* Prominent red background */
+  border: none;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-left: auto;
+}
+
+.toggle-delete-btn:hover {
+  background-color: #c0392b;
+  transform: scale(1.05);
+}
+
+.toggle-delete-btn.active {
+  background-color: #42b983;
+}
+
+.toggle-delete-btn.active:hover {
+  background-color: #36a273;
+}
+
+.delete-btn {
+  margin-left: 20px;
+  background: none;
+  border: none;
+  color: red;
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.delete-btn:hover {
+  color: #e74c3c;
+  transform: scale(1.1);
 }
 </style>
