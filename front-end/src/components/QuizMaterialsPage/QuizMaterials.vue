@@ -81,6 +81,21 @@
         </div>
       </div>
     </div>
+
+    <div v-if="showDeleteConfirmation" class="modal-overlay">
+      <div class="modal">
+        <h2>Adakah anda pasti ingin memadam kuiz ini?</h2>
+        <p style="margin-bottom: 10px">Kuiz: {{ selectedQuiz?.courseTitle }}</p>
+        <div class="form-buttons">
+          <button class="btn-red btn-icon" @click="confirmDeleteQuiz">
+            <i class="fas fa-trash"></i> Ya, Padam
+          </button>
+          <button class="btn-green btn-icon" @click="cancelDeleteQuiz">
+            <i class="fas fa-times"></i> Batal
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -103,6 +118,7 @@ export default {
       selectedQuiz: null,
       showQuizOptionsModal: false,
       isLoading: false,
+      showDeleteConfirmation: false,
     };
   },
   computed: {
@@ -238,6 +254,10 @@ export default {
       this.closeQuizOptionsModal();
     },
     async deleteQuiz() {
+      this.showQuizOptionsModal = false;
+      this.showDeleteConfirmation = true;
+    },
+    async confirmDeleteQuiz() {
       if (this.selectedQuiz) {
         this.isLoading = true;
         try {
@@ -250,13 +270,18 @@ export default {
           this.filteredQuizzes = this.filteredQuizzes.filter(
             (quiz) => quiz._id !== this.selectedQuiz._id
           );
-          this.closeQuizOptionsModal();
         } catch (error) {
           console.error("Error deleting quiz:", error);
         } finally {
+          this.selectedQuiz = null;
+          this.showDeleteConfirmation = false;
           this.isLoading = false;
         }
       }
+    },
+    cancelDeleteQuiz() {
+      this.showDeleteConfirmation = false;
+      this.selectedQuiz = null;
     },
     navigateToQuestions(quiz) {
       this.$router.push({
