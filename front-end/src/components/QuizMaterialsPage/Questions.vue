@@ -122,23 +122,51 @@
           </div>
           <div>
             <label for="options">Pilihan:</label>
-            <input
-              type="text"
-              id="options"
-              v-model="newQuestion.options"
-              placeholder="Contoh: Option 1, Option 2, Option 3, Option 4"
-              required
-            />
+            <div
+              v-for="(option, index) in newQuestion.options"
+              :key="index"
+              class="option-field"
+            >
+              <input
+                type="text"
+                v-model="newQuestion.options[index]"
+                :placeholder="'Pilihan ' + (index + 1)"
+                required
+              />
+              <button
+                v-if="newQuestion.options.length > 2"
+                type="button"
+                @click="removeOption(index)"
+                class="btn-red btn-icon delete-btn"
+                style="margin: 0px !important"
+              >
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+
+            <button
+              v-if="newQuestion.options.length < 4"
+              type="button"
+              @click="addOption"
+              class="btn-green btn-icon"
+              style="margin-bottom: 15px !important"
+            >
+              <i class="fas fa-plus-circle"></i> Tambah Pilihan
+            </button>
           </div>
+
+          <!-- Correct Answer Selection -->
           <div>
             <label for="correctAnswer">Jawapan Betul:</label>
-            <input
-              type="text"
-              id="correctAnswer"
-              v-model="newQuestion.correctAnswer"
-              placeholder="Masukkan hanya 1 jawapan betul"
-              required
-            />
+            <select v-model="newQuestion.correctAnswer" required>
+              <option
+                v-for="(option, index) in newQuestion.options"
+                :key="index"
+                :value="option"
+              >
+                {{ option }}
+              </option>
+            </select>
           </div>
           <button type="submit" class="btn-green btn-icon">
             <i class="fas fa-save"></i> Simpan
@@ -170,23 +198,51 @@
           </div>
           <div>
             <label for="editOptions">Pilihan:</label>
-            <input
-              type="text"
-              id="editOptions"
-              v-model="editQuestionData.options"
-              placeholder="Contoh: Option 1, Option 2, Option 3, Option 4"
-              required
-            />
+            <div
+              v-for="(option, index) in editQuestionData.options"
+              :key="index"
+              class="option-field"
+            >
+              <input
+                type="text"
+                v-model="editQuestionData.options[index]"
+                :placeholder="'Pilihan ' + (index + 1)"
+                required
+              />
+              <button
+                v-if="editQuestionData.options.length > 2"
+                type="button"
+                @click="removeOption(index)"
+                class="btn-red btn-icon delete-btn"
+                style="margin: 0px !important"
+              >
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+
+            <button
+              v-if="editQuestionData.options.length < 4"
+              type="button"
+              @click="addOption"
+              class="btn-green btn-icon"
+              style="margin-bottom: 15px !important"
+            >
+              <i class="fas fa-plus-circle"></i> Tambah Pilihan
+            </button>
           </div>
+
+          <!-- Correct Answer Selection (Dropdown) -->
           <div>
             <label for="editCorrectAnswer">Jawapan Betul:</label>
-            <input
-              type="text"
-              id="editCorrectAnswer"
-              v-model="editQuestionData.correctAnswer"
-              placeholder="Masukkan hanya 1 jawapan betul"
-              required
-            />
+            <select v-model="editQuestionData.correctAnswer" required>
+              <option
+                v-for="(option, index) in editQuestionData.options"
+                :key="index"
+                :value="option"
+              >
+                {{ option }}
+              </option>
+            </select>
           </div>
           <button type="submit" class="btn-green btn-icon">
             <i class="fas fa-save"></i> Simpan Perubahan
@@ -282,12 +338,12 @@ export default {
       quizResult: null,
       newQuestion: {
         text: "",
-        options: "",
+        options: ["", ""],
         correctAnswer: "",
       },
       editQuestionData: {
         text: "",
-        options: "",
+        options: [],
         correctAnswer: "",
       },
       quizId: this.$route.params.quizId,
@@ -361,18 +417,34 @@ export default {
         correctAnswer: "",
       };
     },
+    addOption() {
+      if (this.showAddQuestionModalWindow) {
+        if (this.newQuestion.options.length < 4) {
+          this.newQuestion.options.push("");
+        }
+      } else if (this.showEditQuestionModalWindow) {
+        if (this.editQuestionData.options.length < 4) {
+          this.editQuestionData.options.push("");
+        }
+      }
+    },
+    removeOption(index) {
+      if (this.showAddQuestionModalWindow) {
+        this.newQuestion.options.splice(index, 1);
+      } else if (this.showEditQuestionModalWindow) {
+        this.editQuestionData.options.splice(index, 1);
+      }
+    },
+
     async addQuestion() {
       if (
         this.newQuestion.text.trim() &&
-        this.newQuestion.options.trim() &&
+        this.newQuestion.options.every((option) => option.trim()) &&
         this.newQuestion.correctAnswer.trim()
       ) {
-        const optionsArray = this.newQuestion.options
-          .split(",")
-          .map((option) => option.trim());
         const questionData = {
           text: this.newQuestion.text,
-          options: optionsArray,
+          options: this.newQuestion.options,
           correctAnswer: this.newQuestion.correctAnswer,
         };
         try {
@@ -390,8 +462,6 @@ export default {
     showEditQuestionModal() {
       if (this.selectedQuestion) {
         this.editQuestionData = { ...this.selectedQuestion };
-        this.editQuestionData.options =
-          this.editQuestionData.options.join(", ");
         this.showEditQuestionModalWindow = true;
       }
     },
@@ -399,22 +469,19 @@ export default {
       this.showEditQuestionModalWindow = false;
       this.editQuestionData = {
         text: "",
-        options: "",
+        options: [],
         correctAnswer: "",
       };
     },
     async editQuestion() {
       if (
         this.editQuestionData.text.trim() &&
-        this.editQuestionData.options.trim() &&
+        this.editQuestionData.options.every((option) => option.trim()) &&
         this.editQuestionData.correctAnswer.trim()
       ) {
-        const optionsArray = this.editQuestionData.options
-          .split(",")
-          .map((option) => option.trim());
         const updatedQuestionData = {
           text: this.editQuestionData.text,
-          options: optionsArray,
+          options: this.editQuestionData.options,
           correctAnswer: this.editQuestionData.correctAnswer,
         };
         try {
@@ -771,6 +838,41 @@ export default {
   gap: 0.5rem;
 }
 .btn-icon i {
+  font-size: 1.2rem;
+}
+
+.option-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.option-field input {
+  flex-grow: 1;
+}
+
+.delete-btn {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 1.2rem;
+  color: #ff4d4d;
+  transition: color 0.3s;
+}
+
+.delete-btn:hover {
+  color: #ff1a1a;
+  color: white;
+}
+
+.modal select {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+  border: 1px solid #ccc;
   font-size: 1.2rem;
 }
 </style>
