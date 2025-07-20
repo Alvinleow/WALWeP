@@ -72,7 +72,6 @@ WALWeP empowers students to master HTML, CSS, JavaScript, and web development fu
 1. **Clone the repository**
 ```bash
 git clone https://github.com/Alvinleow/WALWeP.git
-cd walwep
 ```
 
 2. **Install backend dependencies**
